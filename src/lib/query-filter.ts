@@ -26,7 +26,7 @@ export type QueryFilter<
   TB extends keyof DB & string,
   RE extends ReferenceExpression<DB, TB>,
   QB1 extends AnyWhereInterface,
-  QB2 extends AnyWhereInterface = QB1
+  QB2 extends AnyWhereInterface
 > =
   | BinaryOperationFilter<DB, TB, RE>
   | FieldMatchingFilter<DB, TB, RE>

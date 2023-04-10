@@ -133,7 +133,7 @@ export class KeyedTableMapper<
       | SingleKeyValue<DB[TB], PrimaryKeyColumns>
       | Readonly<KeyTuple<DB[TB], PrimaryKeyColumns>>
   ): Promise<boolean> {
-    const count = await this.deleteWhere(this.filterForKey(key));
+    const count = await this.delete(this.filterForKey(key)).getCount();
     return count == 1;
   }
 
@@ -213,11 +213,11 @@ export class KeyedTableMapper<
    * @param key The key to filter by.
    * @returns A filter that restricts a query to the provided key.
    */
-  protected filterForKey<QB extends WhereInterface<any, any>>(
+  protected filterForKey<QB1 extends WhereInterface<any, any>, QB2 extends QB1>(
     key:
       | SingleKeyValue<DB[TB], PrimaryKeyColumns>
       | Readonly<KeyTuple<DB[TB], PrimaryKeyColumns>>
-  ): QueryFilter<DB, TB, ReferenceExpression<DB, TB>, QB> {
+  ): QueryFilter<DB, TB, ReferenceExpression<DB, TB>, QB1, QB2> {
     if (Array.isArray(key)) {
       return ({ and, cmpr }) =>
         and(

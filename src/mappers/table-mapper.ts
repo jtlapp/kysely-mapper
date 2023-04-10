@@ -8,6 +8,8 @@ import {
   InsertResult,
   SelectQueryBuilder,
   Selection,
+  DeleteQueryBuilder,
+  DeleteResult,
 } from 'kysely';
 
 // TODO: look at replace [*] with an AllColumns symbol
@@ -24,9 +26,6 @@ import { RowConverter } from '../lib/row-converter';
 import { SelectionQuery } from '../queries/selection-query';
 import { AllSelection } from '../lib/kysely-types';
 
-type DeleteQB<DB, TB extends keyof DB & string> = ReturnType<
-  TableMapper<DB, TB, any>['deleteQB']
->;
 type UpdateQB<DB, TB extends keyof DB & string> = ReturnType<
   TableMapper<DB, TB, any>['updateQB']
 >;
@@ -63,6 +62,7 @@ export class TableMapper<
     ? Selectable<DB[TB]>
     : ObjectWithKeys<Selectable<DB[TB]>, ReturnColumns>
 > {
+  // TODO: only create this as needed (but maybe cache?)
   /** Query builder on which this mapper is based. */
   protected readonly selectQB: SelectQueryBuilder<DB, TB, object>;
 
@@ -128,32 +128,34 @@ export class TableMapper<
   }
 
   /**
-   * Deletes rows from the table.
+   * Deletes the rows from the table that match the provided filter.
    * @returns A mapper query for deleting rows.
    */
-  delete(): DeletionQuery<DB, TB, DeleteQB<DB, TB>, ReturnedCount> {
-    return new DeletionQuery(this.db, this.deleteQB(), this.countTransform);
+  delete<
+    RE extends ReferenceExpression<DB, TB>,
+    QB extends DeleteQueryBuilder<DB, TB, DeleteResult>
+  >(
+    filter: QueryFilter<
+      DB,
+      TB,
+      RE,
+      DeleteQueryBuilder<DB, any, DeleteResult>,
+      QB
+    >
+  ): DeletionQuery<DB, TB, QB, ReturnedCount> {
+    return new DeletionQuery(
+      this.db,
+      applyQueryFilter(this.db, this.deleteQB(), filter),
+      this.countTransform
+    );
   }
 
   /**
-   * Creates a query builder for deleting rows from this table.
-   * @returns A query builder for deleting rows from this table.
+   * Creates a query builder for deleting rows from the table.
+   * @returns A query builder for deleting rows from the table.
    */
   deleteQB() {
     return this.db.deleteFrom(this.tableName);
-  }
-
-  /**
-   * Deletes from this table the rows that match the provided filter.
-   * @param filter Filter specifying the rows to delete.
-   * @returns Returns the number of deleted rows.
-   */
-  async deleteWhere<RE extends ReferenceExpression<DB, TB>>(
-    filter: QueryFilter<DB, TB, RE, DeleteQB<DB, TB>>
-  ): Promise<number> {
-    const qb = applyQueryFilter(this.db, this.deleteQB(), filter);
-    const result = await qb.executeTakeFirst();
-    return Number(result.numDeletedRows);
   }
 
   /**
@@ -276,8 +278,11 @@ export class TableMapper<
    *  you can still apply a filter to the returned query.
    * @returns A mapper query for retrieving entire rows as objects.
    */
-  select<RE extends ReferenceExpression<DB, TB>>(
-    filter?: QueryFilter<DB, TB, RE, SelectQueryBuilder<DB, TB, object>>
+  select<
+    RE extends ReferenceExpression<DB, TB>,
+    QB extends SelectQueryBuilder<DB, TB, object>
+  >(
+    filter?: QueryFilter<DB, TB, RE, SelectQueryBuilder<DB, TB, object>, QB>
   ): SelectionQuery<
     DB,
     TB,
@@ -310,7 +315,7 @@ export class TableMapper<
    * @see this.updateWhere
    */
   async updateCount<RE extends ReferenceExpression<DB, TB>>(
-    filter: QueryFilter<DB, TB, RE, UpdateQB<DB, TB>>,
+    filter: QueryFilter<DB, TB, RE, UpdateQB<DB, TB>, UpdateQB<DB, TB>>,
     obj: UpdaterObject
   ): Promise<number> {
     const transformedObj = this.transformUpdater(obj);
@@ -332,12 +337,12 @@ export class TableMapper<
    * @see this.updateCount
    */
   updateWhere<RE extends ReferenceExpression<DB, TB>>(
-    filter: QueryFilter<DB, TB, RE, UpdateQB<DB, TB>>,
+    filter: QueryFilter<DB, TB, RE, UpdateQB<DB, TB>, UpdateQB<DB, TB>>,
     obj: UpdaterObject
   ): Promise<ReturnColumns extends [] ? void : ReturnedObject[]>;
 
   async updateWhere<RE extends ReferenceExpression<DB, TB>>(
-    filter: QueryFilter<DB, TB, RE, UpdateQB<DB, TB>>,
+    filter: QueryFilter<DB, TB, RE, UpdateQB<DB, TB>, UpdateQB<DB, TB>>,
     obj: UpdaterObject
   ): Promise<ReturnedObject[] | void> {
     const transformedObj = this.transformUpdater(obj);

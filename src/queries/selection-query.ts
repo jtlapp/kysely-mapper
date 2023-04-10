@@ -31,7 +31,7 @@ export class SelectionQuery<
    * @returns A new mapper query with the filter applied.
    */
   filter<RE extends ReferenceExpression<DB, TB>>(
-    filter: QueryFilter<DB, TB, RE, QB>
+    filter: QueryFilter<DB, TB, RE, SelectQueryBuilder<DB, TB, object>, QB>
   ): SelectionQuery<DB, TB, SelectedObject, QB> {
     return new SelectionQuery(
       this.db,
