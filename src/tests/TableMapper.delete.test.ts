@@ -20,7 +20,7 @@ beforeAll(async () => {
 beforeEach(() => resetDB(db));
 afterAll(() => destroyDB(db));
 
-it('BUILDER: deleteQB() allows for deleting rows', async () => {
+it('BUILDER: deleteQB() serves as a basis for deleting rows', async () => {
   await userMapper.insert(USERS[1]);
 
   const readUser1 = await userMapper

@@ -38,7 +38,7 @@ beforeAll(async () => {
 beforeEach(() => resetDB(db));
 afterAll(() => destroyDB(db));
 
-it('updateQB() allows for updating rows', async () => {
+it('BUILDER: updateQB() serves as a basis for updating rows', async () => {
   const user1 = await userMapperReturningID.insert(USERS[1]);
   const updater = { email: 'new@baz.com' };
 

@@ -10,6 +10,8 @@ import {
   Selection,
   DeleteQueryBuilder,
   DeleteResult,
+  UpdateResult,
+  UpdateQueryBuilder,
 } from 'kysely';
 
 // TODO: look at replace [*] with an AllColumns symbol
@@ -62,9 +64,10 @@ export class TableMapper<
     ? Selectable<DB[TB]>
     : ObjectWithKeys<Selectable<DB[TB]>, ReturnColumns>
 > {
-  // TODO: only create this as needed (but maybe cache?)
-  /** Query builder on which this mapper is based. */
-  protected readonly selectQB: SelectQueryBuilder<DB, TB, object>;
+  #baseDeleteQB: DeleteQueryBuilder<DB, TB, DeleteResult> | null = null;
+  #baseInsertQB: InsertQueryBuilder<DB, TB, InsertResult> | null = null;
+  #baseSelectQB: SelectQueryBuilder<DB, TB, object> | null = null;
+  #baseUpdateQB: UpdateQueryBuilder<DB, TB, TB, UpdateResult> | null = null;
 
   /** Columns to return from selection queries. `[]` => all columns. */
   protected readonly selectedColumns: SelectionColumn<DB, TB>[];
@@ -101,8 +104,6 @@ export class TableMapper<
       ReturnedObject
     > = {}
   ) {
-    this.selectQB = db.selectFrom(tableName) as any;
-
     this.returnColumns = options.returnColumns ?? [];
 
     this.selectedColumns =
@@ -151,21 +152,18 @@ export class TableMapper<
   }
 
   /**
-   * Creates a query builder for deleting rows from the table.
+   * Returns a query builder for deleting rows from the table, caching the
+   * query builder for use with future deletions.
    * @returns A query builder for deleting rows from the table.
    */
-  deleteQB() {
-    return this.db.deleteFrom(this.tableName);
+  deleteQB(): DeleteQueryBuilder<DB, TB, DeleteResult> {
+    if (this.#baseDeleteQB === null) {
+      this.#baseDeleteQB = this.db.deleteFrom(
+        this.tableName
+      ) as DeleteQueryBuilder<DB, TB, DeleteResult>;
+    }
+    return this.#baseDeleteQB;
   }
-
-  /**
-   * Creates a query builder for inserting rows into this table.
-   * @returns A query builder for inserting rows into this table.
-   */
-  insertQB() {
-    return this.db.insertInto(this.tableName);
-  }
-
   /**
    * Inserts one or more rows into this table. For each row inserted,
    * retrieves the columns specified in the `returnColumns` option,
@@ -224,6 +222,20 @@ export class TableMapper<
   }
 
   /**
+   * Returns a query builder for inserting rows into the table, caching the
+   * query builder for use with future insertions.
+   * @returns A query builder for inserting rows into the table.
+   */
+  insertQB(): InsertQueryBuilder<DB, TB, InsertResult> {
+    if (this.#baseInsertQB === null) {
+      this.#baseInsertQB = this.db.insertInto(
+        this.tableName
+      ) as InsertQueryBuilder<DB, TB, InsertResult>;
+    }
+    return this.#baseInsertQB;
+  }
+
+  /**
    * Inserts one or more rows into this table, without returning any columns.
    * @param objOrObjs The object or objects to insert as a row.
    * @see this.insert
@@ -266,8 +278,8 @@ export class TableMapper<
 
   selectedColumnsQB(): SelectQueryBuilder<DB, TB, any> {
     return this.selectedColumns.length == 0
-      ? this.selectQB.selectAll()
-      : this.selectQB.select(this.selectedColumns);
+      ? this.selectQB().selectAll()
+      : this.selectQB().select(this.selectedColumns);
   }
 
   /**
@@ -299,11 +311,29 @@ export class TableMapper<
   }
 
   /**
-   * Creates a query builder for updating rows in this table.
-   * @returns A query builder for updating rows in this table.
+   * Returns a query builder for selecting rows from the table, caching the
+   * query builder for use with future selection.
+   * @returns A query builder for selecting rows from the table.
    */
-  updateQB() {
-    return this.db.updateTable(this.tableName);
+  selectQB(): SelectQueryBuilder<DB, TB, object> {
+    if (this.#baseSelectQB === null) {
+      this.#baseSelectQB = this.db.selectFrom(
+        this.tableName
+      ) as SelectQueryBuilder<DB, TB, object>;
+    }
+    return this.#baseSelectQB;
+  }
+
+  /**
+   * Returns a query builder for updating rows from the table, caching the
+   * query builder for use with future updates.
+   * @returns A query builder for updating rows from the table.
+   */
+  updateQB(): UpdateQueryBuilder<DB, TB, TB, UpdateResult> {
+    if (this.#baseUpdateQB === null) {
+      this.#baseUpdateQB = this.db.updateTable(this.tableName) as any;
+    }
+    return this.#baseUpdateQB!;
   }
 
   /**

@@ -103,7 +103,7 @@ ignore('requires return columns to have a consistent type', () => {
   );
 });
 
-it('insertQB() allows for inserting rows', async () => {
+it('BUILDE: insertQB() serves as a basis for inserting rows', async () => {
   const user0 = (await userMapperReturningID
     .insertQB()
     .values(USERS[0])

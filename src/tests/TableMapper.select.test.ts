@@ -24,6 +24,13 @@ beforeEach(() => resetDB(db));
 afterAll(() => destroyDB(db));
 
 describe('BUILDER: general selection', () => {
+  it('BUILDER: selectQB() serves as a basis for selection queries', async () => {
+    await userMapper.insert(USERS);
+
+    const users = await userMapper.selectQB().selectAll().execute();
+    expect(users).toEqual(USERS.map((user, i) => ({ ...user, id: i + 1 })));
+  });
+
   it('BUILDER: selectedColumnsQB() allows for selecting rows', async () => {
     // TODO: test more complex behavior of selectedColumnsQB()
 
