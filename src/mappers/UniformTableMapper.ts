@@ -1,20 +1,20 @@
-import { Insertable, Kysely, Selectable } from "kysely";
+import { Insertable, Kysely, Selectable } from 'kysely';
 
-import { TableLens } from "./table-lens/table-lens";
+import { TableMapper } from './table-mapper/table-mapper';
 import {
   KeyedObject,
-  KeyedTableLens,
+  KeyedTableMapper,
   SingleKeyValue,
   DEFAULT_KEY,
-} from "./KeyedTableLens";
+} from './KeyedTableMapper';
 import {
   KeyTuple,
   ObjectWithKeys,
   SelectableColumn,
   SelectableColumnTuple,
   SelectionColumn,
-} from "../lib/type-utils";
-import { TableLensOptions } from "./table-lens/table-lens-options";
+} from '../lib/type-utils';
+import { TableMapperOptions } from './table-mapper/table-mapper-options';
 
 // TODO: catch query errors and provide helpful error messages
 
@@ -29,7 +29,7 @@ export interface TableObject<
 }
 
 /**
- * A lens for a table representing a store of objects, where each object has a
+ * A mapper for a table representing a store of objects, where each object has a
  * unique identifying key given by one or more primary key columns.
  * @typeparam DB The database type.
  * @typeparam TB The name of the table.
@@ -42,19 +42,19 @@ export interface TableObject<
  *  `["*"]` returns all columns; `[]` returns none. Defaults to `PrimaryKeyColumns`.
  * @typeparam ReturnedCount Type of count query results.
  */
-export class ObjectTableLens<
+export class UniformTableMapper<
   DB,
   TB extends keyof DB & string,
   MappedObject extends TableObject<DB[TB], PrimaryKeyColumns>,
   PrimaryKeyColumns extends SelectableColumnTuple<DB[TB]> = [
-    "id" & SelectableColumn<DB[TB]>
+    'id' & SelectableColumn<DB[TB]>
   ],
-  SelectedColumns extends SelectionColumn<DB, TB>[] | ["*"] = ["*"],
+  SelectedColumns extends SelectionColumn<DB, TB>[] | ['*'] = ['*'],
   ReturnColumns extends
     | (keyof Selectable<DB[TB]> & string)[]
-    | ["*"] = PrimaryKeyColumns,
+    | ['*'] = PrimaryKeyColumns,
   ReturnedCount = bigint
-> extends TableLens<
+> extends TableMapper<
   DB,
   TB,
   SelectedColumns,
@@ -65,7 +65,7 @@ export class ObjectTableLens<
   ReturnedCount,
   MappedObject
 > {
-  protected keyedTableLens: KeyedTableLens<
+  protected keyedTableMapper: KeyedTableMapper<
     DB,
     TB,
     PrimaryKeyColumns,
@@ -78,11 +78,11 @@ export class ObjectTableLens<
   >;
 
   /**
-   * Create a new ObjectTableLens.
+   * Create a new UniformTableMapper.
    * @param db The Kysely database instance.
    * @param tableName The name of the table.
    * @param primaryKeyColumns The names of the primary key columns.
-   * @param options Options governing ObjectTableLens behavior.
+   * @param options Options governing UniformTableMapper behavior.
    *  `insertTransform` defaults to a transform that removes the primary key
    *  columns whose values are falsy. `insertReturnTransform` defaults to a
    *  transform that adds the return columns. The update transforms only
@@ -94,7 +94,7 @@ export class ObjectTableLens<
     db: Kysely<DB>,
     tableName: TB,
     primaryKeyColumns: Readonly<PrimaryKeyColumns> = DEFAULT_KEY as any,
-    options: TableLensOptions<
+    options: TableMapperOptions<
       DB,
       TB,
       SelectedColumns,
@@ -111,12 +111,17 @@ export class ObjectTableLens<
       tableName,
       _prepareBaseOptions(primaryKeyColumns, options) as any
     );
-    this.keyedTableLens = new KeyedTableLens(db, tableName, primaryKeyColumns, {
-      ...this.options,
-      updaterTransform: options.updaterTransform,
-      updateReturnTransform:
-        options.updateReturnTransform ?? this.options.insertReturnTransform,
-    } as any);
+    this.keyedTableMapper = new KeyedTableMapper(
+      db,
+      tableName,
+      primaryKeyColumns,
+      {
+        ...this.options,
+        updaterTransform: options.updaterTransform,
+        updateReturnTransform:
+          options.updateReturnTransform ?? this.options.insertReturnTransform,
+      } as any
+    );
   }
 
   /**
@@ -131,7 +136,7 @@ export class ObjectTableLens<
       | SingleKeyValue<DB[TB], PrimaryKeyColumns>
       | Readonly<KeyTuple<DB[TB], PrimaryKeyColumns>>
   ): Promise<boolean> {
-    return this.keyedTableLens.deleteByKey(key);
+    return this.keyedTableMapper.deleteByKey(key);
   }
 
   /**
@@ -146,7 +151,7 @@ export class ObjectTableLens<
       | SingleKeyValue<DB[TB], PrimaryKeyColumns>
       | Readonly<KeyTuple<DB[TB], PrimaryKeyColumns>>
   ): Promise<MappedObject | null> {
-    return this.keyedTableLens.selectByKey(key);
+    return this.keyedTableMapper.selectByKey(key);
   }
 
   /**
@@ -163,7 +168,7 @@ export class ObjectTableLens<
 
   async update(obj: MappedObject): Promise<MappedObject | null | void> {
     // TODO: temporary "as any" cast
-    return this.keyedTableLens.updateByKey(obj.getKey(), obj) as any;
+    return this.keyedTableMapper.updateByKey(obj.getKey(), obj) as any;
   }
 
   /**
@@ -173,24 +178,24 @@ export class ObjectTableLens<
    * @returns True if a row was updated, false otherwise.
    */
   async updateNoReturns(obj: MappedObject): Promise<boolean> {
-    return this.keyedTableLens.updateByKeyNoReturns(obj.getKey(), obj);
+    return this.keyedTableMapper.updateByKeyNoReturns(obj.getKey(), obj);
   }
 }
 
 /**
- * Provide default transformations for the base TableLens.
+ * Provide default transformations for the base TableMapper.
  */
 function _prepareBaseOptions<
   DB,
   TB extends keyof DB & string,
   MappedObject extends TableObject<DB[TB], PrimaryKeyColumns>,
   PrimaryKeyColumns extends SelectableColumnTuple<DB[TB]>,
-  SelectedColumns extends SelectionColumn<DB, TB>[] | ["*"],
+  SelectedColumns extends SelectionColumn<DB, TB>[] | ['*'],
   ReturnedCount,
-  ReturnColumns extends (keyof Selectable<DB[TB]> & string)[] | ["*"]
+  ReturnColumns extends (keyof Selectable<DB[TB]> & string)[] | ['*']
 >(
   primaryKeyColumns: Readonly<PrimaryKeyColumns>,
-  options: TableLensOptions<
+  options: TableMapperOptions<
     DB,
     TB,
     SelectedColumns,
@@ -222,7 +227,7 @@ function _prepareBaseOptions<
     ...options,
   };
   // Base update methods operate on columns, not the mapped object.
-  delete baseOptions["updaterTransform"];
-  delete baseOptions["updateReturnTransform"];
+  delete baseOptions['updaterTransform'];
+  delete baseOptions['updateReturnTransform'];
   return baseOptions;
 }

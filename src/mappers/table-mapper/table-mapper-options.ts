@@ -1,12 +1,12 @@
-import { Insertable, Selectable, Updateable } from "kysely";
+import { Insertable, Selectable, Updateable } from 'kysely';
 import {
   ObjectWithKeys,
   SelectedRow,
   SelectionColumn,
-} from "../../lib/type-utils";
+} from '../../lib/type-utils';
 
 /**
- * Options governing TableLens behavior.
+ * Options governing TableMapper behavior.
  * @typeparam DB Interface whose fields are table names defining tables.
  * @typeparam TB Name of the table.
  * @typeparam SelectedObject Type of objects returned by select queries.
@@ -18,15 +18,15 @@ import {
  * @typeparam ReturnedCount Type of count query results.
  * @typeparam ReturnedObject Objects to return from inserts and updates.
  */
-export interface TableLensOptions<
+export interface TableMapperOptions<
   DB,
   TB extends keyof DB & string,
-  SelectedColumns extends SelectionColumn<DB, TB>[] | ["*"],
+  SelectedColumns extends SelectionColumn<DB, TB>[] | ['*'],
   SelectedObject extends object,
   InsertedObject extends object,
   UpdaterObject extends object,
   // TODO: update the following type to support aliases
-  ReturnColumns extends (keyof Selectable<DB[TB]> & string)[] | ["*"],
+  ReturnColumns extends (keyof Selectable<DB[TB]> & string)[] | ['*'],
   ReturnedCount,
   ReturnedObject extends object
 > {
@@ -44,7 +44,7 @@ export interface TableLensOptions<
     row: SelectedRow<
       DB,
       TB,
-      SelectedColumns extends ["*"] ? never : SelectedColumns[number],
+      SelectedColumns extends ['*'] ? never : SelectedColumns[number],
       SelectedColumns
     >
   ) => SelectedObject;

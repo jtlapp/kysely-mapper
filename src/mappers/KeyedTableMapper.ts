@@ -4,9 +4,9 @@ import {
   ReferenceExpression,
   Selectable,
   WhereInterface,
-} from "kysely";
+} from 'kysely';
 
-import { QueryFilter } from "../lib/query-filter";
+import { QueryFilter } from '../lib/query-filter';
 import {
   KeyTuple,
   ObjectWithKeys,
@@ -14,12 +14,12 @@ import {
   SelectableColumnTuple,
   SelectedRow,
   SelectionColumn,
-} from "../lib/type-utils";
-import { TableLens } from "./table-lens/table-lens";
-import { TableLensOptions } from "./table-lens/table-lens-options";
+} from '../lib/type-utils';
+import { TableMapper } from './table-mapper/table-mapper';
+import { TableMapperOptions } from './table-mapper/table-mapper-options';
 
 /** Default key columns */
-export const DEFAULT_KEY = ["id"] as const;
+export const DEFAULT_KEY = ['id'] as const;
 
 // TODO: Make all modifiable structures readonly when possible.
 
@@ -44,7 +44,7 @@ export interface KeyedObject<T, KeyColumns extends SelectableColumnTuple<T>> {
 }
 
 /**
- * Lens for a table with compound primary key.
+ * Mapper for a table with compound primary key.
  * @typeparam DB Interface whose fields are table names defining tables.
  * @typeparam TB Name of the table.
  * @typeparam PrimaryKeyColumns Arrayof names of the primary key columns.
@@ -57,17 +57,17 @@ export interface KeyedObject<T, KeyColumns extends SelectableColumnTuple<T>> {
  * @typeparam ReturnedCount Type of count query results.
  * @typeparam ReturnedObject Objects to return from inserts and updates.
  */
-export class KeyedTableLens<
+export class KeyedTableMapper<
   DB,
   TB extends keyof DB & string,
   PrimaryKeyColumns extends SelectableColumnTuple<DB[TB]> = [
-    "id" & SelectableColumn<DB[TB]>
+    'id' & SelectableColumn<DB[TB]>
   ],
-  SelectedColumns extends SelectionColumn<DB, TB>[] | ["*"] = ["*"],
+  SelectedColumns extends SelectionColumn<DB, TB>[] | ['*'] = ['*'],
   SelectedObject extends object = SelectedRow<
     DB,
     TB,
-    SelectedColumns extends ["*"] ? never : SelectedColumns[number],
+    SelectedColumns extends ['*'] ? never : SelectedColumns[number],
     SelectedColumns
   >,
   InsertedObject extends object = Insertable<DB[TB]>,
@@ -77,12 +77,12 @@ export class KeyedTableLens<
   >,
   ReturnColumns extends
     | (keyof Selectable<DB[TB]> & string)[]
-    | ["*"] = PrimaryKeyColumns,
+    | ['*'] = PrimaryKeyColumns,
   ReturnedCount = bigint,
-  ReturnedObject extends object = ReturnColumns extends ["*"]
+  ReturnedObject extends object = ReturnColumns extends ['*']
     ? Selectable<DB[TB]>
     : ObjectWithKeys<Selectable<DB[TB]>, ReturnColumns>
-> extends TableLens<
+> extends TableMapper<
   DB,
   TB,
   SelectedColumns,
@@ -94,19 +94,19 @@ export class KeyedTableLens<
   ReturnedObject
 > {
   /**
-   * Constructs a new keyed table lens.
+   * Constructs a new keyed table mapper.
    * @param db The Kysely database.
    * @param tableName The name of the table.
    * @param primaryKeyColumns The names of the primary key columns,
    *  expressed as a tuplet. Defaults to `["id"]`.
-   * @param options Options governing lens behavior. `returnColumns`
+   * @param options Options governing mapper behavior. `returnColumns`
    *  defaults to returning the key columns.
    */
   constructor(
     db: Kysely<DB>,
     tableName: TB,
     readonly primaryKeyColumns: Readonly<PrimaryKeyColumns> = DEFAULT_KEY as any,
-    options: TableLensOptions<
+    options: TableMapperOptions<
       DB,
       TB,
       SelectedColumns,
@@ -224,13 +224,13 @@ export class KeyedTableLens<
           this.primaryKeyColumns.map((columnName, i) =>
             cmpr(
               this.ref(columnName),
-              "=",
+              '=',
               (key as KeyTuple<DB[TB], PrimaryKeyColumns>)[i]
             )
           )
         );
     }
-    return [this.ref(this.primaryKeyColumns[0]), "=", key];
+    return [this.ref(this.primaryKeyColumns[0]), '=', key];
   }
 }
 
@@ -242,14 +242,14 @@ function _prepareOptions<
   TB extends keyof DB & string,
   ReturnedCount,
   PrimaryKeyColumns extends Readonly<(keyof Selectable<DB[TB]> & string)[]>,
-  SelectedColumns extends SelectionColumn<DB, TB>[] | ["*"],
+  SelectedColumns extends SelectionColumn<DB, TB>[] | ['*'],
   SelectedObject extends object,
   InsertedObject extends object,
   UpdaterObject extends object,
-  ReturnColumns extends (keyof Selectable<DB[TB]> & string)[] | ["*"],
+  ReturnColumns extends (keyof Selectable<DB[TB]> & string)[] | ['*'],
   ReturnedObject extends object
 >(
-  options: TableLensOptions<
+  options: TableMapperOptions<
     DB,
     TB,
     SelectedColumns,

@@ -3,14 +3,14 @@ import {
   DeleteResult,
   Kysely,
   ReferenceExpression,
-} from "kysely";
-import { ParametersObject, QueryParameterMaker } from "kysely-params";
+} from 'kysely';
+import { ParametersObject, QueryParameterMaker } from 'kysely-params';
 
-import { applyQueryFilter, QueryFilter } from "../../lib/query-filter";
-import { ParameterizedCountQuery } from "../../lib/paramed-count-query";
+import { applyQueryFilter, QueryFilter } from '../../lib/query-filter';
+import { ParameterizedCountQuery } from '../../lib/paramed-count-query';
 
 /**
- * Lens query for deleting rows from a database table.
+ * Mapper query for deleting rows from a database table.
  */
 export class DeletionQuery<
   DB,
@@ -20,7 +20,7 @@ export class DeletionQuery<
 > {
   /**
    * @param db Kysely database instance.
-   * @param tableName Name of the table this lens is for.
+   * @param tableName Name of the table this mapper is for.
    * @param options Options governing builder behavior.
    */
   constructor(
@@ -32,7 +32,7 @@ export class DeletionQuery<
   /**
    * Constrains the query results according to the provided filter.
    * @param filter The filter to apply.
-   * @returns A new lens query with the filter applied.
+   * @returns A new mapper query with the filter applied.
    */
   filter<RE extends ReferenceExpression<DB, TB>>(
     filter: QueryFilter<DB, TB, RE, QB>
@@ -56,18 +56,18 @@ export class DeletionQuery<
   }
 
   /**
-   * Creates and returns a parameterized lens query, which can be repeatedly
+   * Creates and returns a parameterized mapper query, which can be repeatedly
    * executed with different parameter values, but which only ever compiles
    * the underlying Kysely query once (on the first execution).
    * @paramtype P Record characterizing the available parameter names and types.
    * @param factory Function that receives an object of the form `{ q, param }`,
-   *  where `q` is a lense query and `param` is a function for creating
+   *  where `q` is a mapper query and `param` is a function for creating
    *  parameters. The argument to `param` is the name of the parameter, which
    *  must occur as a property of `P`. You may parameterize inserted values,
    *  updated values, and right-hand-side values of filters. Parameters may not
    *  be arrays, but you can parameterize the individual elements of an array.
-   *  Returns a lens query that containing the parameterized values.
-   * @returns a parameterized lens query
+   *  Returns a mapper query that containing the parameterized values.
+   * @returns a parameterized mapper query
    */
   parameterize<P extends ParametersObject<P>>(
     factory: ParamedDeletionQueryFactory<
@@ -103,5 +103,5 @@ interface ParamedDeletionQueryFactory<
   P extends ParametersObject<P>,
   Q extends DeletionQuery<any, any, any, any>
 > {
-  (args: { q: Q; param: QueryParameterMaker<P>["param"] }): Q;
+  (args: { q: Q; param: QueryParameterMaker<P>['param'] }): Q;
 }

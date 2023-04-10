@@ -13,7 +13,7 @@ import {
   SelectType,
   WhereExpressionFactory,
   WhereInterface,
-} from "kysely";
+} from 'kysely';
 
 type AnyWhereInterface = WhereInterface<any, any>;
 
@@ -72,7 +72,7 @@ export class QueryModifier<
 /**
  * Returns a query builder that constrains the provided query builder
  * according to the provided query filter.
- * @param base The Kysely lens that is used to create references.
+ * @param base The Kysely mapper that is used to create references.
  * @param qb The query builder to constrain.
  * @param filter The query filter.
  * @returns A query builder constrained for the provided query filter.
@@ -85,13 +85,13 @@ export function applyQueryFilter<
   RE extends ReferenceExpression<DB, TB>
 >(db: Kysely<DB>, qb: QB1, filter: QueryFilter<DB, TB, RE, QB1, QB2>): QB2 {
   // Process a where expression factory.
-  if (typeof filter === "function") {
+  if (typeof filter === 'function') {
     return qb.where(filter) as QB2;
   }
 
   // Process a query expression filter. Check for expressions
   // first because they could potentially be plain objects.
-  if ("expressionType" in filter) {
+  if ('expressionType' in filter) {
     return qb.where(filter) as QB2;
   }
 
@@ -104,7 +104,7 @@ export function applyQueryFilter<
   // Process a field matching filter. `{}` matches all rows.
   if (filter.constructor === Object) {
     for (const [column, value] of Object.entries(filter)) {
-      qb = qb.where(db.dynamic.ref(column), "=", value) as QB1;
+      qb = qb.where(db.dynamic.ref(column), '=', value) as QB1;
     }
     return qb as unknown as QB2;
   }
@@ -114,5 +114,5 @@ export function applyQueryFilter<
     return qb.where(...filter) as QB2;
   }
 
-  throw Error("Unrecognized query filter");
+  throw Error('Unrecognized query filter');
 }

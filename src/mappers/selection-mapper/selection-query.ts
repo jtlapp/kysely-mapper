@@ -1,12 +1,12 @@
-import { Kysely, ReferenceExpression, SelectQueryBuilder } from "kysely";
-import { ParametersObject, QueryParameterMaker } from "kysely-params";
+import { Kysely, ReferenceExpression, SelectQueryBuilder } from 'kysely';
+import { ParametersObject, QueryParameterMaker } from 'kysely-params';
 
-import { applyQueryFilter, QueryFilter } from "../../lib/query-filter";
-import { RowConverter } from "../../lib/row-converter";
-import { ParameterizedRowQuery } from "../../lib/paramed-row-query";
+import { applyQueryFilter, QueryFilter } from '../../lib/query-filter';
+import { RowConverter } from '../../lib/row-converter';
+import { ParameterizedRowQuery } from '../../lib/paramed-row-query';
 
 /**
- * Lens query for selecting columns or entire rows from a Kysely query.
+ * Mapper query for selecting columns or entire rows from a Kysely query.
  */
 export class SelectionQuery<
   DB,
@@ -16,7 +16,7 @@ export class SelectionQuery<
 > {
   /**
    * @param db Kysely database instance.
-   * @param tableName Name of the table this lens is for.
+   * @param tableName Name of the table this mapper is for.
    * @param options Options governing builder behavior.
    */
   constructor(
@@ -28,7 +28,7 @@ export class SelectionQuery<
   /**
    * Constrains the query results according to the provided filter.
    * @param filter The filter to apply.
-   * @returns A new lens query with the filter applied.
+   * @returns A new mapper query with the filter applied.
    */
   filter<RE extends ReferenceExpression<DB, TB>>(
     filter: QueryFilter<DB, TB, RE, QB>
@@ -76,18 +76,18 @@ export class SelectionQuery<
   }
 
   /**
-   * Creates and returns a parameterized lens query, which can be repeatedly
+   * Creates and returns a parameterized mapper query, which can be repeatedly
    * executed with different parameter values, but which only ever compiles
    * the underlying Kysely query once (on the first execution).
    * @paramtype P Record characterizing the available parameter names and types.
    * @param factory Function that receives an object of the form `{ q, param }`,
-   *  where `q` is a lense query and `param` is a function for creating
+   *  where `q` is a mapper query and `param` is a function for creating
    *  parameters. The argument to `param` is the name of the parameter, which
    *  must occur as a property of `P`. You may parameterize inserted values,
    *  updated values, and right-hand-side values of filters. Parameters may not
    *  be arrays, but you can parameterize the individual elements of an array.
-   *  Returns a lens query that containing the parameterized values.
-   * @returns a parameterized lens query
+   *  Returns a mapper query that containing the parameterized values.
+   * @returns a parameterized mapper query
    */
   parameterize<P extends ParametersObject<P>>(
     factory: ParamedSelectionQueryFactory<
@@ -113,5 +113,5 @@ interface ParamedSelectionQueryFactory<
   P extends ParametersObject<P>,
   Q extends SelectionQuery<any, any, any, any>
 > {
-  (args: { q: Q; param: QueryParameterMaker<P>["param"] }): Q;
+  (args: { q: Q; param: QueryParameterMaker<P>['param'] }): Q;
 }

@@ -1,8 +1,8 @@
-import { Insertable, Kysely, Selectable } from "kysely";
+import { Insertable, Kysely, Selectable } from 'kysely';
 
-import { TableLens } from "../lenses/table-lens/table-lens";
-import { createDB, resetDB, destroyDB } from "./utils/test-setup";
-import { Database, Users } from "./utils/test-tables";
+import { TableMapper } from '../mappers/table-mapper/table-mapper';
+import { createDB, resetDB, destroyDB } from './utils/test-setup';
+import { Database, Users } from './utils/test-tables';
 import {
   insertedUser1,
   insertedUser2,
@@ -16,34 +16,34 @@ import {
   userRow1,
   userRow2,
   userRow3,
-} from "./utils/test-objects";
+} from './utils/test-objects';
 import {
   User,
   SelectedUser,
   InsertedUser,
   UpdaterUser,
   ReturnedUser,
-} from "./utils/test-types";
-import { ignore } from "./utils/test-utils";
-import { UserTableLensReturningID } from "./utils/test-lenses";
+} from './utils/test-types';
+import { ignore } from './utils/test-utils';
+import { UserTableMapperReturningID } from './utils/test-mappers';
 
 const userObjectWithID = { id: 1, ...userObject1 };
 const updaterUser1 = UpdaterUser.create(0, userObject1);
 
 let db: Kysely<Database>;
-let userLens: UserTableLensReturningID;
+let userMapper: UserTableMapperReturningID;
 
 beforeAll(async () => {
   db = await createDB();
-  userLens = new UserTableLensReturningID(db);
+  userMapper = new UserTableMapperReturningID(db);
 });
 beforeEach(() => resetDB(db));
 afterAll(() => destroyDB(db));
 
-describe("transforms between inputs and outputs", () => {
-  class TestPassThruLens extends TableLens<Database, "users"> {
+describe('transforms between inputs and outputs', () => {
+  class TestPassThruMapper extends TableMapper<Database, 'users'> {
     constructor(db: Kysely<Database>) {
-      super(db, "users");
+      super(db, 'users');
     }
 
     testTransformSelection() {
@@ -92,19 +92,19 @@ describe("transforms between inputs and outputs", () => {
     }
   }
 
-  class TestTransformLens extends TableLens<
+  class TestTransformMapper extends TableMapper<
     Database,
-    "users",
-    ["*"],
+    'users',
+    ['*'],
     SelectedUser,
     InsertedUser,
     UpdaterUser,
-    ["id"],
+    ['id'],
     number,
     ReturnedUser
   > {
     constructor(db: Kysely<Database>) {
-      super(db, "users", STANDARD_OPTIONS);
+      super(db, 'users', STANDARD_OPTIONS);
     }
 
     testTransformSelection() {
@@ -119,7 +119,7 @@ describe("transforms between inputs and outputs", () => {
         ])
       ).toEqual([selectedUser1, selectedUser2]);
 
-      ignore("detects transformSelection type errors", () => {
+      ignore('detects transformSelection type errors', () => {
         const userObject = {
           id: 1,
           ...userRow1,
@@ -139,7 +139,7 @@ describe("transforms between inputs and outputs", () => {
         this.transformInsertionArray([insertedUser1, insertedUser2])
       ).toEqual([userRow1, userRow2]);
 
-      ignore("detects transformInsertion type errors", () => {
+      ignore('detects transformInsertion type errors', () => {
         const user = User.create(0, userObject1);
 
         // @ts-expect-error - incorrect input type
@@ -160,7 +160,7 @@ describe("transforms between inputs and outputs", () => {
     testTransformUpdater() {
       expect(this.transformUpdater(updaterUser1)).toEqual(userRow1);
 
-      ignore("detects transformUpdater type errors", () => {
+      ignore('detects transformUpdater type errors', () => {
         const user = User.create(0, userObject1);
 
         // @ts-expect-error - incorrect input type
@@ -184,7 +184,7 @@ describe("transforms between inputs and outputs", () => {
         )
       ).toEqual([insertReturnedUser1, insertReturnedUser2]);
 
-      ignore("detects transformInsertReturn type errors", () => {
+      ignore('detects transformInsertReturn type errors', () => {
         const user = User.create(0, userObject1);
 
         // @ts-expect-error - incorrect input type
@@ -217,7 +217,7 @@ describe("transforms between inputs and outputs", () => {
         ReturnedUser.create(2, userObject1),
       ]);
 
-      ignore("detects transformUpdateReturn type errors", () => {
+      ignore('detects transformUpdateReturn type errors', () => {
         const user = User.create(0, userObject1);
 
         // @ts-expect-error - incorrect input type
@@ -232,136 +232,136 @@ describe("transforms between inputs and outputs", () => {
     }
   }
 
-  it("internally transforms selections", () => {
-    const testPassThruLens = new TestPassThruLens(db);
-    testPassThruLens.testTransformSelection();
+  it('internally transforms selections', () => {
+    const testPassThruMapper = new TestPassThruMapper(db);
+    testPassThruMapper.testTransformSelection();
 
-    const testTransformLens = new TestTransformLens(db);
-    testTransformLens.testTransformSelection();
+    const testTransformMapper = new TestTransformMapper(db);
+    testTransformMapper.testTransformSelection();
   });
 
-  it("transforms selected single-table objects", async () => {
-    const testTransformLens = new TestTransformLens(db);
+  it('transforms selected single-table objects', async () => {
+    const testTransformMapper = new TestTransformMapper(db);
 
-    await userLens.insert(userRow1);
-    const user = await testTransformLens.select().getOne();
+    await userMapper.insert(userRow1);
+    const user = await testTransformMapper.select().getOne();
     expect(user).toEqual(selectedUser1);
 
-    await userLens.insert([userRow2, userRow3]);
-    const users = await testTransformLens
+    await userMapper.insert([userRow2, userRow3]);
+    const users = await testTransformMapper
       .select()
-      .modify((qb) => qb.orderBy("id"))
+      .modify((qb) => qb.orderBy('id'))
       .getMany();
     expect(users).toEqual([selectedUser1, selectedUser2, selectedUser3]);
   });
 
-  ignore("detects selected object type errors", async () => {
-    const testTransformLens = new TestTransformLens(db);
+  ignore('detects selected object type errors', async () => {
+    const testTransformMapper = new TestTransformMapper(db);
 
     // @ts-expect-error - only returns transformed selection
-    (await testTransformLens.selectOne({})).name;
+    (await testTransformMapper.selectOne({})).name;
   });
 
-  it("transforms insertions", () => {
-    const testPassThruLens = new TestPassThruLens(db);
-    testPassThruLens.testTransformInsertion();
+  it('transforms insertions', () => {
+    const testPassThruMapper = new TestPassThruMapper(db);
+    testPassThruMapper.testTransformInsertion();
 
-    const testTransformLens = new TestTransformLens(db);
-    testTransformLens.testTransformInsertion();
+    const testTransformMapper = new TestTransformMapper(db);
+    testTransformMapper.testTransformInsertion();
   });
 
-  it("transforms updates", () => {
-    const testPassThruLens = new TestPassThruLens(db);
-    testPassThruLens.testTransformUpdater();
+  it('transforms updates', () => {
+    const testPassThruMapper = new TestPassThruMapper(db);
+    testPassThruMapper.testTransformUpdater();
 
-    const testTransformLens = new TestTransformLens(db);
-    testTransformLens.testTransformUpdater();
+    const testTransformMapper = new TestTransformMapper(db);
+    testTransformMapper.testTransformUpdater();
   });
 
-  it("transforms insert returns", () => {
-    const testPassThruLens = new TestPassThruLens(db);
-    testPassThruLens.testTransformInsertReturn();
+  it('transforms insert returns', () => {
+    const testPassThruMapper = new TestPassThruMapper(db);
+    testPassThruMapper.testTransformInsertReturn();
 
-    const testTransformLens = new TestTransformLens(db);
-    testTransformLens.testTransformInsertReturn();
+    const testTransformMapper = new TestTransformMapper(db);
+    testTransformMapper.testTransformInsertReturn();
   });
 
-  it("transforms update returns", () => {
-    const testPassThruLens = new TestPassThruLens(db);
-    testPassThruLens.testTransformUpdaterReturn();
+  it('transforms update returns', () => {
+    const testPassThruMapper = new TestPassThruMapper(db);
+    testPassThruMapper.testTransformUpdaterReturn();
 
-    const testTransformLens = new TestTransformLens(db);
-    testTransformLens.testTransformUpdaterReturn();
+    const testTransformMapper = new TestTransformMapper(db);
+    testTransformMapper.testTransformUpdaterReturn();
   });
 });
 
-ignore("detects invalid return column configurations", () => {
-  new TableLens<
+ignore('detects invalid return column configurations', () => {
+  new TableMapper<
     Database,
-    "users",
-    ["*"],
+    'users',
+    ['*'],
     Selectable<Users>,
     Insertable<Users>,
     Partial<Insertable<Users>>,
-    ["id"],
+    ['id'],
     number
     // @ts-expect-error - invalid return column configuration
-  >(db, "users", { returnColumns: ["notThere"] });
+  >(db, 'users', { returnColumns: ['notThere'] });
 
-  new TableLens<
+  new TableMapper<
     Database,
-    "users",
-    ["*"],
+    'users',
+    ['*'],
     Selectable<Users>,
     Insertable<Users>,
     Partial<Insertable<Users>>,
     // @ts-expect-error - invalid return column configuration
-    ["notThere"],
+    ['notThere'],
     number
-  >(db, "users", {});
+  >(db, 'users', {});
 
-  new TableLens<
+  new TableMapper<
     Database,
-    "users",
-    ["*"],
+    'users',
+    ['*'],
     Selectable<Users>,
     Insertable<Users>,
     Partial<Insertable<Users>>,
     // @ts-expect-error - invalid return column configuration
-    ["name", "notThere"],
+    ['name', 'notThere'],
     number
-  >(db, "users", {});
+  >(db, 'users', {});
 
-  new TableLens<
+  new TableMapper<
     Database,
-    "users",
-    ["*"],
+    'users',
+    ['*'],
     Selectable<Users>,
     Insertable<Users>,
     Partial<Insertable<Users>>,
-    ["id"],
+    ['id'],
     number
     // @ts-expect-error - invalid return column configuration
-  >(db, "users", { returnColumns: [""] });
+  >(db, 'users', { returnColumns: [''] });
 
-  new TableLens<
+  new TableMapper<
     Database,
-    "users",
-    ["*"],
+    'users',
+    ['*'],
     Selectable<Users>,
     Insertable<Users>,
     Partial<Insertable<Users>>,
-    ["id"]
+    ['id']
     // @ts-expect-error - invalid return column configuration
-  >(db, "users", { returnColumns: ["notThere"] });
+  >(db, 'users', { returnColumns: ['notThere'] });
 
-  class TestLens6<
-    // Be sure the following is the same as in TableLens
+  class TestMapper6<
+    // Be sure the following is the same as in TableMapper
     ReturnColumns extends (keyof Selectable<Users> & string)[] = []
-  > extends TableLens<
+  > extends TableMapper<
     Database,
-    "users",
-    ["*"],
+    'users',
+    ['*'],
     Selectable<Users>,
     Insertable<Users>,
     Partial<Insertable<Users>>,
@@ -369,5 +369,5 @@ ignore("detects invalid return column configurations", () => {
     number
   > {}
   // @ts-expect-error - invalid return column configuration
-  new TestLens6(db, "users", { returnColumns: ["notThere"] });
+  new TestMapper6(db, 'users', { returnColumns: ['notThere'] });
 });

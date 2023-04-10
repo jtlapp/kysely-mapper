@@ -8,31 +8,31 @@ import {
   InsertResult,
   SelectQueryBuilder,
   Selection,
-} from "kysely";
+} from 'kysely';
 
 // TODO: look at replace [*] with an AllColumns symbol
 
-import { QueryFilter, applyQueryFilter } from "../../lib/query-filter";
+import { QueryFilter, applyQueryFilter } from '../../lib/query-filter';
 import {
   ObjectWithKeys,
   SelectedRow,
   SelectionColumn,
-} from "../../lib/type-utils";
-import { TableLensOptions } from "./table-lens-options";
-import { DeletionQuery } from "./deletion-query";
-import { RowConverter } from "../../lib/row-converter";
-import { SelectionQuery } from "../selection-lens/selection-query";
-import { AllSelection } from "../../lib/kysely-types";
+} from '../../lib/type-utils';
+import { TableMapperOptions } from './table-mapper-options';
+import { DeletionQuery } from './deletion-query';
+import { RowConverter } from '../../lib/row-converter';
+import { SelectionQuery } from '../selection-mapper/selection-query';
+import { AllSelection } from '../../lib/kysely-types';
 
 type DeleteQB<DB, TB extends keyof DB & string> = ReturnType<
-  TableLens<DB, TB, any>["deleteQB"]
+  TableMapper<DB, TB, any>['deleteQB']
 >;
 type UpdateQB<DB, TB extends keyof DB & string> = ReturnType<
-  TableLens<DB, TB, any>["updateQB"]
+  TableMapper<DB, TB, any>['updateQB']
 >;
 
 /**
- * A lens providing access to a single table.
+ * A mapper providing access to a single table.
  * @typeparam DB Interface whose fields are table names defining tables.
  * @typeparam TB Name of the table.
  * @typeparam SelectedObject Type of objects returned by select queries.
@@ -44,33 +44,33 @@ type UpdateQB<DB, TB extends keyof DB & string> = ReturnType<
  *  all columns; `[]` returns none and is the default.
  * @typeparam ReturnedObject Objects to return from inserts and updates.
  */
-export class TableLens<
+export class TableMapper<
   DB,
   TB extends keyof DB & string,
-  SelectedColumns extends SelectionColumn<DB, TB>[] | ["*"] = ["*"],
+  SelectedColumns extends SelectionColumn<DB, TB>[] | ['*'] = ['*'],
   SelectedObject extends object = SelectedRow<
     DB,
     TB,
-    SelectedColumns extends ["*"] ? never : SelectedColumns[number],
+    SelectedColumns extends ['*'] ? never : SelectedColumns[number],
     SelectedColumns
   >,
   InsertedObject extends object = Insertable<DB[TB]>,
   UpdaterObject extends object = Partial<Insertable<DB[TB]>>,
   // TODO: support aliases in ReturnColumns and test
-  ReturnColumns extends (keyof Selectable<DB[TB]> & string)[] | ["*"] = [],
+  ReturnColumns extends (keyof Selectable<DB[TB]> & string)[] | ['*'] = [],
   ReturnedCount = bigint,
-  ReturnedObject extends object = ReturnColumns extends ["*"]
+  ReturnedObject extends object = ReturnColumns extends ['*']
     ? Selectable<DB[TB]>
     : ObjectWithKeys<Selectable<DB[TB]>, ReturnColumns>
 > {
-  /** Query builder on which this lens is based. */
+  /** Query builder on which this mapper is based. */
   protected readonly selectQB: SelectQueryBuilder<DB, TB, object>;
 
   /** Columns to return from selection queries. `[]` => all columns. */
   protected readonly selectedColumns: SelectionColumn<DB, TB>[];
 
   /** Columns to return from the table on insert or update. */
-  protected returnColumns: (keyof Selectable<DB[TB]> & string)[] | ["*"];
+  protected returnColumns: (keyof Selectable<DB[TB]> & string)[] | ['*'];
 
   /** Converts retrieved rows to `SelectedObject`. */
   protected readonly rowConverter: RowConverter;
@@ -80,16 +80,16 @@ export class TableLens<
     count as any;
 
   /**
-   * Constructs a new table lens.
+   * Constructs a new table mapper.
    * @param db The Kysely database.
    * @param tableName The name of the table.
-   * @param options Options governing lens behavior. `returnColumns`
+   * @param options Options governing mapper behavior. `returnColumns`
    *  defaults to returning no columns.
    */
   constructor(
     readonly db: Kysely<DB>,
     readonly tableName: TB,
-    readonly options: TableLensOptions<
+    readonly options: TableMapperOptions<
       DB,
       TB,
       SelectedColumns,
@@ -108,7 +108,7 @@ export class TableLens<
     this.selectedColumns =
       options.selectedColumns === undefined
         ? ([] as any)
-        : options.selectedColumns.includes("*" as any)
+        : options.selectedColumns.includes('*' as any)
         ? ([] as any)
         : options.selectedColumns;
     this.rowConverter = new RowConverter(options.selectTransform);
@@ -129,7 +129,7 @@ export class TableLens<
 
   /**
    * Deletes rows from the table.
-   * @returns A lens query for deleting rows.
+   * @returns A mapper query for deleting rows.
    */
   delete(): DeletionQuery<DB, TB, DeleteQB<DB, TB>, ReturnedCount> {
     return new DeletionQuery(this.db, this.deleteQB(), this.countTransform);
@@ -206,14 +206,14 @@ export class TableLens<
     // Assign `returns` all at once to capture its complex type. Can't place
     // this in a shared method because the types are not compatible.
     const returns =
-      this.returnColumns[0] == "*"
+      this.returnColumns[0] == '*'
         ? await qb.returningAll().execute()
         : // prettier-ignore
           await qb.returning(
             this.returnColumns as (keyof Selectable<DB[TB]> & string)[]
           ).execute();
     if (returns === undefined) {
-      throw Error("No rows returned from insert expecting returned columns");
+      throw Error('No rows returned from insert expecting returned columns');
     }
     if (insertedAnArray) {
       return this.transformInsertReturnArray(objOrObjs, returns as any);
@@ -254,7 +254,7 @@ export class TableLens<
    */
   selectedColumnsQB():
     | SelectQueryBuilder<DB, TB, object & AllSelection<DB, TB>>
-    | (SelectedColumns extends ["*"]
+    | (SelectedColumns extends ['*']
         ? never
         : SelectQueryBuilder<
             DB,
@@ -274,7 +274,7 @@ export class TableLens<
    * to type `SelectedObject`.
    * @param filter Optional filter to apply to the query. If not provided,
    *  you can still apply a filter to the returned query.
-   * @returns A lens query for retrieving entire rows as objects.
+   * @returns A mapper query for retrieving entire rows as objects.
    */
   select<RE extends ReferenceExpression<DB, TB>>(
     filter?: QueryFilter<DB, TB, RE, SelectQueryBuilder<DB, TB, object>>
@@ -352,11 +352,11 @@ export class TableLens<
     // Assign `returns` all at once to capture its complex type. Can't place
     // this in a shared method because the types are not compatible.
     const returns =
-      this.returnColumns[0] == "*"
+      this.returnColumns[0] == '*'
         ? await fqb.returningAll().execute()
         : await fqb.returning(this.returnColumns as any).execute();
     if (returns === undefined) {
-      throw Error("No rows returned from update expecting returned columns");
+      throw Error('No rows returned from update expecting returned columns');
     }
     return this.transformUpdateReturn(obj, returns as any) as any;
   }
@@ -369,7 +369,7 @@ export class TableLens<
   // This lengthy type provides better type assistance messages
   // in VSCode than a dedicated TransformInsertion type would.
   protected transformInsertion: NonNullable<
-    TableLensOptions<
+    TableMapperOptions<
       DB,
       TB,
       SelectedColumns,
@@ -379,7 +379,7 @@ export class TableLens<
       ReturnColumns,
       ReturnedCount,
       ReturnedObject
-    >["insertTransform"]
+    >['insertTransform']
   > = (obj) => obj as Insertable<DB[TB]>;
 
   /**
@@ -408,7 +408,7 @@ export class TableLens<
   // This lengthy type provides better type assistance messages
   // in VSCode than a dedicated TransformInsertion type would.
   protected transformInsertReturn: NonNullable<
-    TableLensOptions<
+    TableMapperOptions<
       DB,
       TB,
       SelectedColumns,
@@ -418,7 +418,7 @@ export class TableLens<
       ReturnColumns,
       ReturnedCount,
       ReturnedObject
-    >["insertReturnTransform"]
+    >['insertReturnTransform']
   > = (_obj, ret) => ret as any;
 
   /**
@@ -449,7 +449,7 @@ export class TableLens<
   // This lengthy type provides better type assistance messages
   // in VSCode than a dedicated TransformInsertion type would.
   protected transformUpdater: NonNullable<
-    TableLensOptions<
+    TableMapperOptions<
       DB,
       TB,
       SelectedColumns,
@@ -459,7 +459,7 @@ export class TableLens<
       ReturnColumns,
       ReturnedCount,
       ReturnedObject
-    >["updaterTransform"]
+    >['updaterTransform']
   > = (obj) => obj as Updateable<DB[TB]>;
 
   /**
