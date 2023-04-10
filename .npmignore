@@ -1,0 +1,1 @@
+# presence keeps NPM from ignoring all .gitignore files (NPM needs dist/)
