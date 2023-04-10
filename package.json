@@ -28,6 +28,7 @@
     }
   },
   "scripts": {
+    "clean": "rm -rf node_modules && rm -rf dist",
     "build": "rm -rdf dist && tsc && tsc -p tsconfig.cjs.json",
     "test": "jest"
   },
