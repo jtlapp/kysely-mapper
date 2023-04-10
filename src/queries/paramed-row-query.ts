@@ -1,7 +1,7 @@
-import { Compilable, Kysely } from "kysely";
-import { ParameterizedQuery, ParametersObject } from "kysely-params";
+import { Compilable, Kysely } from 'kysely';
+import { ParameterizedQuery, ParametersObject } from 'kysely-params';
 
-import { RowConverter } from "./row-converter";
+import { RowConverter } from '../lib/row-converter';
 
 /**
  * Class representing a parameterized query that returns rows. It can be

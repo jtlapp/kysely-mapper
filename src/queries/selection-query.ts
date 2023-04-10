@@ -1,9 +1,9 @@
 import { Kysely, ReferenceExpression, SelectQueryBuilder } from 'kysely';
 import { ParametersObject, QueryParameterMaker } from 'kysely-params';
 
-import { applyQueryFilter, QueryFilter } from '../../lib/query-filter';
-import { RowConverter } from '../../lib/row-converter';
-import { ParameterizedRowQuery } from '../../lib/paramed-row-query';
+import { applyQueryFilter, QueryFilter } from '../lib/query-filter';
+import { RowConverter } from '../lib/row-converter';
+import { ParameterizedRowQuery } from './paramed-row-query';
 
 /**
  * Mapper query for selecting columns or entire rows from a Kysely query.

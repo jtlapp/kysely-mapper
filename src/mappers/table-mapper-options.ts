@@ -3,7 +3,7 @@ import {
   ObjectWithKeys,
   SelectedRow,
   SelectionColumn,
-} from '../../lib/type-utils';
+} from '../lib/type-utils';
 
 /**
  * Options governing TableMapper behavior.

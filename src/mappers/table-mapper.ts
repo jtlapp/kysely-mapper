@@ -12,17 +12,17 @@ import {
 
 // TODO: look at replace [*] with an AllColumns symbol
 
-import { QueryFilter, applyQueryFilter } from '../../lib/query-filter';
+import { QueryFilter, applyQueryFilter } from '../lib/query-filter';
 import {
   ObjectWithKeys,
   SelectedRow,
   SelectionColumn,
-} from '../../lib/type-utils';
+} from '../lib/type-utils';
 import { TableMapperOptions } from './table-mapper-options';
-import { DeletionQuery } from './deletion-query';
-import { RowConverter } from '../../lib/row-converter';
-import { SelectionQuery } from '../selection-mapper/selection-query';
-import { AllSelection } from '../../lib/kysely-types';
+import { DeletionQuery } from '../queries/deletion-query';
+import { RowConverter } from '../lib/row-converter';
+import { SelectionQuery } from '../queries/selection-query';
+import { AllSelection } from '../lib/kysely-types';
 
 type DeleteQB<DB, TB extends keyof DB & string> = ReturnType<
   TableMapper<DB, TB, any>['deleteQB']

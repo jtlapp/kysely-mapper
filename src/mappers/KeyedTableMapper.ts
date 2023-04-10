@@ -15,8 +15,8 @@ import {
   SelectedRow,
   SelectionColumn,
 } from '../lib/type-utils';
-import { TableMapper } from './table-mapper/table-mapper';
-import { TableMapperOptions } from './table-mapper/table-mapper-options';
+import { TableMapper } from './table-mapper';
+import { TableMapperOptions } from './table-mapper-options';
 
 /** Default key columns */
 export const DEFAULT_KEY = ['id'] as const;

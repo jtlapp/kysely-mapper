@@ -6,8 +6,8 @@ import {
 } from 'kysely';
 import { ParametersObject, QueryParameterMaker } from 'kysely-params';
 
-import { applyQueryFilter, QueryFilter } from '../../lib/query-filter';
-import { ParameterizedCountQuery } from '../../lib/paramed-count-query';
+import { applyQueryFilter, QueryFilter } from '../lib/query-filter';
+import { ParameterizedCountQuery } from './paramed-count-query';
 
 /**
  * Mapper query for deleting rows from a database table.

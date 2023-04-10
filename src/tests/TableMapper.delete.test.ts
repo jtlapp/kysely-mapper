@@ -8,7 +8,7 @@ import {
 } from './utils/test-mappers';
 import { USERS } from './utils/test-objects';
 import { ignore } from './utils/test-utils';
-import { TableMapper } from '../mappers/table-mapper/table-mapper';
+import { TableMapper } from '../mappers/table-mapper';
 
 let db: Kysely<Database>;
 let userMapper: UserTableMapperReturningAll;

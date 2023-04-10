@@ -1,6 +1,6 @@
 import { Insertable, Kysely, Selectable } from 'kysely';
 
-import { TableMapper } from '../mappers/table-mapper/table-mapper';
+import { TableMapper } from '../mappers/table-mapper';
 import { createDB, resetDB, destroyDB } from './utils/test-setup';
 import { Database, Users } from './utils/test-tables';
 import {

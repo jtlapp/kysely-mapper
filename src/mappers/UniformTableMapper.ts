@@ -1,6 +1,6 @@
 import { Insertable, Kysely, Selectable } from 'kysely';
 
-import { TableMapper } from './table-mapper/table-mapper';
+import { TableMapper } from './table-mapper';
 import {
   KeyedObject,
   KeyedTableMapper,
@@ -14,7 +14,7 @@ import {
   SelectableColumnTuple,
   SelectionColumn,
 } from '../lib/type-utils';
-import { TableMapperOptions } from './table-mapper/table-mapper-options';
+import { TableMapperOptions } from './table-mapper-options';
 
 // TODO: catch query errors and provide helpful error messages
 

@@ -1,6 +1,6 @@
 import { Insertable, Kysely, Selectable } from 'kysely';
 
-import { TableMapper } from '../../mappers/table-mapper/table-mapper';
+import { TableMapper } from '../../mappers/table-mapper';
 import { Database, Users } from './test-tables';
 
 const countTransform = (count: bigint) => Number(count);
