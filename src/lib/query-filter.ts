@@ -81,6 +81,7 @@ export function applyQueryFilter<
   DB,
   TB extends keyof DB & string,
   QB1 extends AnyWhereInterface,
+  // TODO: revisit making QB1 and QB2 same kind of QB, such as via QB2 extends QB1
   QB2 extends AnyWhereInterface,
   RE extends ReferenceExpression<DB, TB>
 >(db: Kysely<DB>, qb: QB1, filter: QueryFilter<DB, TB, RE, QB1, QB2>): QB2 {
