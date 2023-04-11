@@ -4,8 +4,8 @@
  * MIT License. Copyright (c) 2022 Sami Koskimäki.
  */
 
-import { AnyColumn, Selectable } from "kysely";
-import { ExtractColumnType } from "kysely/dist/cjs/util/type-utils";
+import { AnyColumn, Selectable } from 'kysely';
+import { ExtractColumnType } from 'kysely/dist/cjs/util/type-utils';
 
 // copied from Kysely
 export type AllSelection<DB, TB extends keyof DB> = Selectable<{

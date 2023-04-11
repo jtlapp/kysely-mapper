@@ -1,9 +1,9 @@
-import { Kysely, Generated, sql } from "kysely";
+import { Kysely, Generated, sql } from 'kysely';
 
 // TODO: Do I still need the posts table? The comments table?
 
 // list tables after those they depend on
-const TABLE_NAMES = ["comments", "posts", "users"];
+const TABLE_NAMES = ['comments', 'posts', 'users'];
 
 export interface Users {
   id: Generated<number>;
@@ -32,29 +32,29 @@ export interface Database {
 }
 
 export async function createTables(db: Kysely<Database>) {
-  await _createTableWithId(db, "users")
-    .addColumn("handle", "varchar(255)", (col) => col.notNull())
-    .addColumn("name", "varchar(255)", (col) => col.notNull())
-    .addColumn("email", "varchar(255)")
+  await _createTableWithId(db, 'users')
+    .addColumn('handle', 'varchar(255)', (col) => col.notNull())
+    .addColumn('name', 'varchar(255)', (col) => col.notNull())
+    .addColumn('email', 'varchar(255)')
     .execute();
 
-  await _createTableWithId(db, "posts")
-    .addColumn("userId", "integer", (col) =>
-      col.references("users.id").onDelete("cascade").notNull()
+  await _createTableWithId(db, 'posts')
+    .addColumn('userId', 'integer', (col) =>
+      col.references('users.id').onDelete('cascade').notNull()
     )
-    .addColumn("title", "varchar(255)", (col) => col.unique().notNull())
-    .addColumn("likeCount", "integer", (col) => col.notNull())
-    .addColumn("createdAt", "timestamp", (col) =>
+    .addColumn('title', 'varchar(255)', (col) => col.unique().notNull())
+    .addColumn('likeCount', 'integer', (col) => col.notNull())
+    .addColumn('createdAt', 'timestamp', (col) =>
       col.defaultTo(sql`current_timestamp`).notNull()
     )
     .execute();
 
   await db.schema
-    .createTable("comments")
-    .addColumn("postId", "integer", (col) =>
-      col.references("post.id").notNull()
+    .createTable('comments')
+    .addColumn('postId', 'integer', (col) =>
+      col.references('post.id').notNull()
     )
-    .addColumn("text", "varchar(255)", (col) => col.notNull())
+    .addColumn('text', 'varchar(255)', (col) => col.notNull())
     .execute();
 
   return db;
@@ -69,5 +69,5 @@ export async function dropTables(db: Kysely<Database>): Promise<void> {
 function _createTableWithId(db: Kysely<Database>, tableName: string) {
   return db.schema
     .createTable(tableName)
-    .addColumn("id", "integer", (col) => col.autoIncrement().primaryKey());
+    .addColumn('id', 'integer', (col) => col.autoIncrement().primaryKey());
 }

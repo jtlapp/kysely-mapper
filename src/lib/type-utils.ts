@@ -11,12 +11,12 @@ import {
   SelectExpression,
   Selection,
   SelectType,
-} from "kysely";
+} from 'kysely';
 
 import {
   AllSelection,
   ExtractTypeFromStringSelectExpression,
-} from "./kysely-types";
+} from './kysely-types';
 
 /**
  * Evaluates to a type containing all possible selectable columns,
@@ -98,14 +98,14 @@ export type SelectionColumn<DB, TB extends keyof DB & string> =
   | (SelectExpression<DB, TB> & `${SelectableColumn<DB[TB]>} as ${string}`);
 
 /**
- * Type of a selected row, evaluating to all columns if `S` is `["*"]`.
+ * Type of a selected row, evaluating to all columns if `S` is `['*']`.
  */
 export type SelectedRow<
   DB,
   TB extends keyof DB & string,
   SE extends SelectExpression<DB, TB>,
-  S extends SelectArg<DB, TB, any> | ["*"]
-> = S extends ["*"] ? Selectable<DB[TB]> : Selection<DB, TB, SE>;
+  S extends SelectArg<DB, TB, any> | ['*']
+> = S extends ['*'] ? Selectable<DB[TB]> : Selection<DB, TB, SE>;
 
 /**
  * Tuple of up to four selectable columns.

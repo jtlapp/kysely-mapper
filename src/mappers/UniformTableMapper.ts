@@ -36,10 +36,10 @@ export interface TableObject<
  * @typeparam MappedObject The type of the objects that are mapped to and from
  *  the table rows on inserts, updates, and selects.
  * @typeparam PrimaryKeyColumns Tuple of the names of the primary key columns.
- *  Defaults to `["id"]`.
+ *  Defaults to `['id']`.
  * @typeparam ReturnColumns The columns that are returned from the database
  *  when selecting or updating rows, for use when creating the mapped objects.
- *  `["*"]` returns all columns; `[]` returns none. Defaults to `PrimaryKeyColumns`.
+ *  `['*']` returns all columns; `[]` returns none. Defaults to `PrimaryKeyColumns`.
  * @typeparam ReturnedCount Type of count query results.
  */
 export class UniformTableMapper<

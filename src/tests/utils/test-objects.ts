@@ -1,80 +1,80 @@
-import { Insertable, Selectable } from "kysely";
+import { Insertable, Selectable } from 'kysely';
 
-import { Users, Posts } from "./test-tables";
+import { Users, Posts } from './test-tables';
 import {
   InsertedUser,
   ReturnedUser,
   SelectedUser,
   UpdaterUser,
-} from "./test-types";
+} from './test-types';
 
 export const USERS: Insertable<Users>[] = [
   {
-    handle: "handle1",
-    name: "Sue",
-    email: "foo1@bar.com",
+    handle: 'handle1',
+    name: 'Sue',
+    email: 'foo1@bar.com',
   },
   {
-    handle: "handle2",
-    name: "Fred",
-    email: "foo2@bar.com",
+    handle: 'handle2',
+    name: 'Fred',
+    email: 'foo2@bar.com',
   },
   {
-    handle: "handle3",
-    name: "Sue",
-    email: "foo3@bar.com",
+    handle: 'handle3',
+    name: 'Sue',
+    email: 'foo3@bar.com',
   },
 ];
 
 export const POSTS: Insertable<Posts>[] = [
   {
     userId: 0,
-    title: "About Something",
+    title: 'About Something',
     likeCount: 0,
   },
   {
     userId: 0,
-    title: "And Another Thing",
+    title: 'And Another Thing',
     likeCount: 10,
   },
   {
     userId: 0,
-    title: "Still One More Thing",
+    title: 'Still One More Thing',
     likeCount: 1000,
   },
 ];
 
 export const userRow1 = {
-  name: "John Smith",
-  handle: "jsmith",
-  email: "jsmith@xyz.pdq",
+  name: 'John Smith',
+  handle: 'jsmith',
+  email: 'jsmith@xyz.pdq',
 };
 export const userRow2 = {
-  name: "Jane Doe",
-  handle: "jdoe",
-  email: "jdoe@xyz.pdq",
+  name: 'Jane Doe',
+  handle: 'jdoe',
+  email: 'jdoe@xyz.pdq',
 };
 export const userRow3 = {
-  name: "Mary Sue",
-  handle: "msue",
-  email: "msue@xyz.pdq",
+  name: 'Mary Sue',
+  handle: 'msue',
+  email: 'msue@xyz.pdq',
 };
 
 export const userObject1 = {
-  firstName: "John",
-  lastName: "Smith",
+  firstName: 'John',
+  lastName: 'Smith',
   handle: userRow1.handle,
   email: userRow1.email,
 };
 export const userObject2 = {
-  firstName: "Jane",
-  lastName: "Doe",
+  firstName: 'Jane',
+  lastName: 'Doe',
   handle: userRow2.handle,
   email: userRow2.email,
 };
 export const userObject3 = {
-  firstName: "Mary",
-  lastName: "Sue",
+  firstName: 'Mary',
+  lastName: 'Sue',
   handle: userRow3.handle,
   email: userRow3.email,
 };
@@ -95,8 +95,8 @@ export const STANDARD_OPTIONS = {
   selectTransform: (source: Selectable<Users>) =>
     new SelectedUser(
       source.id,
-      source.name.split(" ")[0],
-      source.name.split(" ")[1],
+      source.name.split(' ')[0],
+      source.name.split(' ')[1],
       source.handle,
       source.email
     ),
@@ -132,5 +132,5 @@ export const STANDARD_OPTIONS = {
       source.handle,
       source.email
     ),
-  returnColumns: ["id"] as ["id"],
+  returnColumns: ['id'] as ['id'],
 };

@@ -1,12 +1,12 @@
-import Sqlite3 from "better-sqlite3";
-import { Kysely, SqliteDialect } from "kysely";
+import Sqlite3 from 'better-sqlite3';
+import { Kysely, SqliteDialect } from 'kysely';
 
-import { Database, createTables, dropTables } from "./test-tables";
+import { Database, createTables, dropTables } from './test-tables';
 
 export async function createDB() {
   return new Kysely<Database>({
     dialect: new SqliteDialect({
-      database: new Sqlite3(":memory:"),
+      database: new Sqlite3(':memory:'),
     }),
   });
 }

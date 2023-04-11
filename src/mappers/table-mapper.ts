@@ -41,7 +41,7 @@ type UpdateQB<DB, TB extends keyof DB & string> = ReturnType<
  * @typeparam UpdaterObject Type of objects used to update rows of the table.
  * @typeparam ReturnedCount Type of count query results.
  * @typeparam ReturnColumns Columns to return from the table on insert or
- *  update, except when explicitly requesting no columns. `["*"]` returns
+ *  update, except when explicitly requesting no columns. `['*']` returns
  *  all columns; `[]` returns none and is the default.
  * @typeparam ReturnedObject Objects to return from inserts and updates.
  */
@@ -323,6 +323,7 @@ export class TableMapper<
           >);
 
   selectedColumnsQB(): SelectQueryBuilder<DB, TB, any> {
+    // TODO: cache this
     return this.selectedColumns.length == 0
       ? this.selectQB().selectAll()
       : this.selectQB().select(this.selectedColumns);

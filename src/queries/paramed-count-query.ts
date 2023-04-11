@@ -1,5 +1,5 @@
-import { Compilable, Kysely } from "kysely";
-import { ParameterizedQuery, ParametersObject } from "kysely-params";
+import { Compilable, Kysely } from 'kysely';
+import { ParameterizedQuery, ParametersObject } from 'kysely-params';
 
 /**
  * Class representing a parameterized query that returns a count. It can

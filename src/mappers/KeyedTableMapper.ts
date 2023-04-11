@@ -52,7 +52,7 @@ export interface KeyedObject<T, KeyColumns extends SelectableColumnTuple<T>> {
  * @typeparam InsertedObject Type of objects inserted into the table.
  * @typeparam UpdaterObject Type of objects used to update rows of the table.
  * @typeparam ReturnColumns Columns to return from the table on insert or
- *  update, except when explicitly requesting no columns. `["*"]` returns
+ *  update, except when explicitly requesting no columns. `['*']` returns
  *  all columns; `[]` returns none. Defaults to `PrimaryKeyColumns`.
  * @typeparam ReturnedCount Type of count query results.
  * @typeparam ReturnedObject Objects to return from inserts and updates.
@@ -98,7 +98,7 @@ export class KeyedTableMapper<
    * @param db The Kysely database.
    * @param tableName The name of the table.
    * @param primaryKeyColumns The names of the primary key columns,
-   *  expressed as a tuplet. Defaults to `["id"]`.
+   *  expressed as a tuplet. Defaults to `['id']`.
    * @param options Options governing mapper behavior. `returnColumns`
    *  defaults to returning the key columns.
    */

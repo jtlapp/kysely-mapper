@@ -13,7 +13,7 @@ import {
  * @typeparam InsertedObject Type of objects inserted into the table.
  * @typeparam UpdaterObject Type of objects used to update rows of the table.
  * @typeparam ReturnColumns Columns to return from the table on insert or
- *  update, except when explicitly requesting no columns. `["*"]` returns
+ *  update, except when explicitly requesting no columns. `['*']` returns
  *  all columns; `[]` returns none and is the default.
  * @typeparam ReturnedCount Type of count query results.
  * @typeparam ReturnedObject Objects to return from inserts and updates.
@@ -51,7 +51,7 @@ export interface TableMapperOptions<
 
   /**
    * Columns to return from the table on insert or update, unless explicitly
-   * requesting no columns. `["*"]` returns all columns; `[]` returns none.
+   * requesting no columns. `['*']` returns all columns; `[]` returns none.
    */
   readonly returnColumns?: ReturnColumns;
 

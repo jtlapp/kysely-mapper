@@ -2,7 +2,7 @@
  * Types and classes used in tests.
  */
 
-type VariableFieldsOf<T> = Omit<T, "id" | "__type">;
+type VariableFieldsOf<T> = Omit<T, 'id' | '__type'>;
 
 export class User {
   constructor(
@@ -19,7 +19,7 @@ export class User {
 }
 
 export class InsertedUser extends User {
-  readonly __type = "InsertedUser";
+  readonly __type = 'InsertedUser';
 
   static create(id: number, obj: VariableFieldsOf<InsertedUser>): InsertedUser {
     return new InsertedUser(
@@ -33,7 +33,7 @@ export class InsertedUser extends User {
 }
 
 export class SelectedUser extends User {
-  readonly __type = "SelectedUser";
+  readonly __type = 'SelectedUser';
 
   static create(id: number, obj: VariableFieldsOf<SelectedUser>): SelectedUser {
     return new SelectedUser(
@@ -47,7 +47,7 @@ export class SelectedUser extends User {
 }
 
 export class UpdaterUser extends User {
-  readonly __type = "UpdaterUser";
+  readonly __type = 'UpdaterUser';
 
   static create(id: number, obj: VariableFieldsOf<UpdaterUser>): UpdaterUser {
     return new UpdaterUser(
@@ -61,7 +61,7 @@ export class UpdaterUser extends User {
 }
 
 export class ReturnedUser extends User {
-  readonly __type = "ReturnedUser";
+  readonly __type = 'ReturnedUser';
 
   static create(id: number, obj: VariableFieldsOf<ReturnedUser>): ReturnedUser {
     return new ReturnedUser(
