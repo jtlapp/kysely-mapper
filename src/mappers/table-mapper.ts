@@ -26,10 +26,6 @@ import { RowConverter } from '../lib/row-converter';
 import { SelectionQuery } from '../queries/selection-query';
 import { AllSelection } from '../lib/kysely-types';
 
-type UpdateQB<DB, TB extends keyof DB & string> = ReturnType<
-  TableMapper<DB, TB, any>['updateQB']
->;
-
 /**
  * A mapper providing access to a single table.
  * @typeparam DB Interface whose fields are table names defining tables.
@@ -389,8 +385,17 @@ export class TableMapper<
    * @returns Returns the number of updated rows.
    * @see this.updateWhere
    */
-  async updateCount<RE extends ReferenceExpression<DB, TB>>(
-    filter: QueryFilter<DB, TB, RE, UpdateQB<DB, TB>, UpdateQB<DB, TB>>,
+  async updateCount<
+    RE extends ReferenceExpression<DB, TB>,
+    QB extends UpdateQueryBuilder<DB, TB, TB, UpdateResult>
+  >(
+    filter: QueryFilter<
+      DB,
+      TB,
+      RE,
+      UpdateQueryBuilder<DB, TB, TB, UpdateResult>,
+      QB
+    >,
     obj: UpdaterObject
   ): Promise<number> {
     const transformedObj = this.transformUpdater(obj);
@@ -411,13 +416,31 @@ export class TableMapper<
    *  updated row, or nothing (void) if `returnColumns` is empty.
    * @see this.updateCount
    */
-  updateWhere<RE extends ReferenceExpression<DB, TB>>(
-    filter: QueryFilter<DB, TB, RE, UpdateQB<DB, TB>, UpdateQB<DB, TB>>,
+  updateWhere<
+    RE extends ReferenceExpression<DB, TB>,
+    QB extends UpdateQueryBuilder<DB, TB, TB, UpdateResult>
+  >(
+    filter: QueryFilter<
+      DB,
+      TB,
+      RE,
+      UpdateQueryBuilder<DB, TB, TB, UpdateResult>,
+      QB
+    >,
     obj: UpdaterObject
   ): Promise<ReturnColumns extends [] ? void : ReturnedObject[]>;
 
-  async updateWhere<RE extends ReferenceExpression<DB, TB>>(
-    filter: QueryFilter<DB, TB, RE, UpdateQB<DB, TB>, UpdateQB<DB, TB>>,
+  async updateWhere<
+    RE extends ReferenceExpression<DB, TB>,
+    QB extends UpdateQueryBuilder<DB, TB, TB, UpdateResult>
+  >(
+    filter: QueryFilter<
+      DB,
+      TB,
+      RE,
+      UpdateQueryBuilder<DB, TB, TB, UpdateResult>,
+      QB
+    >,
     obj: UpdaterObject
   ): Promise<ReturnedObject[] | void> {
     const transformedObj = this.transformUpdater(obj);
