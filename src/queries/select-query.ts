@@ -5,7 +5,7 @@ import { RowConverter } from '../lib/row-converter';
 /**
  * Mapper query for selecting rows from a database table.
  */
-export class SelectionQuery<
+export class MappingSelectQuery<
   DB,
   TB extends keyof DB & string,
   SelectedObject extends object,
@@ -52,7 +52,7 @@ export class SelectionQuery<
    */
   modify<NextQB extends SelectQueryBuilder<DB, TB, any>>(
     factory: (qb: QB) => NextQB
-  ): SelectionQuery<DB, TB, SelectedObject, NextQB> {
-    return new SelectionQuery(this.db, factory(this.qb), this.rowConverter);
+  ): MappingSelectQuery<DB, TB, SelectedObject, NextQB> {
+    return new MappingSelectQuery(this.db, factory(this.qb), this.rowConverter);
   }
 }

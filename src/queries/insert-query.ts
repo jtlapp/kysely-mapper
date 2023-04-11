@@ -8,7 +8,7 @@ import { RowConverter } from '../lib/row-converter';
 /**
  * Mapper query for inserting rows into a database table.
  */
-export class InsertionQuery<
+export class MappingInsertQuery<
   DB,
   TB extends keyof DB & string,
   QB extends InsertQueryBuilder<DB, TB, InsertResult>,
@@ -61,8 +61,8 @@ export class InsertionQuery<
    */
   modify<NextQB extends InsertQueryBuilder<DB, TB, InsertResult>>(
     factory: (qb: QB) => NextQB
-  ): InsertionQuery<DB, TB, NextQB, ReturnedObject, IsSingleRow> {
-    return new InsertionQuery(
+  ): MappingInsertQuery<DB, TB, NextQB, ReturnedObject, IsSingleRow> {
+    return new MappingInsertQuery(
       this.db,
       factory(this.qb),
       this.isSingleRow,

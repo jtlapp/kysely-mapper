@@ -5,7 +5,7 @@ import { RowConverter } from '../lib/row-converter';
 /**
  * Mapper query for updating rows from a database table.
  */
-export class UpdateQuery<
+export class MappingUpdateQuery<
   DB,
   TB extends keyof DB & string,
   QB extends UpdateQueryBuilder<DB, TB, TB, UpdateResult>,
@@ -61,8 +61,8 @@ export class UpdateQuery<
    */
   modify<NextQB extends UpdateQueryBuilder<DB, TB, TB, UpdateResult>>(
     factory: (qb: QB) => NextQB
-  ): UpdateQuery<DB, TB, NextQB, ReturnedCount, ReturnedObject> {
-    return new UpdateQuery(
+  ): MappingUpdateQuery<DB, TB, NextQB, ReturnedCount, ReturnedObject> {
+    return new MappingUpdateQuery(
       this.db,
       factory(this.qb),
       this.countTransform,

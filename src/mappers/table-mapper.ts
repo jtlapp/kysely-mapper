@@ -21,9 +21,9 @@ import {
   SelectionColumn,
 } from '../lib/type-utils';
 import { TableMapperOptions } from './table-mapper-options';
-import { DeletionQuery } from '../queries/deletion-query';
+import { MappingDeleteQuery } from '../queries/delete-query';
 import { RowConverter } from '../lib/row-converter';
-import { SelectionQuery } from '../queries/selection-query';
+import { MappingSelectQuery } from '../queries/select-query';
 import { AllSelection } from '../lib/kysely-types';
 
 // TODO: change [binary op] notation to three parameters
@@ -141,7 +141,7 @@ export class TableMapper<
   // compile<P extends ParametersObject<P>>(
   //   factory: ParamedSelectionQueryFactory<
   //     P,
-  //     SelectionQuery<DB, TB, SelectedObject, QB>
+  //     MappingSelectQuery<DB, TB, SelectedObject, QB>
   //   >
   // ): ParameterizedRowQuery<P, SelectedObject> {
   //   const parameterMaker = new QueryParameterMaker<P>();
@@ -154,11 +154,11 @@ export class TableMapper<
   //   );
   // }
   /**
-   * Factory function for parameterizing SelectionQuery.
+   * Factory function for parameterizing MappingSelectQuery.
    */
   // interface ParamedSelectionQueryFactory<
   //   P extends ParametersObject<P>,
-  //   Q extends SelectionQuery<any, any, any, any>
+  //   Q extends MappingSelectQuery<any, any, any, any>
   // > {
   //   (args: { q: Q; param: QueryParameterMaker<P>['param'] }): Q;
   // }
@@ -178,13 +178,13 @@ export class TableMapper<
       DeleteQueryBuilder<DB, any, DeleteResult>,
       QB
     >
-  ): DeletionQuery<
+  ): MappingDeleteQuery<
     DB,
     TB,
     DeleteQueryBuilder<DB, TB, DeleteResult>,
     ReturnedCount
   > {
-    return new DeletionQuery(
+    return new MappingDeleteQuery(
       this.db,
       filter === undefined
         ? this.getDeleteQB()
@@ -289,13 +289,13 @@ export class TableMapper<
     QB extends SelectQueryBuilder<DB, TB, object>
   >(
     filter?: QueryFilter<DB, TB, RE, SelectQueryBuilder<DB, TB, object>, QB>
-  ): SelectionQuery<
+  ): MappingSelectQuery<
     DB,
     TB,
     SelectedObject,
     SelectQueryBuilder<DB, TB, object>
   > {
-    return new SelectionQuery(
+    return new MappingSelectQuery(
       this.db,
       filter === undefined
         ? this.getSelectQB()

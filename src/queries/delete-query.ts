@@ -3,7 +3,7 @@ import { DeleteQueryBuilder, DeleteResult, Kysely } from 'kysely';
 /**
  * Mapper query for deleting rows from a database table.
  */
-export class DeletionQuery<
+export class MappingDeleteQuery<
   DB,
   TB extends keyof DB & string,
   QB extends DeleteQueryBuilder<DB, TB, DeleteResult>,
@@ -37,8 +37,12 @@ export class DeletionQuery<
    */
   modify<NextQB extends DeleteQueryBuilder<DB, any, DeleteResult>>(
     factory: (qb: QB) => NextQB
-  ): DeletionQuery<DB, TB, NextQB, ReturnedCount> {
-    return new DeletionQuery(this.db, factory(this.qb), this.countTransform);
+  ): MappingDeleteQuery<DB, TB, NextQB, ReturnedCount> {
+    return new MappingDeleteQuery(
+      this.db,
+      factory(this.qb),
+      this.countTransform
+    );
   }
 
   /**
