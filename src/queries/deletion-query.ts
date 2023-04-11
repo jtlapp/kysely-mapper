@@ -11,7 +11,7 @@ export class DeletionQuery<
 > {
   /**
    * @param db Kysely database instance.
-   * @param qb Kysely query builder.
+   * @param qb Kysely delete query builder.
    * @param countTransform Function that transforms returned row counts
    */
   constructor(

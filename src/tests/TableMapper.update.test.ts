@@ -95,8 +95,7 @@ describe('updating rows via TableMapper', () => {
     expect(updateCount2).toEqual(2);
 
     const readUsers = await userMapperReturningID
-      .select()
-      .filter(['name', '=', 'Sue'])
+      .select(['name', '=', 'Sue'])
       .getMany();
     expect(readUsers.length).toEqual(2);
     expect(readUsers[0].email).toEqual(updateValues.email);
@@ -154,8 +153,7 @@ describe('updating rows via TableMapper', () => {
     expect(updateReturns3[1].handle).toEqual(USERS[1].handle);
     expect(updateReturns3[2].handle).toEqual(USERS[2].handle);
     const readUsers = await userMapperReturningID
-      .select()
-      .filter(['name', '=', updateValues3.name])
+      .select(['name', '=', updateValues3.name])
       .getMany();
     expect(readUsers.length).toEqual(3);
   });
@@ -170,8 +168,7 @@ describe('updating rows via TableMapper', () => {
     expect(updates).toBeUndefined();
 
     const readUsers = await userMapperReturningID
-      .select()
-      .filter({
+      .select({
         email: 'new.email@xyz.pdq',
       })
       .getMany();
@@ -188,8 +185,7 @@ describe('updating rows via TableMapper', () => {
     expect(updates).toBeUndefined();
 
     const readUsers = await userMapperReturningID
-      .select()
-      .filter({
+      .select({
         email: 'new.email@xyz.pdq',
       })
       .getMany();
@@ -244,8 +240,7 @@ describe('updating rows via TableMapper', () => {
     expect(updateCount).toEqual(2);
 
     const readUsers = await userMapperReturningID
-      .select()
-      .filter(['id', '>', insertReturns[0].id])
+      .select(['id', '>', insertReturns[0].id])
       .getMany();
     expect(readUsers.length).toEqual(2);
     for (const user of readUsers) {
@@ -264,8 +259,7 @@ describe('updating rows via TableMapper', () => {
     expect(updateCount).toEqual(2);
 
     const readUsers = await userMapperReturningID
-      .select()
-      .filter(['id', '>', insertReturns[0].id])
+      .select(['id', '>', insertReturns[0].id])
       .getMany();
     expect(readUsers.length).toEqual(2);
     for (const user of readUsers) {

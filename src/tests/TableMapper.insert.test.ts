@@ -319,8 +319,7 @@ describe('insertion transformation', () => {
 
     await insertTransformMapper.insert([insertedUser2, insertedUser3]);
     const readUsers = await insertTransformMapper
-      .select()
-      .filter(['id', '>', insertReturn.id])
+      .select(['id', '>', insertReturn.id])
       .getMany();
     expect(readUsers.length).toEqual(2);
     expect(readUsers[0].name).toEqual(

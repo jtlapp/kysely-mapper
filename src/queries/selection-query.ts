@@ -1,12 +1,9 @@
-import { Kysely, ReferenceExpression, SelectQueryBuilder } from 'kysely';
-import { ParametersObject, QueryParameterMaker } from 'kysely-params';
+import { Kysely, SelectQueryBuilder } from 'kysely';
 
-import { applyQueryFilter, QueryFilter } from '../lib/query-filter';
 import { RowConverter } from '../lib/row-converter';
-import { ParameterizedRowQuery } from './paramed-row-query';
 
 /**
- * Mapper query for selecting columns or entire rows from a Kysely query.
+ * Mapper query for selecting rows from a database table.
  */
 export class SelectionQuery<
   DB,
@@ -16,8 +13,8 @@ export class SelectionQuery<
 > {
   /**
    * @param db Kysely database instance.
-   * @param tableName Name of the table this mapper is for.
-   * @param options Options governing builder behavior.
+   * @param qb Kysely select query builder.
+   * @param rowConverter Converts rows to objects of type `SelectedObject`.
    */
   constructor(
     readonly db: Kysely<DB>,
@@ -26,22 +23,7 @@ export class SelectionQuery<
   ) {}
 
   /**
-   * Constrains the query results according to the provided filter.
-   * @param filter The filter to apply.
-   * @returns A new mapper query with the filter applied.
-   */
-  filter<RE extends ReferenceExpression<DB, TB>>(
-    filter: QueryFilter<DB, TB, RE, SelectQueryBuilder<DB, TB, object>, QB>
-  ): SelectionQuery<DB, TB, SelectedObject, QB> {
-    return new SelectionQuery(
-      this.db,
-      applyQueryFilter(this.db, this.qb, filter),
-      this.rowConverter
-    );
-  }
-
-  /**
-   * Retrieves zero or more rows from the underlying query, mapping the rows
+   * Retrieves zero or more rows from the table, mapping the rows
    * to objects of type `SelectedObject`.
    * @returns An array of objects for the selected rows, possibly empty.
    */
@@ -51,7 +33,7 @@ export class SelectionQuery<
   }
 
   /**
-   * Retrieves a single rows from the underlying query, mapping the row
+   * Retrieves a single row from the table, mapping the row
    * to an object of type `SelectedObject`.
    * @returns An object for the selected rows, or null if not found.
    */
@@ -62,10 +44,9 @@ export class SelectionQuery<
   }
 
   /**
-   * Modifies the underlying Kysely query builder. TODO: When subselecting,
-   * columns can be added to the selection but not removed. When not
-   * subselecting, all columns are already selected and selecting more
-   * has no effect, except for providing additional aliases.
+   * Modifies the underlying Kysely query builder. All columns given in
+   * `SelectedColumns` are already selected, but you can select additional
+   * columns or add columna aliases.
    * @param factory A function that takes the current query builder and
    *  returns a new query builder.
    */
@@ -74,44 +55,4 @@ export class SelectionQuery<
   ): SelectionQuery<DB, TB, SelectedObject, NextQB> {
     return new SelectionQuery(this.db, factory(this.qb), this.rowConverter);
   }
-
-  /**
-   * Creates and returns a parameterized mapper query, which can be repeatedly
-   * executed with different parameter values, but which only ever compiles
-   * the underlying Kysely query once (on the first execution).
-   * @paramtype P Record characterizing the available parameter names and types.
-   * @param factory Function that receives an object of the form `{ q, param }`,
-   *  where `q` is a mapper query and `param` is a function for creating
-   *  parameters. The argument to `param` is the name of the parameter, which
-   *  must occur as a property of `P`. You may parameterize inserted values,
-   *  updated values, and right-hand-side values of filters. Parameters may not
-   *  be arrays, but you can parameterize the individual elements of an array.
-   *  Returns a mapper query that containing the parameterized values.
-   * @returns a parameterized mapper query
-   */
-  parameterize<P extends ParametersObject<P>>(
-    factory: ParamedSelectionQueryFactory<
-      P,
-      SelectionQuery<DB, TB, SelectedObject, QB>
-    >
-  ): ParameterizedRowQuery<P, SelectedObject> {
-    const parameterMaker = new QueryParameterMaker<P>();
-    return new ParameterizedRowQuery(
-      factory({
-        q: this,
-        param: parameterMaker.param.bind(parameterMaker),
-      }).qb,
-      this.rowConverter
-    );
-  }
-}
-
-/**
- * Factory function for parameterizing SelectionQuery.
- */
-interface ParamedSelectionQueryFactory<
-  P extends ParametersObject<P>,
-  Q extends SelectionQuery<any, any, any, any>
-> {
-  (args: { q: Q; param: QueryParameterMaker<P>['param'] }): Q;
 }

@@ -25,8 +25,7 @@ describe('BUILDER: deleting rows via TableMapper', () => {
     await userMapper.insert(USERS[1]);
 
     const readUser1 = await userMapper
-      .select()
-      .filter({ handle: USERS[1].handle })
+      .select({ handle: USERS[1].handle })
       .getOne();
     expect(readUser1?.handle).toEqual(USERS[1].handle);
     expect(readUser1?.email).toEqual(USERS[1].email);
@@ -38,8 +37,7 @@ describe('BUILDER: deleting rows via TableMapper', () => {
     expect(Number(result.numDeletedRows)).toEqual(1);
 
     const readUser2 = await userMapper
-      .select()
-      .filter({ handle: USERS[1].handle })
+      .select({ handle: USERS[1].handle })
       .getOne();
     expect(readUser2).toBeNull();
   });

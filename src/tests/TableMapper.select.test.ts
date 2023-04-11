@@ -55,42 +55,42 @@ describe('BUILDER: general selection', () => {
 
   // TODO: test parameterized queries only returning SelectedColumns and aliases
 
-  it('BUILDER: parameterizes a selection', async () => {
-    await userMapper.insert(USERS);
+  // it('BUILDER: parameterizes a selection', async () => {
+  //   await userMapper.insert(USERS);
 
-    const parameterization = userMapper
-      .select()
-      .parameterize<{ name: string }>(({ q, param }) =>
-        q.filter({
-          name: param('name'),
-        })
-      );
+  //   const parameterization = userMapper
+  //     .select()
+  //     .parameterize<{ name: string }>(({ q, param }) =>
+  //       q.filter({
+  //         name: param('name'),
+  //       })
+  //     );
 
-    const users = await parameterization.getMany(db, {
-      name: USERS[0].name,
-    });
-    expect(users.length).toEqual(2);
-    expect(users[0].handle).toEqual(USERS[0].handle);
-    expect(users[1].handle).toEqual(USERS[2].handle);
-    // Ensure that the provided columns are not optional
-    ((_: string) => {})(users[0].handle);
+  //   const users = await parameterization.getMany(db, {
+  //     name: USERS[0].name,
+  //   });
+  //   expect(users.length).toEqual(2);
+  //   expect(users[0].handle).toEqual(USERS[0].handle);
+  //   expect(users[1].handle).toEqual(USERS[2].handle);
+  //   // Ensure that the provided columns are not optional
+  //   ((_: string) => {})(users[0].handle);
 
-    const user = await parameterization.getOne(db, {
-      name: USERS[0].name,
-    });
-    expect(user?.handle).toEqual(USERS[0].handle);
-    // Ensure that the provided columns are not optional
-    ((_: string) => {})(user!.name);
+  //   const user = await parameterization.getOne(db, {
+  //     name: USERS[0].name,
+  //   });
+  //   expect(user?.handle).toEqual(USERS[0].handle);
+  //   // Ensure that the provided columns are not optional
+  //   ((_: string) => {})(user!.name);
 
-    ignore('BUILDER: parameterization type errors', () => {
-      // @ts-expect-error - errors on invalid parameter names
-      parameterization.getMany(db, { notThere: 'foo' });
-      // @ts-expect-error - errors on invalid column names
-      users[0].notThere;
-      // @ts-expect-error - errors on invalid column names
-      user!.notThere;
-    });
-  });
+  //   ignore('BUILDER: parameterization type errors', () => {
+  //     // @ts-expect-error - errors on invalid parameter names
+  //     parameterization.getMany(db, { notThere: 'foo' });
+  //     // @ts-expect-error - errors on invalid column names
+  //     users[0].notThere;
+  //     // @ts-expect-error - errors on invalid column names
+  //     user!.notThere;
+  //   });
+  // });
 
   it('BUILDER: modifies the underlying query builder', async () => {
     await userMapper.insert(USERS);
@@ -167,23 +167,6 @@ describe('BUILDER: general selection', () => {
     // @ts-expect-error - binary op filter fields must be valid
     userMapper.select(['users.notThere', '=', 'foo']);
   });
-
-  ignore('BUILDER: detects select().filter() type errors', async () => {
-    // @ts-expect-error - doesn't allow plain string expressions
-    userMapper.select().filter("name = 'John Doe'");
-    // @ts-expect-error - doesn't allow only two arguments
-    userMapper.select().filter('name', '=');
-    // @ts-expect-error - object filter fields must be valid
-    userMapper.select().filter({ notThere: 'xyz' });
-    userMapper.select().filter(({ or, cmpr }) =>
-      // @ts-expect-error - where expression columns must be valid
-      or([cmpr('notThere', '=', 'Sue')])
-    );
-    // @ts-expect-error - binary op filter fields must be valid
-    userMapper.select().filter(['notThere', '=', 'foo']);
-    // @ts-expect-error - binary op filter fields must be valid
-    userMapper.select().filter(['users.notThere', '=', 'foo']);
-  });
 });
 
 describe('BUILDER: select() getMany()', () => {
@@ -218,8 +201,7 @@ describe('BUILDER: select() getMany()', () => {
     expect(users[1].handle).toEqual(USERS[2].handle);
 
     users = await userMapper
-      .select()
-      .filter({
+      .select({
         name: USERS[0].name,
         handle: USERS[2].handle,
       })
@@ -256,8 +238,7 @@ describe('BUILDER: select() getMany()', () => {
     await userMapper.insert(USERS);
 
     let users = await userMapper
-      .select()
-      .filter({
+      .select({
         name: USERS[0].name,
       })
       .getMany();
@@ -266,8 +247,7 @@ describe('BUILDER: select() getMany()', () => {
     expect(users[1].handle).toEqual(USERS[2].handle);
 
     users = await userMapper
-      .select()
-      .filter({
+      .select({
         name: USERS[0].name,
         handle: USERS[2].handle,
       })
@@ -280,31 +260,14 @@ describe('BUILDER: select() getMany()', () => {
     await userMapper.insert(USERS);
 
     // Test selecting by condition (with results)
-    let users = await userMapper
-      .select()
-      .filter(['name', '=', USERS[0].name])
-      .getMany();
+    let users = await userMapper.select(['name', '=', USERS[0].name]).getMany();
     expect(users.length).toEqual(2);
     expect(users[0].handle).toEqual(USERS[0].handle);
     expect(users[1].handle).toEqual(USERS[2].handle);
 
     // Test selecting by condition (no results)
-    users = await userMapper
-      .select()
-      .filter(['name', '=', 'nonexistent'])
-      .getMany();
+    users = await userMapper.select(['name', '=', 'nonexistent']).getMany();
     expect(users.length).toEqual(0);
-  });
-
-  it('BUILDER: selects using select(filter).filter(filter)', async () => {
-    await userMapper.insert(USERS);
-
-    const users = await userMapper
-      .select({ name: USERS[0].name })
-      .filter({ handle: USERS[2].handle })
-      .getMany();
-    expect(users.length).toEqual(1);
-    expect(users[0].handle).toEqual(USERS[2].handle);
   });
 
   it('BUILDER: selects many returning selected columns and aliases', async () => {
@@ -428,10 +391,7 @@ describe('select() getOne()', () => {
   it('BUILDER: selects the first row with a matching field filter via filter()', async () => {
     await userMapper.insert(USERS);
 
-    let user = await userMapper
-      .select()
-      .filter({ name: USERS[0].name })
-      .getOne();
+    let user = await userMapper.select({ name: USERS[0].name }).getOne();
     expect(user?.handle).toEqual(USERS[0].handle);
 
     user = await userMapper
@@ -447,10 +407,7 @@ describe('select() getOne()', () => {
     await userMapper.insert(USERS);
 
     // Test selecting by condition (with result)
-    let user = await userMapper
-      .select()
-      .filter(['name', '=', USERS[0].name])
-      .getOne();
+    let user = await userMapper.select(['name', '=', USERS[0].name]).getOne();
     expect(user?.handle).toEqual(USERS[0].handle);
 
     // Test selecting by condition (no result)

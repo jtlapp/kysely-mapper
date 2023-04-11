@@ -129,6 +129,45 @@ export class TableMapper<
   }
 
   /**
+   * Creates and returns a parameterized mapper query, which can be repeatedly
+   * executed with different parameter values, but which only ever compiles
+   * the underlying Kysely query once (on the first execution).
+   * @paramtype P Record characterizing the available parameter names and types.
+   * @param factory Function that receives an object of the form `{ q, param }`,
+   *  where `q` is a mapper query and `param` is a function for creating
+   *  parameters. The argument to `param` is the name of the parameter, which
+   *  must occur as a property of `P`. You may parameterize inserted values,
+   *  updated values, and right-hand-side values of filters. Parameters may not
+   *  be arrays, but you can parameterize the individual elements of an array.
+   *  Returns a mapper query that containing the parameterized values.
+   * @returns a parameterized mapper query
+   */
+  // compile<P extends ParametersObject<P>>(
+  //   factory: ParamedSelectionQueryFactory<
+  //     P,
+  //     SelectionQuery<DB, TB, SelectedObject, QB>
+  //   >
+  // ): ParameterizedRowQuery<P, SelectedObject> {
+  //   const parameterMaker = new QueryParameterMaker<P>();
+  //   return new ParameterizedRowQuery(
+  //     factory({
+  //       q: this,
+  //       param: parameterMaker.param.bind(parameterMaker),
+  //     }).qb,
+  //     this.rowConverter
+  //   );
+  // }
+  /**
+   * Factory function for parameterizing SelectionQuery.
+   */
+  // interface ParamedSelectionQueryFactory<
+  //   P extends ParametersObject<P>,
+  //   Q extends SelectionQuery<any, any, any, any>
+  // > {
+  //   (args: { q: Q; param: QueryParameterMaker<P>['param'] }): Q;
+  // }
+
+  /**
    * Deletes the rows from the table that match the provided filter.
    * @returns A mapper query for deleting rows.
    */
@@ -311,8 +350,8 @@ export class TableMapper<
     return new SelectionQuery(
       this.db,
       filter === undefined
-        ? (this.selectedColumnsQB() as any)
-        : applyQueryFilter(this.db, this.selectedColumnsQB() as any, filter),
+        ? this.selectedColumnsQB()
+        : applyQueryFilter(this.db, this.selectedColumnsQB(), filter),
       this.rowConverter
     );
   }
