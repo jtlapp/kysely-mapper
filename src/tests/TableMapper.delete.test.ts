@@ -21,27 +21,6 @@ beforeEach(() => resetDB(db));
 afterAll(() => destroyDB(db));
 
 describe('BUILDER: deleting rows via TableMapper', () => {
-  it('BUILDER: deleteQB() serves as a basis for deleting rows', async () => {
-    await userMapper.insert(USERS[1]);
-
-    const readUser1 = await userMapper
-      .select({ handle: USERS[1].handle })
-      .getOne();
-    expect(readUser1?.handle).toEqual(USERS[1].handle);
-    expect(readUser1?.email).toEqual(USERS[1].email);
-
-    const result = await userMapper
-      .deleteQB()
-      .where('handle', '=', USERS[1].handle)
-      .executeTakeFirst();
-    expect(Number(result.numDeletedRows)).toEqual(1);
-
-    const readUser2 = await userMapper
-      .select({ handle: USERS[1].handle })
-      .getOne();
-    expect(readUser2).toBeNull();
-  });
-
   it('BUILDER: deletes rows without returning a count', async () => {
     const testMapper = new TableMapper(db, 'users', {
       countTransform: (count) => Number(count),

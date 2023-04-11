@@ -103,20 +103,6 @@ ignore('requires return columns to have a consistent type', () => {
   );
 });
 
-it('BUILDE: insertQB() serves as a basis for inserting rows', async () => {
-  const user0 = (await userMapperReturningID
-    .insertQB()
-    .values(USERS[0])
-    .returningAll()
-    .executeTakeFirst())!;
-
-  const readUser0 = await userMapperReturningAll
-    .select(['id', '=', user0.id])
-    .getOne();
-  expect(readUser0?.handle).toEqual(USERS[0].handle);
-  expect(readUser0?.email).toEqual(USERS[0].email);
-});
-
 describe('insert an array of objects without transformation', () => {
   it('inserts multiple without returning columns', async () => {
     const result = await userMapperReturningDefault.insertNoReturns(USERS);
@@ -215,9 +201,8 @@ describe('inserting a single object without transformation', () => {
     expect(result).toBeUndefined();
 
     const readUser0 = await userMapperReturningAll
-      .selectedColumnsQB()
-      .where('email', '=', USERS[0].email)
-      .executeTakeFirst();
+      .select(['email', '=', USERS[0].email])
+      .getOne();
     expect(readUser0?.email).toEqual(USERS[0].email);
   });
 
@@ -226,9 +211,8 @@ describe('inserting a single object without transformation', () => {
     expect(result).toBeUndefined();
 
     const readUser0 = await userMapperReturningAll
-      .selectedColumnsQB()
-      .where('email', '=', USERS[0].email)
-      .executeTakeFirst();
+      .select(['email', '=', USERS[0].email])
+      .getOne();
     expect(readUser0?.email).toEqual(USERS[0].email);
   });
 
@@ -238,9 +222,8 @@ describe('inserting a single object without transformation', () => {
     expect(Object.keys(insertReturn).length).toEqual(1);
 
     const readUser0 = await userMapperReturningAll
-      .selectedColumnsQB()
-      .where('id', '=', insertReturn.id)
-      .executeTakeFirst();
+      .select(['id', '=', insertReturn.id])
+      .getOne();
     expect(readUser0?.email).toEqual(USERS[0].email);
 
     const post0 = Object.assign({}, POSTS[0], { userId: insertReturn.id });
@@ -250,10 +233,13 @@ describe('inserting a single object without transformation', () => {
     expect(Object.keys(updaterPost).length).toEqual(2);
 
     const readPost0 = await postTableMapper
-      .selectedColumnsQB()
-      .where('id', '=', updaterPost.id)
-      .where('title', '=', updaterPost.title)
-      .executeTakeFirst();
+      .select(({ and, cmpr }) =>
+        and([
+          cmpr('id', '=', updaterPost.id),
+          cmpr('title', '=', updaterPost.title),
+        ])
+      )
+      .getOne();
     expect(readPost0?.likeCount).toEqual(post0.likeCount);
   });
 

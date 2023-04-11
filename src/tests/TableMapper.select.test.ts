@@ -24,35 +24,6 @@ beforeEach(() => resetDB(db));
 afterAll(() => destroyDB(db));
 
 describe('BUILDER: general selection', () => {
-  it('BUILDER: selectQB() serves as a basis for selection queries', async () => {
-    await userMapper.insert(USERS);
-
-    const users = await userMapper.selectQB().selectAll().execute();
-    expect(users).toEqual(USERS.map((user, i) => ({ ...user, id: i + 1 })));
-  });
-
-  it('BUILDER: selectedColumnsQB() allows for selecting rows', async () => {
-    // TODO: test more complex behavior of selectedColumnsQB()
-
-    await db
-      .insertInto('users')
-      .values(USERS[0])
-      .returningAll()
-      .executeTakeFirst()!;
-    const user1 = (await db
-      .insertInto('users')
-      .values(USERS[1])
-      .returningAll()
-      .executeTakeFirst())!;
-
-    const readUser1 = await userMapper
-      .selectedColumnsQB()
-      .where('id', '=', user1.id)
-      .executeTakeFirst();
-    expect(readUser1?.handle).toEqual(USERS[1].handle);
-    expect(readUser1?.email).toEqual(USERS[1].email);
-  });
-
   // TODO: test parameterized queries only returning SelectedColumns and aliases
 
   // it('BUILDER: parameterizes a selection', async () => {

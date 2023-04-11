@@ -26,6 +26,8 @@ import { RowConverter } from '../lib/row-converter';
 import { SelectionQuery } from '../queries/selection-query';
 import { AllSelection } from '../lib/kysely-types';
 
+// TODO: change [binary op] notation to three parameters
+
 /**
  * A mapper providing access to a single table.
  * @typeparam DB Interface whose fields are table names defining tables.
@@ -185,25 +187,12 @@ export class TableMapper<
     return new DeletionQuery(
       this.db,
       filter === undefined
-        ? this.deleteQB()
-        : applyQueryFilter(this.db, this.deleteQB(), filter),
+        ? this.getDeleteQB()
+        : applyQueryFilter(this.db, this.getDeleteQB(), filter),
       this.countTransform
     );
   }
 
-  /**
-   * Returns a query builder for deleting rows from the table, caching the
-   * query builder for use with future deletions.
-   * @returns A query builder for deleting rows from the table.
-   */
-  deleteQB(): DeleteQueryBuilder<DB, TB, DeleteResult> {
-    if (this.#baseDeleteQB === null) {
-      this.#baseDeleteQB = this.db.deleteFrom(
-        this.tableName
-      ) as DeleteQueryBuilder<DB, TB, DeleteResult>;
-    }
-    return this.#baseDeleteQB;
-  }
   /**
    * Inserts one or more rows into this table. For each row inserted,
    * retrieves the columns specified in the `returnColumns` option,
@@ -231,11 +220,11 @@ export class TableMapper<
     if (insertedAnArray) {
       const transformedObjs = this.transformInsertionArray(objOrObjs);
       // TS requires separate calls to values() for different argument types.
-      qb = this.insertQB().values(transformedObjs);
+      qb = this.getInsertQB().values(transformedObjs);
     } else {
       const transformedObj = this.transformInsertion(objOrObjs);
       // TS requires separate calls to values() for different argument types.
-      qb = this.insertQB().values(transformedObj);
+      qb = this.getInsertQB().values(transformedObj);
     }
 
     if (this.returnColumns.length == 0) {
@@ -262,20 +251,6 @@ export class TableMapper<
   }
 
   /**
-   * Returns a query builder for inserting rows into the table, caching the
-   * query builder for use with future insertions.
-   * @returns A query builder for inserting rows into the table.
-   */
-  insertQB(): InsertQueryBuilder<DB, TB, InsertResult> {
-    if (this.#baseInsertQB === null) {
-      this.#baseInsertQB = this.db.insertInto(
-        this.tableName
-      ) as InsertQueryBuilder<DB, TB, InsertResult>;
-    }
-    return this.#baseInsertQB;
-  }
-
-  /**
    * Inserts one or more rows into this table, without returning any columns.
    * @param objOrObjs The object or objects to insert as a row.
    * @see this.insert
@@ -288,7 +263,7 @@ export class TableMapper<
     objOrObjs: InsertedObject | InsertedObject[]
   ): Promise<void> {
     const transformedObjOrObjs = this.transformInsertion(objOrObjs as any);
-    const qb = this.insertQB().values(transformedObjOrObjs);
+    const qb = this.getInsertQB().values(transformedObjOrObjs);
     await qb.execute();
   }
 
@@ -299,28 +274,6 @@ export class TableMapper<
    */
   ref(column: string) {
     return this.db.dynamic.ref(column);
-  }
-
-  /**
-   * Creates a query builder for selecting rows from this table, returning
-   * the columns and aliases specified in `SelectedColumns`.
-   * @returns A query builder for selecting rows from this table.
-   */
-  selectedColumnsQB():
-    | SelectQueryBuilder<DB, TB, object & AllSelection<DB, TB>>
-    | (SelectedColumns extends ['*']
-        ? never
-        : SelectQueryBuilder<
-            DB,
-            TB,
-            object & Selection<DB, TB, SelectedColumns[number]>
-          >);
-
-  selectedColumnsQB(): SelectQueryBuilder<DB, TB, any> {
-    // TODO: cache this
-    return this.selectedColumns.length == 0
-      ? this.selectQB().selectAll()
-      : this.selectQB().select(this.selectedColumns);
   }
 
   /**
@@ -345,36 +298,10 @@ export class TableMapper<
     return new SelectionQuery(
       this.db,
       filter === undefined
-        ? this.selectedColumnsQB()
-        : applyQueryFilter(this.db, this.selectedColumnsQB(), filter),
+        ? this.getSelectQB()
+        : applyQueryFilter(this.db, this.getSelectQB(), filter),
       this.rowConverter
     );
-  }
-
-  /**
-   * Returns a query builder for selecting rows from the table, caching the
-   * query builder for use with future selection.
-   * @returns A query builder for selecting rows from the table.
-   */
-  selectQB(): SelectQueryBuilder<DB, TB, object> {
-    if (this.#baseSelectQB === null) {
-      this.#baseSelectQB = this.db.selectFrom(
-        this.tableName
-      ) as SelectQueryBuilder<DB, TB, object>;
-    }
-    return this.#baseSelectQB;
-  }
-
-  /**
-   * Returns a query builder for updating rows from the table, caching the
-   * query builder for use with future updates.
-   * @returns A query builder for updating rows from the table.
-   */
-  updateQB(): UpdateQueryBuilder<DB, TB, TB, UpdateResult> {
-    if (this.#baseUpdateQB === null) {
-      this.#baseUpdateQB = this.db.updateTable(this.tableName) as any;
-    }
-    return this.#baseUpdateQB!;
   }
 
   /**
@@ -399,7 +326,7 @@ export class TableMapper<
     obj: UpdaterObject
   ): Promise<number> {
     const transformedObj = this.transformUpdater(obj);
-    const uqb = this.updateQB().set(transformedObj as any);
+    const uqb = this.getUpdateQB().set(transformedObj as any);
     const fqb = applyQueryFilter(this.db, uqb, filter);
     const result = await fqb.executeTakeFirst();
     return Number(result.numUpdatedRows);
@@ -444,7 +371,7 @@ export class TableMapper<
     obj: UpdaterObject
   ): Promise<ReturnedObject[] | void> {
     const transformedObj = this.transformUpdater(obj);
-    const uqb = this.updateQB().set(transformedObj as any);
+    const uqb = this.getUpdateQB().set(transformedObj as any);
     const fqb = applyQueryFilter(this.db, uqb, filter);
 
     if (this.returnColumns.length == 0) {
@@ -462,6 +389,77 @@ export class TableMapper<
       throw Error('No rows returned from update expecting returned columns');
     }
     return this.transformUpdateReturn(obj, returns as any) as any;
+  }
+
+  /**
+   * Returns a query builder for deleting rows from the table, caching the
+   * query builder for use with future deletions.
+   * @returns A query builder for deleting rows from the table.
+   */
+  protected getDeleteQB(): DeleteQueryBuilder<DB, TB, DeleteResult> {
+    if (this.#baseDeleteQB === null) {
+      this.#baseDeleteQB = this.db.deleteFrom(
+        this.tableName
+      ) as DeleteQueryBuilder<DB, TB, DeleteResult>;
+    }
+    return this.#baseDeleteQB;
+  }
+
+  /**
+   * Returns a query builder for inserting rows into the table, caching the
+   * query builder for use with future insertions.
+   * @returns A query builder for inserting rows into the table.
+   */
+  protected getInsertQB(): InsertQueryBuilder<DB, TB, InsertResult> {
+    if (this.#baseInsertQB === null) {
+      this.#baseInsertQB = this.db.insertInto(
+        this.tableName
+      ) as InsertQueryBuilder<DB, TB, InsertResult>;
+    }
+    return this.#baseInsertQB;
+  }
+
+  /**
+   * Returns a query builder for selecting rows from the table, caching the
+   * query builder for use with future selection. The query builder returns
+   * the columns and aliases specified in `SelectedColumns`.
+   * @returns A query builder for selecting rows from the table.
+   */
+  protected getSelectQB():
+    | SelectQueryBuilder<DB, TB, object & AllSelection<DB, TB>>
+    | (SelectedColumns extends ['*']
+        ? never
+        : SelectQueryBuilder<
+            DB,
+            TB,
+            object & Selection<DB, TB, SelectedColumns[number]>
+          >);
+
+  protected getSelectQB(): SelectQueryBuilder<DB, TB, object> {
+    if (this.#baseSelectQB === null) {
+      const selectQB = this.db.selectFrom(this.tableName) as SelectQueryBuilder<
+        DB,
+        TB,
+        object
+      >;
+      this.#baseSelectQB =
+        this.selectedColumns.length == 0
+          ? selectQB.selectAll()
+          : selectQB.select(this.selectedColumns);
+    }
+    return this.#baseSelectQB;
+  }
+
+  /**
+   * Returns a query builder for updating rows from the table, caching the
+   * query builder for use with future updates.
+   * @returns A query builder for updating rows from the table.
+   */
+  protected getUpdateQB(): UpdateQueryBuilder<DB, TB, TB, UpdateResult> {
+    if (this.#baseUpdateQB === null) {
+      this.#baseUpdateQB = this.db.updateTable(this.tableName) as any;
+    }
+    return this.#baseUpdateQB!;
   }
 
   /**
