@@ -10,23 +10,7 @@ import {
   SelectArg,
   SelectExpression,
   Selection,
-  SelectType,
 } from 'kysely';
-
-import {
-  AllSelection,
-  ExtractTypeFromStringSelectExpression,
-} from './kysely-types';
-
-/**
- * Evaluates to a type containing all possible selectable columns,
- * including aliased columns.
- */
-export type AllColumns<
-  DB,
-  TB extends keyof DB & string,
-  ColumnAliases extends string[]
-> = AllSelection<DB, TB> & AliasedSubset<DB, TB, ColumnAliases>;
 
 /**
  * Converts a key of object O to a string of the form `${K} as ${string}`,
@@ -34,11 +18,6 @@ export type AllColumns<
  * @typeparam O Object whose keys are to be converted to strings.
  * @typeparam K Key of O.
  */
-
-/**
- * Type representing an empty object. Use for clarity.
- */
-export type EmptyObject = Record<string, never>;
 
 /**
  * Type of the primary key tuple whose column names are given by `KA` and are
@@ -120,20 +99,3 @@ export type SelectableColumnTuple<T> =
       SelectableColumn<T>,
       SelectableColumn<T>
     ];
-
-/**
- * Evaluates to an object consisting only of aliased columns.
- */
-type AliasedSubset<
-  DB,
-  TB extends keyof DB & string,
-  ColumnAliases extends string[]
-> = ColumnAliases extends []
-  ? object
-  : {
-      [A in ColumnAliases[number] extends `${string} as ${infer A}`
-        ? A
-        : never]: SelectType<
-        ExtractTypeFromStringSelectExpression<DB, TB, ColumnAliases[number], A>
-      >;
-    };

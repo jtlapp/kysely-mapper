@@ -14,8 +14,6 @@ import {
   UpdateQueryBuilder,
 } from 'kysely';
 
-// TODO: look at replace [*] with an AllColumns symbol
-
 import { QueryFilter, applyQueryFilter } from '../lib/query-filter';
 import {
   ObjectWithKeys,
