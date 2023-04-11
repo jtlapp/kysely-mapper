@@ -134,6 +134,26 @@ describe('BUILDER: deleting rows via TableMapper', () => {
     expect(count2).toEqual(1);
   });
 
+  it('BUILDER: modifies a delete query builder', async () => {
+    await userMapper.insert(USERS);
+    await userMapper.insert({ ...USERS[1], handle: 'user4' });
+
+    const count1 = await userMapper
+      .delete()
+      .modify((qb) => qb.where('name', '=', USERS[0].name))
+      .getCount();
+    expect(count1).toEqual(2);
+
+    const count2 = await userMapper
+      .delete({ name: USERS[1].name })
+      .modify((qb) => qb.where('handle', '=', 'user4'))
+      .getCount();
+    expect(count2).toEqual(1);
+
+    const users = await userMapper.select().getMany();
+    expect(users.length).toEqual(1);
+  });
+
   // it('BUILDER: deletes via parameterized queries', async () => {
   //   const parameterization = userMapper
   //     .delete()
