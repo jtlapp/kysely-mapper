@@ -25,7 +25,7 @@ export class UpdateQuery<
   ) {}
 
   /**
-   * Runs the query, returning the number of rows updated, converted to
+   * Runs the query, returning the number of rows updated, in
    * the required client representation.
    * @returns Number of rows updated, in client-requested representation.
    */
@@ -35,9 +35,12 @@ export class UpdateQuery<
   }
 
   /**
-   * Retrieves zero or more rows from the table, mapping the rows
-   * to objects of type `SelectedObject`.
-   * @returns An array of objects for the selected rows, possibly empty.
+   * Runs the query, updating rows. For each row updated, retrieves the
+   * columns specified in the `returnColumns` option, which are returned
+   * unless `updateReturnTransform` transforms them into `ReturnedObject`.
+   * If `returnColumns` is empty, returns nothing.
+   * @returns Returns an array of `ReturnedObject` objects, one for each
+   *  updated row.
    */
   async getReturns(): Promise<ReturnedObject[]> {
     const results = await this.qb.execute();
@@ -45,18 +48,14 @@ export class UpdateQuery<
   }
 
   /**
-   * Retrieves a single row from the table, mapping the row
-   * to an object of type `SelectedObject`.
-   * @returns An object for the selected rows, or null if not found.
+   * Runs the query, updating rows, without returning any columns.
    */
   async run(): Promise<void> {
     await this.qb.execute();
   }
 
   /**
-   * Modifies the underlying Kysely query builder. All columns given in
-   * `SelectedColumns` are already selected, but you can select additional
-   * columns or add columna aliases.
+   * Modifies the underlying Kysely query builder.
    * @param factory A function that takes the current query builder and
    *  returns a new query builder.
    */
