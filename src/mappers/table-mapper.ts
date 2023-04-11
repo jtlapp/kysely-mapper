@@ -136,17 +136,24 @@ export class TableMapper<
     RE extends ReferenceExpression<DB, TB>,
     QB extends DeleteQueryBuilder<DB, TB, DeleteResult>
   >(
-    filter: QueryFilter<
+    filter?: QueryFilter<
       DB,
       TB,
       RE,
       DeleteQueryBuilder<DB, any, DeleteResult>,
       QB
     >
-  ): DeletionQuery<DB, TB, QB, ReturnedCount> {
+  ): DeletionQuery<
+    DB,
+    TB,
+    DeleteQueryBuilder<DB, TB, DeleteResult>,
+    ReturnedCount
+  > {
     return new DeletionQuery(
       this.db,
-      applyQueryFilter(this.db, this.deleteQB(), filter),
+      filter === undefined
+        ? this.deleteQB()
+        : applyQueryFilter(this.db, this.deleteQB(), filter),
       this.countTransform
     );
   }

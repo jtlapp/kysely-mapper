@@ -20,30 +20,30 @@ beforeAll(async () => {
 beforeEach(() => resetDB(db));
 afterAll(() => destroyDB(db));
 
-it('BUILDER: deleteQB() serves as a basis for deleting rows', async () => {
-  await userMapper.insert(USERS[1]);
-
-  const readUser1 = await userMapper
-    .select()
-    .filter({ handle: USERS[1].handle })
-    .getOne();
-  expect(readUser1?.handle).toEqual(USERS[1].handle);
-  expect(readUser1?.email).toEqual(USERS[1].email);
-
-  const result = await userMapper
-    .deleteQB()
-    .where('handle', '=', USERS[1].handle)
-    .executeTakeFirst();
-  expect(Number(result.numDeletedRows)).toEqual(1);
-
-  const readUser2 = await userMapper
-    .select()
-    .filter({ handle: USERS[1].handle })
-    .getOne();
-  expect(readUser2).toBeNull();
-});
-
 describe('BUILDER: deleting rows via TableMapper', () => {
+  it('BUILDER: deleteQB() serves as a basis for deleting rows', async () => {
+    await userMapper.insert(USERS[1]);
+
+    const readUser1 = await userMapper
+      .select()
+      .filter({ handle: USERS[1].handle })
+      .getOne();
+    expect(readUser1?.handle).toEqual(USERS[1].handle);
+    expect(readUser1?.email).toEqual(USERS[1].email);
+
+    const result = await userMapper
+      .deleteQB()
+      .where('handle', '=', USERS[1].handle)
+      .executeTakeFirst();
+    expect(Number(result.numDeletedRows)).toEqual(1);
+
+    const readUser2 = await userMapper
+      .select()
+      .filter({ handle: USERS[1].handle })
+      .getOne();
+    expect(readUser2).toBeNull();
+  });
+
   it('BUILDER: deletes rows without returning a count', async () => {
     const testMapper = new TableMapper(db, 'users', {
       countTransform: (count) => Number(count),
@@ -98,6 +98,16 @@ describe('BUILDER: deleting rows via TableMapper', () => {
     const users = await userMapper.select().getMany();
     expect(users.length).toEqual(1);
     expect(users[0].handle).toEqual(USERS[1].handle);
+  });
+
+  it('BUILDER: deletes all rows without a filter', async () => {
+    await userMapper.insert(USERS);
+
+    const count = await userMapper.delete().getCount();
+    expect(count).toEqual(3);
+
+    const users = await userMapper.select().getMany();
+    expect(users.length).toEqual(0);
   });
 
   it('BUILDER: deletes rows specified via compound filter', async () => {
