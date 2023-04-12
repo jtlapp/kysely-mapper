@@ -76,9 +76,9 @@ export class MappingInsertQuery<
     objOrObjs: InsertedObject | InsertedObject[]
   ): Promise<ReturnedObject | ReturnedObject[] | void> {
     if (this.returnColumns.length === 0) {
-      await this.loadInsertions(this.qb, objOrObjs).execute();
+      await this.loadInsertedObjects(this.qb, objOrObjs).execute();
     } else {
-      const returns = await this.loadInsertions(
+      const returns = await this.loadInsertedObjects(
         this.getReturningQB(),
         objOrObjs
       ).execute();
@@ -102,7 +102,7 @@ export class MappingInsertQuery<
    * Inserts rows into the table without returning any columns.
    */
   async run(objOrObjs: InsertedObject | InsertedObject[]): Promise<void> {
-    await this.loadInsertions(this.qb, objOrObjs).execute();
+    await this.loadInsertedObjects(this.qb, objOrObjs).execute();
   }
 
   /**
@@ -110,7 +110,7 @@ export class MappingInsertQuery<
    * @param factory A function that takes the current query builder and
    *  returns a new query builder.
    */
-  modify<NextQB extends InsertQueryBuilder<DB, TB, InsertResult>>(
+  modify<NextQB extends InsertQueryBuilder<DB, TB, any>>(
     factory: (qb: QB) => NextQB
   ): MappingInsertQuery<
     DB,
@@ -153,7 +153,7 @@ export class MappingInsertQuery<
    * @param objOrObjs The object or objects to be inserted.
    * @returns The query builder with the objects loaded.
    */
-  protected loadInsertions(
+  protected loadInsertedObjects(
     qb: InsertQueryBuilder<DB, TB, InsertResult>,
     objOrObjs: InsertedObject | InsertedObject[]
   ): InsertQueryBuilder<DB, TB, InsertResult> {
