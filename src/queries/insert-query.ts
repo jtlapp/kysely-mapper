@@ -55,47 +55,65 @@ export class MappingInsertQuery<
   }
 
   /**
-   * Inserts the provided object or objects into the table as rows, first
-   * transforming the objects into rows via `insertTransform` (if defined).
-   * For each row inserted, retrieves the columns specified in `returnColumns`,
-   * which are returned unless `insertReturnTransform` transforms them
-   * into `ReturnedObject`. If `returnColumns` is empty, returns nothing.
-   * @returns Returns a `ReturnedObject` for each inserted object. Will
-   *  be an array when `objOrObjs` is an array, will be a single object
-   *  otherwise. Returns nothing (void) if `returnColumns` is empty.
+   * Inserts the provided objects into the table as rows, first transforming
+   * them into rows via `insertTransform` (if defined). For each row inserted,
+   * retrieves the columns specified in `returnColumns`, returning them to
+   * the caller as an object, unless `insertReturnTransform` transforms them
+   * into `ReturnedObject`. If `returnColumns` is empty, returns `undefined`.
+   * @returns If `returnColumns` is not empty, returns an array containing one
+   *  `ReturnedObject` for each inserted object; otherwise returns `undefined`.
    */
-  getReturns(
-    obj: InsertedObject
-  ): Promise<ReturnColumns extends [] ? void : ReturnedObject>;
-
-  getReturns(
+  getAll(
     objs: InsertedObject[]
   ): Promise<ReturnColumns extends [] ? void : ReturnedObject[]>;
 
-  async getReturns(
-    objOrObjs: InsertedObject | InsertedObject[]
-  ): Promise<ReturnedObject | ReturnedObject[] | void> {
+  async getAll(objs: InsertedObject[]): Promise<ReturnedObject[] | void> {
     if (this.returnColumns.length === 0) {
-      await this.loadInsertedObjects(this.qb, objOrObjs).execute();
-    } else {
-      const returns = await this.loadInsertedObjects(
-        this.getReturningQB(),
-        objOrObjs
-      ).execute();
-      if (returns === undefined) {
-        throw Error('No rows returned from insert expecting returned columns');
-      }
-      if (Array.isArray(objOrObjs)) {
-        return this.insertReturnTransform === undefined
-          ? (returns as any)
-          : returns.map((row, i) =>
-              this.insertReturnTransform!(objOrObjs[i], row as any)
-            );
-      }
-      return this.insertReturnTransform === undefined
-        ? (returns[0] as any)
-        : this.insertReturnTransform(objOrObjs, returns[0] as any);
+      await this.loadInsertedObjects(this.qb, objs).execute();
+      return;
     }
+    const returns = await this.loadInsertedObjects(
+      this.getReturningQB(),
+      objs
+    ).execute();
+    if (returns === undefined) {
+      throw Error('No rows returned from insert expecting returned columns');
+    }
+    return this.insertReturnTransform === undefined
+      ? (returns as any)
+      : returns.map((row, i) =>
+          this.insertReturnTransform!(objs[i], row as any)
+        );
+  }
+
+  /**
+   * Inserts the provided object into the table as a row, first transforming
+   * it into rows via `insertTransform` (if defined). Retrieves the columns
+   * specified in `returnColumns` (if any), returning them to the caller as
+   * an objectunless `insertReturnTransform` transforms them into a
+   * `ReturnedObject`. If `returnColumns` is empty, returns `undefined`.
+   * @returns If `returnColumns` is not empty, returns a `ReturnedObject`;
+   *  otherwise returns `undefined`.
+   */
+  getOne(
+    obj: InsertedObject
+  ): Promise<ReturnColumns extends [] ? void : ReturnedObject>;
+
+  async getOne(obj: InsertedObject): Promise<ReturnedObject | null | void> {
+    if (this.returnColumns.length === 0) {
+      await this.loadInsertedObjects(this.qb, obj).execute();
+      return;
+    }
+    const result = await this.loadInsertedObjects(
+      this.getReturningQB(),
+      obj
+    ).executeTakeFirst();
+    if (result === undefined) {
+      throw Error('No row returned from insert expecting returned columns');
+    }
+    return this.insertReturnTransform === undefined
+      ? (result as any)
+      : this.insertReturnTransform(obj, result as any);
   }
 
   /**

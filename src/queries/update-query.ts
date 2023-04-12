@@ -68,32 +68,66 @@ export class MappingUpdateQuery<
   }
 
   /**
-   * Runs the query, updating rows. For each row updated, retrieves the
-   * columns specified in the `returnColumns` option, which are returned
-   * unless `updateReturnTransform` transforms them into `ReturnedObject`.
-   * If `returnColumns` is empty, returns nothing.
-   * @returns Returns an array of `ReturnedObject` objects, one for each
-   *  updated row.
+   * Runs the query, updating rows with the values in the provided object.
+   * For each row updated, retrieves the columns specified in `returnColumns`,
+   * returning them as an object, unless `updateReturnTransform` transforms
+   * them into `ReturnedObject`. If `returnColumns` is empty, returns `undefined`.
+   * @returns If `returnColumns` is not empty, returns an array containing one
+   *  `ReturnedObject` for each updated object; otherwise returns `undefined`.
    */
-  getReturns(
+  getAll(
     obj: UpdaterObject
   ): Promise<ReturnColumns extends [] ? void : ReturnedObject[]>;
 
-  async getReturns(obj: UpdaterObject): Promise<ReturnedObject[] | void> {
+  async getAll(obj: UpdaterObject): Promise<ReturnedObject[] | void> {
     if (this.returnColumns.length === 0) {
       await this.loadUpdaterObject(this.qb, obj).execute();
-    } else {
-      const returns = await this.loadUpdaterObject(
-        this.getReturningQB(),
-        obj
-      ).execute();
-      if (returns === undefined) {
-        throw Error('No rows returned from update expecting returned columns');
-      }
-      return this.updateReturnTransform === undefined
-        ? (returns as any)
-        : returns.map((row) => this.updateReturnTransform!(obj, row as any));
+      return;
     }
+    const returns = await this.loadUpdaterObject(
+      this.getReturningQB(),
+      obj
+    ).execute();
+    if (returns === undefined) {
+      throw Error('No rows returned from update expecting returned columns');
+    }
+    return this.updateReturnTransform === undefined
+      ? (returns as any)
+      : returns.map((row) => this.updateReturnTransform!(obj, row as any));
+  }
+
+  /**
+   * Runs the query, updating rows with the values in the provided object.
+   * For the first updated row, retrieves the columns given in `returnColumns`,
+   * returning them as an object, unless `updateReturnTransform` transforms
+   * them into a `ReturnedObject`. If `returnColumns` is empty, returns
+   * `undefined`.
+   * @returns If `returnColumns` is empty, returned `undefined`. Otherwise,
+   *  returns a `ReturnedObject` if at least one row was updated, or `null` if
+   *  no rows were updated.
+   */
+  getOne(
+    obj: UpdaterObject
+  ): Promise<ReturnColumns extends [] ? void : ReturnedObject | null>;
+
+  async getOne(obj: UpdaterObject): Promise<ReturnedObject | null | void> {
+    if (this.returnColumns.length === 0) {
+      await this.loadUpdaterObject(this.qb, obj).execute();
+      return;
+    }
+    const returns = await this.loadUpdaterObject(
+      this.getReturningQB(),
+      obj
+    ).execute();
+    if (returns === undefined) {
+      throw Error('No rows returned from update expecting returned columns');
+    }
+    if (returns.length === 0) {
+      return null;
+    }
+    return this.updateReturnTransform === undefined
+      ? (returns[0] as any)
+      : this.updateReturnTransform!(obj, returns[0] as any);
   }
 
   /**

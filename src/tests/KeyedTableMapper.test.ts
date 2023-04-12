@@ -55,8 +55,8 @@ describe('keyed table mapper using a single-column tuple key', () => {
 
   it('inserts, selects, updates, and deletes objects by key', async () => {
     // Add users
-    const id0 = (await explicitKeyedMapper.insert().getReturns(USERS[0])).id;
-    const id1 = (await explicitKeyedMapper.insert().getReturns(USERS[1])).id;
+    const id0 = (await explicitKeyedMapper.insert().getOne(USERS[0])).id;
+    const id1 = (await explicitKeyedMapper.insert().getOne(USERS[1])).id;
 
     // Update a user without returning columns
     const NEW_EMAIL = 'new@baz.com';
@@ -83,7 +83,7 @@ describe('keyed table mapper using a single-column tuple key', () => {
 
   it('updates returning default key by default with default key', async () => {
     const defaultKeyMapper = new KeyedTableMapper(db, 'users');
-    const id1 = (await defaultKeyMapper.insert().getReturns(USERS[1])).id;
+    const id1 = (await defaultKeyMapper.insert().getOne(USERS[1])).id;
 
     const NEW_EMAIL1 = 'new1@baz.com';
     const updated1 = await defaultKeyMapper.updateByKey([id1], {
@@ -110,7 +110,7 @@ describe('keyed table mapper using a single-column tuple key', () => {
     // Make sure KeyedTableMapper will take readonly key columns.
     const keyColumns = ['id'] as const;
     const defaultKeyMapper = new KeyedTableMapper(db, 'users', keyColumns);
-    const id1 = (await defaultKeyMapper.insert().getReturns(USERS[1])).id;
+    const id1 = (await defaultKeyMapper.insert().getOne(USERS[1])).id;
 
     const NEW_EMAIL1 = 'new1@baz.com';
     const updated1 = await defaultKeyMapper.updateByKey([id1], {
@@ -134,7 +134,7 @@ describe('keyed table mapper using a single-column tuple key', () => {
   });
 
   it('updates returning expected columns', async () => {
-    const id1 = (await explicitKeyedMapper.insert().getReturns(USERS[1])).id;
+    const id1 = (await explicitKeyedMapper.insert().getOne(USERS[1])).id;
 
     const NEW_EMAIL = 'new@baz.com';
     const updated = await explicitKeyedMapper.updateByKey([id1], {
@@ -147,8 +147,8 @@ describe('keyed table mapper using a single-column tuple key', () => {
   it("provides a default key of 'id'", async () => {
     const defaultIdMapper = new KeyedTableMapper(db, 'users');
 
-    await defaultIdMapper.insert().getReturns(USERS[0]);
-    const id1 = (await defaultIdMapper.insert().getReturns(USERS[1])).id;
+    await defaultIdMapper.insert().run(USERS[0]);
+    const id1 = (await defaultIdMapper.insert().getOne(USERS[1])).id;
 
     const readUser1 = await explicitKeyedMapper.selectByKey([id1]);
     expect(readUser1?.handle).toEqual(USERS[1].handle);
@@ -159,13 +159,13 @@ describe('keyed table mapper using a single-column tuple key', () => {
       returnColumns: ['id', 'handle'],
     });
 
-    const insertReturn1 = await idAndHandleMapper.insert().getReturns(USERS[0]);
+    const insertReturn1 = await idAndHandleMapper.insert().getOne(USERS[0]);
     expect(insertReturn1).toEqual({
       id: 1,
       handle: USERS[0].handle,
     });
 
-    const insertReturn2 = await idAndHandleMapper.insert().getReturns(USERS[1]);
+    const insertReturn2 = await idAndHandleMapper.insert().getOne(USERS[1]);
     expect(insertReturn2).toEqual({
       id: 2,
       handle: USERS[1].handle,
@@ -177,7 +177,7 @@ describe('keyed table mapper using a single-column tuple key', () => {
       returnColumns: ['*'],
     });
 
-    const insertReturn1 = await allColumnsMapper.insert().getReturns(USERS[0]);
+    const insertReturn1 = await allColumnsMapper.insert().getOne(USERS[0]);
     expect(insertReturn1).toEqual({
       id: 1,
       handle: USERS[0].handle,
@@ -185,7 +185,7 @@ describe('keyed table mapper using a single-column tuple key', () => {
       email: USERS[0].email,
     });
 
-    const insertReturn2 = await allColumnsMapper.insert().getReturns(USERS[1]);
+    const insertReturn2 = await allColumnsMapper.insert().getOne(USERS[1]);
     expect(insertReturn2).toEqual({
       id: 2,
       handle: USERS[1].handle,
@@ -204,7 +204,7 @@ describe('keyed table mapper using a single-column tuple key', () => {
 
     const insertReturn1 = await testTransformMapper
       .insert()
-      .getReturns(insertedUser1);
+      .getOne(insertedUser1);
     expect(insertReturn1).toEqual(ReturnedUser.create(1, insertedUser1));
 
     const readUser1 = await testTransformMapper.selectByKey([1]);
@@ -238,7 +238,7 @@ describe('keyed table mapper using a single-column tuple key', () => {
       returnColumns: [],
     });
 
-    const insertReturn1 = await noReturnMapper.insert().getReturns(USERS[0]);
+    const insertReturn1 = await noReturnMapper.insert().getOne(USERS[0]);
     expect(insertReturn1).toBeUndefined();
 
     const update1 = await noReturnMapper.updateByKey([1], {
@@ -256,8 +256,8 @@ describe('keyed table mapper using a single-column tuple key', () => {
 describe('keyed table mapper using a single-column value key', () => {
   it('inserts, selects, updates, and deletes objects by value key', async () => {
     // Add users
-    const id0 = (await explicitKeyedMapper.insert().getReturns(USERS[0])).id;
-    const id1 = (await explicitKeyedMapper.insert().getReturns(USERS[1])).id;
+    const id0 = (await explicitKeyedMapper.insert().getOne(USERS[0])).id;
+    const id1 = (await explicitKeyedMapper.insert().getOne(USERS[1])).id;
 
     // Update a user without returning columns
     const NEW_EMAIL1 = 'new1@baz.com';
@@ -308,20 +308,20 @@ describe('keyed table mapper using a multi-column tuple key', () => {
 
     // Add users
     const id0 = (
-      await multiKeyMapper.insert().getReturns({
+      await multiKeyMapper.insert().getOne({
         name: 'Jon',
         handle: 'jon',
         email: 'jon@abc.def',
       })
     ).id;
     const id1 = (
-      await multiKeyMapper.insert().getReturns({
+      await multiKeyMapper.insert().getOne({
         name: 'Jon',
         handle: 'jonny',
         email: 'jonny@abc.def',
       })
     ).id;
-    await multiKeyMapper.insert().getReturns({
+    await multiKeyMapper.insert().run({
       name: 'John',
       handle: 'jonny',
       email: 'john@abc.def',

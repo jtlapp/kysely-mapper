@@ -242,7 +242,7 @@ describe('select() getAll()', () => {
   });
 
   it('selects many returning selected columns and aliases', async () => {
-    const ids = await userMapper.insert().getReturns(USERS);
+    const ids = await userMapper.insert().getAll(USERS);
     const mapper = new TableMapper(db, 'users', {
       selectedColumns: ['id', 'handle as h'],
     });
@@ -346,7 +346,7 @@ describe('select() getOne()', () => {
   });
 
   it('selects the first row with a compound filter', async () => {
-    const userIDs = await userMapper.insert().getReturns(USERS);
+    const userIDs = await userMapper.insert().getAll(USERS);
 
     const user = await userMapper
       .select(({ and, cmpr }) =>
@@ -384,7 +384,7 @@ describe('select() getOne()', () => {
   });
 
   it('selects one returning selected columns and aliases', async () => {
-    const ids = await userMapper.insert().getReturns(USERS);
+    const ids = await userMapper.insert().getAll(USERS);
     const mapper = new TableMapper(db, 'users', {
       selectedColumns: ['id', 'handle as h'],
     });

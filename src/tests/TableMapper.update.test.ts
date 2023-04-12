@@ -54,15 +54,18 @@ describe('updating rows via TableMapper', () => {
 
     const updates = await userMapperReturningID
       .update({ id: 1 })
-      .getReturns(updateValues);
+      .getAll(updateValues);
     expect(updates.length).toEqual(0);
+
+    const update = await userMapperReturningID
+      .update({ id: 1 })
+      .getOne(updateValues);
+    expect(update).toBeNull();
   });
 
   it('updates something returning non-zero update count', async () => {
     const updateValues = { email: 'new.email@xyz.pdq' };
-    const insertReturn0 = await userMapperReturningID
-      .insert()
-      .getReturns(USERS[0]);
+    const insertReturn0 = await userMapperReturningID.insert().getOne(USERS[0]);
     await userMapperReturningID.insert().run(USERS[1]);
     await userMapperReturningID.insert().run(USERS[2]);
 
@@ -71,10 +74,10 @@ describe('updating rows via TableMapper', () => {
       .getCount(updateValues);
     expect(updateCount1).toEqual(1);
 
-    const readUser = await userMapperReturningID
+    const readUser1 = await userMapperReturningID
       .select(['id', '=', insertReturn0.id])
       .getOne();
-    expect(readUser?.email).toEqual(updateValues.email);
+    expect(readUser1?.email).toEqual(updateValues.email);
 
     const updateCount2 = await userMapperReturningAll
       .update({ name: 'Sue' })
@@ -88,29 +91,43 @@ describe('updating rows via TableMapper', () => {
     expect(readUsers[0].email).toEqual(updateValues.email);
     expect(readUsers[1].email).toEqual(updateValues.email);
 
+    const updates = await userMapperReturningID.update().getAll({
+      name: 'Every User 1',
+    });
+    expect(updates).toEqual([{ id: 1 }, { id: 2 }, { id: 3 }]);
+
+    const update = await userMapperReturningID
+      .update({ id: readUsers[0].id })
+      .getOne({
+        name: 'Every User 2',
+      });
+    expect(update).toEqual({ id: 1 });
+    const readUser2 = await userMapperReturningID
+      .select(['id', '=', 1])
+      .getOne();
+    expect(readUser2?.name).toEqual('Every User 2');
+
     const updateCount = await userMapperReturningID.update().getCount({
-      name: 'Every User',
+      name: 'Every User 3',
     });
     expect(updateCount).toEqual(3);
 
     const success = await userMapperReturningID.update().run({
-      name: 'Every User',
+      name: 'Every User 4',
     });
     expect(success).toBe(true);
   });
 
   it('updates returning configured return columns', async () => {
     await userMapperReturningID.insert().run(USERS[0]);
-    const insertReturn = await userMapperReturningID
-      .insert()
-      .getReturns(USERS[1]);
+    const insertReturn = await userMapperReturningID.insert().getOne(USERS[1]);
     await userMapperReturningID.insert().run(USERS[2]);
 
     // Verify that update performs the correct change on the correct row.
     const updateValues1 = { email: 'new.email@xyz.pdq' };
     const updateReturns1 = await userMapperReturningID
       .update({ id: insertReturn.id })
-      .getReturns(updateValues1);
+      .getAll(updateValues1);
     expect(updateReturns1).toEqual([{ id: insertReturn.id }]);
     let readUser = await userMapperReturningID
       .select(['id', '=', insertReturn.id])
@@ -121,7 +138,7 @@ describe('updating rows via TableMapper', () => {
     const updateValues2 = { name: 'Sue' };
     const updateReturns2 = await userMapperReturningIDAndHandle
       .update({ email: updateValues1.email })
-      .getReturns(updateValues2);
+      .getAll(updateValues2);
     expect(updateReturns2).toEqual([
       {
         id: insertReturn.id,
@@ -137,7 +154,7 @@ describe('updating rows via TableMapper', () => {
     const updateValues3 = { name: 'Replacement Sue' };
     const updateReturns3 = await userMapperReturningIDAndHandle
       .update({ name: 'Sue' })
-      .getReturns(updateValues3);
+      .getAll(updateValues3);
     expect(updateReturns3.length).toEqual(3);
     expect(updateReturns3[0].handle).toEqual(USERS[0].handle);
     expect(updateReturns3[1].handle).toEqual(USERS[1].handle);
@@ -153,7 +170,7 @@ describe('updating rows via TableMapper', () => {
 
     const updates = await userMapperReturningDefault
       .update({ name: 'Sue' })
-      .getReturns({ email: 'new.email@xyz.pdq' });
+      .getAll({ email: 'new.email@xyz.pdq' });
     expect(updates).toBeUndefined();
 
     const readUsers = await userMapperReturningID
@@ -169,7 +186,7 @@ describe('updating rows via TableMapper', () => {
 
     const updates = await userMapperReturningNothing
       .update({ name: 'Sue' })
-      .getReturns({ email: 'new.email@xyz.pdq' });
+      .getAll({ email: 'new.email@xyz.pdq' });
     expect(updates).toBeUndefined();
 
     const readUsers = await userMapperReturningID
@@ -181,14 +198,12 @@ describe('updating rows via TableMapper', () => {
   });
 
   it('updates configured to return all columns', async () => {
-    const insertReturns = await userMapperReturningID
-      .insert()
-      .getReturns(USERS);
+    const insertReturns = await userMapperReturningID.insert().getAll(USERS);
 
     const updateValues = { email: 'new.email@xyz.pdq' };
     const updateReturns = await userMapperReturningAll
       .update({ name: 'Sue' })
-      .getReturns(updateValues);
+      .getAll(updateValues);
 
     const expectedUsers = [
       Object.assign({}, USERS[0], updateValues, { id: insertReturns[0].id }),
@@ -198,14 +213,12 @@ describe('updating rows via TableMapper', () => {
   });
 
   it('updates all rows when no filter is given', async () => {
-    const insertReturns = await userMapperReturningID
-      .insert()
-      .getReturns(USERS);
+    const insertReturns = await userMapperReturningID.insert().getAll(USERS);
 
     const updateValues = { email: 'new.email@xyz.pdq' };
     const updateReturns = await userMapperReturningIDAndHandle
       .update()
-      .getReturns(updateValues);
+      .getAll(updateValues);
 
     const expectedUsers = USERS.map((user, i) => {
       return { id: insertReturns[i].id, handle: user.handle };
@@ -220,9 +233,7 @@ describe('updating rows via TableMapper', () => {
   });
 
   it('updates rows indicated by a binary operator', async () => {
-    const insertReturns = await userMapperReturningID
-      .insert()
-      .getReturns(USERS);
+    const insertReturns = await userMapperReturningID.insert().getAll(USERS);
 
     const updateValues = { email: 'new.email@xyz.pdq' };
     const updateCount = await userMapperReturningAll
@@ -240,9 +251,7 @@ describe('updating rows via TableMapper', () => {
   });
 
   it('updates rows indicated by a kysely expression', async () => {
-    const insertReturns = await userMapperReturningID
-      .insert()
-      .getReturns(USERS);
+    const insertReturns = await userMapperReturningID.insert().getAll(USERS);
 
     const updateValues = { email: 'new.email@xyz.pdq' };
     const updateCount = await userMapperReturningDefault
@@ -260,9 +269,7 @@ describe('updating rows via TableMapper', () => {
   });
 
   it('updates rows indicated by a where expression filter', async () => {
-    const insertReturns = await userMapperReturningID
-      .insert()
-      .getReturns(USERS);
+    const insertReturns = await userMapperReturningID.insert().getAll(USERS);
 
     const updateValues1 = { email: 'foo@xyz.pdq' };
     const updateCount = await userMapperReturningAll
@@ -283,7 +290,7 @@ describe('updating rows via TableMapper', () => {
           cmpr('id', '=', insertReturns[2].id),
         ])
       )
-      .getReturns(updateValues2);
+      .getAll(updateValues2);
     expect(updateReturns).toEqual([
       { id: insertReturns[0].id },
       { id: insertReturns[2].id },
@@ -302,20 +309,20 @@ describe('updating rows via TableMapper', () => {
         // @ts-expect-error - table must have all filter fields
         { notThere: 'xyz' }
       )
-      .getReturns({ email: 'abc@def.ghi' });
+      .getAll({ email: 'abc@def.ghi' });
     // @ts-expect-error - table must have all filter fields
-    userMapperReturningID.update(['notThere', '=', 'foo']).getReturns({
+    userMapperReturningID.update(['notThere', '=', 'foo']).getAll({
       email: 'abc@def.ghi',
     });
     // @ts-expect-error - table must have all filter fields
-    userMapperReturningID.update(['notThere', '=', 'foo']).getReturns({
+    userMapperReturningID.update(['notThere', '=', 'foo']).getAll({
       email: 'abc@def.ghi',
     });
     userMapperReturningID
       .update({ id: 32 })
       // @ts-expect-error - update must only have table columns
-      .getReturns({ notThere: 'xyz@pdq.xyz' });
-    userMapperReturningID.update({ id: 32 }).getReturns(
+      .getAll({ notThere: 'xyz@pdq.xyz' });
+    userMapperReturningID.update({ id: 32 }).getAll(
       // @ts-expect-error - update must only have table columns
       { notThere: 'xyz@pdq.xyz' }
     );
@@ -325,10 +332,10 @@ describe('updating rows via TableMapper', () => {
     userMapperReturningID.update("name = 'John Doe'", USERS[0]);
     // @ts-expect-error - only requested columns are accessible
     // prettier-ignore
-    (await userMapperReturningID.update({ id: 32 }).getReturns(USERS[0]))[0].name;
+    (await userMapperReturningID.update({ id: 32 }).getAll(USERS[0]))[0].name;
     // @ts-expect-error - only requested columns are accessible
     // prettier-ignore
-    (await userMapperReturningID.update({ id: 32 }).getReturns( USERS[0]))[0].name;
+    (await userMapperReturningID.update({ id: 32 }).getAll( USERS[0]))[0].name;
     await userMapperReturningID
       .update(({ or, cmpr }) =>
         // @ts-expect-error - only table columns are accessible via anyOf()
@@ -340,7 +347,7 @@ describe('updating rows via TableMapper', () => {
         // @ts-expect-error - only table columns are accessible via anyOf()
         or([cmpr('notThere', '=', 'xyz'), cmpr('alsoNotThere', '=', 'Sue')])
       )
-      .getReturns(USERS[0]);
+      .getAll(USERS[0]);
   });
 });
 
@@ -371,7 +378,7 @@ describe('update transformation', () => {
 
     const insertReturns = await mapper
       .insert()
-      .getReturns([userRow1, userRow2, userRow3]);
+      .getAll([userRow1, userRow2, userRow3]);
     const updaterUser1 = UpdaterUser.create(
       0,
       Object.assign({}, userObject1, { firstName: 'Suzanne' })
@@ -384,7 +391,7 @@ describe('update transformation', () => {
           cmpr('id', '=', insertReturns[2].id),
         ])
       )
-      .getReturns(updaterUser1);
+      .getAll(updaterUser1);
     expect(updateReturns).toEqual([
       { id: insertReturns[0].id },
       { id: insertReturns[2].id },
@@ -436,10 +443,10 @@ describe('update transformation', () => {
 
     const insertReturn = await updateReturnTransformMapper
       .insert()
-      .getReturns(userRow1);
+      .getOne(userRow1);
     const updateReturn = await updateReturnTransformMapper
       .update({ id: insertReturn.id })
-      .getReturns({ name: 'Suzanne Smith' });
+      .getAll({ name: 'Suzanne Smith' });
     expect(updateReturn).toEqual([
       new ReturnedUser(
         insertReturn.id,
@@ -487,10 +494,10 @@ describe('update transformation', () => {
 
     const insertReturn = await updateAndReturnTransformMapper
       .insert()
-      .getReturns(userRow1);
+      .getOne(userRow1);
     const updateReturn = await updateAndReturnTransformMapper
       .update({ id: insertReturn.id })
-      .getReturns(UpdaterUser.create(0, userObject1));
+      .getAll(UpdaterUser.create(0, userObject1));
     expect(updateReturn).toEqual([
       new ReturnedUser(
         insertReturn.id,

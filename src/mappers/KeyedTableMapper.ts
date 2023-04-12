@@ -180,10 +180,7 @@ export class KeyedTableMapper<
       | Readonly<KeyTuple<DB[TB], PrimaryKeyColumns>>,
     obj: UpdaterObject
   ): Promise<ReturnedObject | null | void> {
-    const updates = await this.update(this.filterForKey(key)).getReturns(obj);
-    if (updates !== undefined) {
-      return updates.length == 0 ? null : updates[0];
-    }
+    return await this.update(this.filterForKey(key)).getOne(obj);
   }
 
   /**
