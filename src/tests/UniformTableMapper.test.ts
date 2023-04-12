@@ -40,7 +40,7 @@ it('inserts/updates/deletes a mapped object w/ default transforms', async () => 
     USERS[0].handle,
     USERS[0].email
   );
-  const updateReturn1 = await userMapper.update(userWithID);
+  const updateReturn1 = await userMapper.updateTODO(userWithID);
   expect(updateReturn1).toEqual(null);
 
   // test inserting a user with falsy id
@@ -78,7 +78,7 @@ it('inserts/updates/deletes a mapped object w/ default transforms', async () => 
     selectedUser1!.handle,
     selectedUser1!.email
   );
-  const updateReturn = await userMapper.update(updaterUser);
+  const updateReturn = await userMapper.updateTODO(updaterUser);
   expect(updateReturn).toEqual(updaterUser);
   const selectedUser3 = await userMapper.selectByKey(insertReturn1.id);
   expect(selectedUser3).toEqual(updateReturn);
@@ -157,7 +157,7 @@ it('inserts/updates/deletes a mapped object class w/ all custom transforms', asy
   });
 
   // test updating a non-existent user
-  const updateReturn1 = await userMapper.update(
+  const updateReturn1 = await userMapper.updateTODO(
     new KeyedUser(
       1,
       insertedUser1.firstName,
@@ -193,19 +193,18 @@ it('inserts/updates/deletes a mapped object class w/ all custom transforms', asy
     selectedUser1!.handle,
     selectedUser1!.email
   );
-  const updateReturn = await userMapper.update(updaterUser);
+  const updateReturn = await userMapper.updateTODO(updaterUser);
   expect(updateReturn).toEqual(updaterUser);
   const selectedUser2 = await userMapper.selectByKey(insertReturn.serialNo);
   expect(selectedUser2?.serialNo).toEqual(selectedUser1!.serialNo);
   expect(selectedUser2?.handle).toEqual(selectedUser1!.handle + '2');
 
   // test updating a column with returns
-  const updateColumnReturns = await userMapper.updateWhere(
-    ['id', '=', insertReturn.serialNo],
-    {
+  const updateColumnReturns = await userMapper
+    .update(['id', '=', insertReturn.serialNo])
+    .getReturns({
       name: 'Foo Foo',
-    }
-  );
+    });
   expect(updateColumnReturns).toEqual([{ id: selectedUser1!.serialNo }]);
   const selectedUser4 = await userMapper.selectByKey(insertReturn.serialNo);
   expect(selectedUser4?.firstName).toEqual('Foo');
@@ -263,7 +262,7 @@ it('inserts/updates/deletes a mapped object class w/ inferred update transforms'
   });
 
   // test updating a non-existent user
-  const updateReturn1 = await userMapper.update(
+  const updateReturn1 = await userMapper.updateTODO(
     new KeyedUser(
       1,
       insertedUser1.firstName,
@@ -299,7 +298,7 @@ it('inserts/updates/deletes a mapped object class w/ inferred update transforms'
     selectedUser1!.handle,
     selectedUser1!.email
   );
-  const updateReturn = await userMapper.update(updaterUser);
+  const updateReturn = await userMapper.updateTODO(updaterUser);
   expect(updateReturn).toEqual(updaterUser);
   const selectedUser2 = await userMapper.selectByKey(insertReturn.id);
   expect(selectedUser2).toEqual(updateReturn);
