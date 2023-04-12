@@ -35,8 +35,8 @@ describe('deleting rows via TableMapper', () => {
     });
     await testMapper.insert().run(USERS);
 
-    const result = await testMapper.delete({ name: USERS[0].name }).run();
-    expect(result).toBeUndefined();
+    const success = await testMapper.delete({ name: USERS[0].name }).run();
+    expect(success).toBe(true);
 
     const users = await testMapper.select().getAll();
     expect(users.length).toEqual(1);

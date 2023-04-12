@@ -123,8 +123,8 @@ describe('insert an array of objects without transformation', () => {
   });
 
   it('inserts multiple via getResult() without returning columns', async () => {
-    const success = await userMapperReturningDefault.insert().getReturns(USERS);
-    expect(success).toBe(true);
+    const results = await userMapperReturningDefault.insert().getReturns(USERS);
+    expect(results).toBeUndefined();
 
     const readUsers = await userMapperReturningAll.select().getAll();
     expect(readUsers.length).toEqual(3);
@@ -228,8 +228,8 @@ describe('insert an array of objects without transformation', () => {
 
 describe('inserting a single object without transformation', () => {
   it('inserts one returning no columns by default', async () => {
-    const result = await userMapperReturningDefault.insert().run(USERS[0]);
-    expect(result).toBeUndefined();
+    const success = await userMapperReturningDefault.insert().run(USERS[0]);
+    expect(success).toBe(true);
 
     const readUser0 = await userMapperReturningAll
       .select(['email', '=', USERS[0].email])
@@ -238,8 +238,8 @@ describe('inserting a single object without transformation', () => {
   });
 
   it('inserts one explicitly returning no columns', async () => {
-    const result = await userMapperReturningNothing.insert().run(USERS[0]);
-    expect(result).toBeUndefined();
+    const success = await userMapperReturningNothing.insert().run(USERS[0]);
+    expect(success).toBe(true);
 
     const readUser0 = await userMapperReturningAll
       .select(['email', '=', USERS[0].email])
