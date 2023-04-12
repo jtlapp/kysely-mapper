@@ -27,7 +27,7 @@ describe('BUILDER: general selection', () => {
   // TODO: test parameterized queries only returning SelectedColumns and aliases
 
   // it('BUILDER: parameterizes a selection', async () => {
-  //   await userMapper.insert(USERS);
+  //   await userMapper.insert().run(USERS);
 
   //   const parameterization = userMapper
   //     .select()
@@ -64,7 +64,7 @@ describe('BUILDER: general selection', () => {
   // });
 
   it('BUILDER: modifies the underlying query builder', async () => {
-    await userMapper.insert(USERS);
+    await userMapper.insert().run(USERS);
 
     const users = await userMapper
       .select()
@@ -86,7 +86,7 @@ describe('BUILDER: general selection', () => {
   });
 
   it('BUILDER: does not modify the underlying selected columns', async () => {
-    await userMapper.insert(USERS);
+    await userMapper.insert().run(USERS);
 
     const users = await userMapper
       .select()
@@ -142,14 +142,14 @@ describe('BUILDER: general selection', () => {
 
 describe('BUILDER: select() getMany()', () => {
   it('BUILDER: selects nothing when nothing matches filter', async () => {
-    await userMapper.insert(USERS);
+    await userMapper.insert().run(USERS);
 
     const users = await userMapper.select({ name: 'Not There' }).getMany();
     expect(users.length).toEqual(0);
   });
 
   it('BUILDER: selects all rows with no filter', async () => {
-    await userMapper.insert(USERS);
+    await userMapper.insert().run(USERS);
 
     // Test selecting all
     const users = await userMapper.select().getMany();
@@ -160,7 +160,7 @@ describe('BUILDER: select() getMany()', () => {
   });
 
   it('BUILDER: selects with a matching field filter', async () => {
-    await userMapper.insert(USERS);
+    await userMapper.insert().run(USERS);
 
     let users = await userMapper
       .select({
@@ -182,7 +182,7 @@ describe('BUILDER: select() getMany()', () => {
   });
 
   it('BUILDER: selects with a binary operation filter', async () => {
-    await userMapper.insert(USERS);
+    await userMapper.insert().run(USERS);
 
     // Test selecting by condition (with results)
     let users = await userMapper.select(['name', '=', USERS[0].name]).getMany();
@@ -196,7 +196,7 @@ describe('BUILDER: select() getMany()', () => {
   });
 
   it('BUILDER: selects with a query expression filter', async () => {
-    await userMapper.insert(USERS);
+    await userMapper.insert().run(USERS);
 
     const users = await userMapper
       .select(sql`name != ${USERS[0].name}`)
@@ -206,7 +206,7 @@ describe('BUILDER: select() getMany()', () => {
   });
 
   it('BUILDER: selects with a matching field filter via filter()', async () => {
-    await userMapper.insert(USERS);
+    await userMapper.insert().run(USERS);
 
     let users = await userMapper
       .select({
@@ -228,7 +228,7 @@ describe('BUILDER: select() getMany()', () => {
   });
 
   it('BUILDER: selects with a binary operation filter via filter()', async () => {
-    await userMapper.insert(USERS);
+    await userMapper.insert().run(USERS);
 
     // Test selecting by condition (with results)
     let users = await userMapper.select(['name', '=', USERS[0].name]).getMany();
@@ -242,7 +242,7 @@ describe('BUILDER: select() getMany()', () => {
   });
 
   it('BUILDER: selects many returning selected columns and aliases', async () => {
-    const ids = await userMapper.insert(USERS);
+    const ids = await userMapper.insert().getReturns(USERS);
     const mapper = new TableMapper(db, 'users', {
       selectedColumns: ['id', 'handle as h'],
     });
@@ -303,7 +303,7 @@ describe('BUILDER: select() getMany()', () => {
 
 describe('select() getOne()', () => {
   it('BUILDER: selects the first row with no filter', async () => {
-    await userMapper.insert(USERS);
+    await userMapper.insert().run(USERS);
 
     let user = await userMapper.select().getOne();
     expect(user?.handle).toEqual(USERS[0].handle);
@@ -313,7 +313,7 @@ describe('select() getOne()', () => {
   });
 
   it('BUILDER: selects the first row with a matching field filter', async () => {
-    await userMapper.insert(USERS);
+    await userMapper.insert().run(USERS);
 
     let user = await userMapper.select({ name: USERS[0].name }).getOne();
     expect(user?.handle).toEqual(USERS[0].handle);
@@ -328,7 +328,7 @@ describe('select() getOne()', () => {
   });
 
   it('BUILDER: selects the first row with a binary operation filter', async () => {
-    await userMapper.insert(USERS);
+    await userMapper.insert().run(USERS);
 
     // Test selecting by condition (with result)
     let user = await userMapper.select(['name', '=', USERS[0].name]).getOne();
@@ -340,7 +340,7 @@ describe('select() getOne()', () => {
   });
 
   it('BUILDER: selects the first row with a query expression filter', async () => {
-    await userMapper.insert(USERS);
+    await userMapper.insert().run(USERS);
 
     const user = await userMapper
       .select(sql`name != ${USERS[0].name}`)
@@ -349,7 +349,7 @@ describe('select() getOne()', () => {
   });
 
   it('BUILDER: selects the first row with a compound filter', async () => {
-    const userIDs = await userMapper.insert(USERS);
+    const userIDs = await userMapper.insert().getReturns(USERS);
 
     const user = await userMapper
       .select(({ and, cmpr }) =>
@@ -360,7 +360,7 @@ describe('select() getOne()', () => {
   });
 
   it('BUILDER: selects the first row with a matching field filter via filter()', async () => {
-    await userMapper.insert(USERS);
+    await userMapper.insert().run(USERS);
 
     let user = await userMapper.select({ name: USERS[0].name }).getOne();
     expect(user?.handle).toEqual(USERS[0].handle);
@@ -375,7 +375,7 @@ describe('select() getOne()', () => {
   });
 
   it('BUILDER: selects the first row with a binary operation filter via filter()', async () => {
-    await userMapper.insert(USERS);
+    await userMapper.insert().run(USERS);
 
     // Test selecting by condition (with result)
     let user = await userMapper.select(['name', '=', USERS[0].name]).getOne();
@@ -387,7 +387,7 @@ describe('select() getOne()', () => {
   });
 
   it('BUILDER: selects one returning selected columns and aliases', async () => {
-    const ids = await userMapper.insert(USERS);
+    const ids = await userMapper.insert().getReturns(USERS);
     const mapper = new TableMapper(db, 'users', {
       selectedColumns: ['id', 'handle as h'],
     });

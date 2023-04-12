@@ -25,7 +25,7 @@ describe('BUILDER: deleting rows via TableMapper', () => {
     const testMapper = new TableMapper(db, 'users', {
       countTransform: (count) => Number(count),
     });
-    await testMapper.insert(USERS);
+    await testMapper.insert().run(USERS);
 
     const result = await testMapper.delete({ name: USERS[0].name }).run();
     expect(result).toBeUndefined();
@@ -43,7 +43,7 @@ describe('BUILDER: deleting rows via TableMapper', () => {
       .getCount();
     expect(count1).toEqual(BigInt(0));
 
-    await defaultMapper.insert(USERS);
+    await defaultMapper.insert().run(USERS);
 
     const count2 = await defaultMapper
       .delete({ name: USERS[0].name })
@@ -58,7 +58,7 @@ describe('BUILDER: deleting rows via TableMapper', () => {
     const testMapper = new TableMapper(db, 'users', {
       countTransform: (count) => Number(count),
     });
-    await testMapper.insert(USERS);
+    await testMapper.insert().run(USERS);
 
     const count = await testMapper.delete({ name: USERS[0].name }).getCount();
     expect(count).toEqual(2);
@@ -68,7 +68,7 @@ describe('BUILDER: deleting rows via TableMapper', () => {
     const count1 = await userMapper.delete({ name: USERS[0].name }).getCount();
     expect(count1).toEqual(0);
 
-    await userMapper.insert(USERS);
+    await userMapper.insert().run(USERS);
 
     const count2 = await userMapper.delete({ name: USERS[0].name }).getCount();
     expect(count2).toEqual(2);
@@ -78,7 +78,7 @@ describe('BUILDER: deleting rows via TableMapper', () => {
   });
 
   it('BUILDER: deletes all rows without a filter', async () => {
-    await userMapper.insert(USERS);
+    await userMapper.insert().run(USERS);
 
     const count = await userMapper.delete().getCount();
     expect(count).toEqual(3);
@@ -88,7 +88,7 @@ describe('BUILDER: deleting rows via TableMapper', () => {
   });
 
   it('BUILDER: deletes rows specified via compound filter', async () => {
-    await userMapper.insert(USERS);
+    await userMapper.insert().run(USERS);
 
     const count1 = await userMapper
       .delete(({ and, cmpr }) =>
@@ -112,8 +112,8 @@ describe('BUILDER: deleting rows via TableMapper', () => {
   });
 
   it('BUILDER: modifies a delete query builder', async () => {
-    await userMapper.insert(USERS);
-    await userMapper.insert({ ...USERS[1], handle: 'user4' });
+    await userMapper.insert().run(USERS);
+    await userMapper.insert().run({ ...USERS[1], handle: 'user4' });
 
     const count1 = await userMapper
       .delete()
@@ -143,7 +143,7 @@ describe('BUILDER: deleting rows via TableMapper', () => {
   //   });
   //   expect(count1).toEqual(0);
 
-  //   await userMapper.insert(USERS);
+  //   await userMapper.insert().run(USERS);
 
   //   const count2 = await parameterization.getCount(db, {
   //     targetName: USERS[0].name,

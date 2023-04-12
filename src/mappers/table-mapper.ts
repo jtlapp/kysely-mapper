@@ -25,6 +25,7 @@ import { MappingDeleteQuery } from '../queries/delete-query';
 import { RowConverter } from '../lib/row-converter';
 import { MappingSelectQuery } from '../queries/select-query';
 import { AllSelection } from '../lib/kysely-types';
+import { MappingInsertQuery } from '../queries/insert-query';
 
 // TODO: change [binary op] notation to three parameters
 
@@ -193,6 +194,8 @@ export class TableMapper<
     );
   }
 
+  // TODO: support listing inserted columns
+  // TODO: rewrite
   /**
    * Inserts one or more rows into this table. For each row inserted,
    * retrieves the columns specified in the `returnColumns` option,
@@ -204,67 +207,21 @@ export class TableMapper<
    *  otherwise. Returns nothing (void) if `returnColumns` is empty.
    * @see this.insertNoReturns
    */
-  insert(
-    obj: InsertedObject
-  ): Promise<ReturnColumns extends [] ? void : ReturnedObject>;
-
-  insert(
-    objs: InsertedObject[]
-  ): Promise<ReturnColumns extends [] ? void : ReturnedObject[]>;
-
-  async insert(
-    objOrObjs: InsertedObject | InsertedObject[]
-  ): Promise<ReturnedObject | ReturnedObject[] | void> {
-    const insertedAnArray = Array.isArray(objOrObjs); // expensive operation
-    let qb: InsertQueryBuilder<DB, TB, InsertResult>;
-    if (insertedAnArray) {
-      const transformedObjs = this.transformInsertionArray(objOrObjs);
-      // TS requires separate calls to values() for different argument types.
-      qb = this.getInsertQB().values(transformedObjs);
-    } else {
-      const transformedObj = this.transformInsertion(objOrObjs);
-      // TS requires separate calls to values() for different argument types.
-      qb = this.getInsertQB().values(transformedObj);
-    }
-
-    if (this.returnColumns.length == 0) {
-      await qb.execute();
-      return;
-    }
-
-    // Assign `returns` all at once to capture its complex type. Can't place
-    // this in a shared method because the types are not compatible.
-    const returns =
-      this.returnColumns[0] == '*'
-        ? await qb.returningAll().execute()
-        : // prettier-ignore
-          await qb.returning(
-            this.returnColumns as (keyof Selectable<DB[TB]> & string)[]
-          ).execute();
-    if (returns === undefined) {
-      throw Error('No rows returned from insert expecting returned columns');
-    }
-    if (insertedAnArray) {
-      return this.transformInsertReturnArray(objOrObjs, returns as any);
-    }
-    return this.transformInsertReturn(objOrObjs, returns[0] as any);
-  }
-
-  /**
-   * Inserts one or more rows into this table, without returning any columns.
-   * @param objOrObjs The object or objects to insert as a row.
-   * @see this.insert
-   */
-  insertNoReturns(obj: InsertedObject): Promise<void>;
-
-  insertNoReturns(objs: InsertedObject[]): Promise<void>;
-
-  async insertNoReturns(
-    objOrObjs: InsertedObject | InsertedObject[]
-  ): Promise<void> {
-    const transformedObjOrObjs = this.transformInsertion(objOrObjs as any);
-    const qb = this.getInsertQB().values(transformedObjOrObjs);
-    await qb.execute();
+  insert(): MappingInsertQuery<
+    DB,
+    TB,
+    InsertQueryBuilder<DB, TB, InsertResult>,
+    InsertedObject,
+    ReturnColumns,
+    ReturnedObject
+  > {
+    return new MappingInsertQuery(
+      this.db,
+      this.getInsertQB(),
+      this.options.insertTransform,
+      this.options.returnColumns,
+      this.options.insertReturnTransform
+    );
   }
 
   /**

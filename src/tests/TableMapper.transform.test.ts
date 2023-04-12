@@ -243,11 +243,11 @@ describe('transforms between inputs and outputs', () => {
   it('transforms selected single-table objects', async () => {
     const testTransformMapper = new TestTransformMapper(db);
 
-    await userMapper.insert(userRow1);
+    await userMapper.insert().run(userRow1);
     const user = await testTransformMapper.select().getOne();
     expect(user).toEqual(selectedUser1);
 
-    await userMapper.insert([userRow2, userRow3]);
+    await userMapper.insert().run([userRow2, userRow3]);
     const users = await testTransformMapper
       .select()
       .modify((qb) => qb.orderBy('id'))

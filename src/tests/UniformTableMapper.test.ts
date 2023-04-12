@@ -50,7 +50,7 @@ it('inserts/updates/deletes a mapped object w/ default transforms', async () => 
     USERS[0].handle,
     USERS[0].email
   );
-  const insertReturn1 = (await userMapper.insert(insertedUser1))!;
+  const insertReturn1 = (await userMapper.insert().getReturns(insertedUser1))!;
   expect(insertReturn1).not.toBeNull();
   expect(insertReturn1.id).toBeGreaterThan(0);
 
@@ -66,7 +66,7 @@ it('inserts/updates/deletes a mapped object w/ default transforms', async () => 
     USERS[1].handle,
     USERS[1].email
   );
-  const insertReturn2 = (await userMapper.insert(insertedUser2))!;
+  const insertReturn2 = (await userMapper.insert().getReturns(insertedUser2))!;
   expect(insertReturn2).toEqual(insertedUser2);
   const selectedUser2 = await userMapper.selectByKey(insertReturn2.id);
   expect(selectedUser2).toEqual(insertedUser2);
@@ -176,7 +176,7 @@ it('inserts/updates/deletes a mapped object class w/ all custom transforms', asy
     insertedUser1.handle,
     insertedUser1.email
   );
-  const insertReturn = (await userMapper.insert(insertedUser))!;
+  const insertReturn = (await userMapper.insert().getReturns(insertedUser))!;
   expect(insertReturn).not.toBeNull();
   expect(insertReturn.serialNo).toBeGreaterThan(0);
 
@@ -282,7 +282,7 @@ it('inserts/updates/deletes a mapped object class w/ inferred update transforms'
     insertedUser1.handle,
     insertedUser1.email
   );
-  const insertReturn = (await userMapper.insert(insertedUser))!;
+  const insertReturn = (await userMapper.insert().getReturns(insertedUser))!;
   expect(insertReturn).not.toBeNull();
   expect(insertReturn.id).toBeGreaterThan(0);
 

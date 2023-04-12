@@ -56,9 +56,11 @@ describe('updating rows via TableMapper', () => {
 
   it('updates returning non-zero update count', async () => {
     const updateValues = { email: 'new.email@xyz.pdq' };
-    const insertReturn0 = await userMapperReturningID.insert(USERS[0]);
-    await userMapperReturningID.insert(USERS[1]);
-    await userMapperReturningID.insert(USERS[2]);
+    const insertReturn0 = await userMapperReturningID
+      .insert()
+      .getReturns(USERS[0]);
+    await userMapperReturningID.insert().run(USERS[1]);
+    await userMapperReturningID.insert().run(USERS[2]);
 
     const updateCount1 = await userMapperReturningAll.updateCount(
       { id: insertReturn0.id },
@@ -92,9 +94,11 @@ describe('updating rows via TableMapper', () => {
   });
 
   it('updates returning configured return columns', async () => {
-    await userMapperReturningID.insert(USERS[0]);
-    const insertReturn = await userMapperReturningID.insert(USERS[1]);
-    await userMapperReturningID.insert(USERS[2]);
+    await userMapperReturningID.insert().run(USERS[0]);
+    const insertReturn = await userMapperReturningID
+      .insert()
+      .getReturns(USERS[1]);
+    await userMapperReturningID.insert().run(USERS[2]);
 
     // Verify that update performs the correct change on the correct row.
     const updateValues1 = { email: 'new.email@xyz.pdq' };
@@ -142,7 +146,7 @@ describe('updating rows via TableMapper', () => {
   });
 
   it('update returns void when defaulting to no return columns', async () => {
-    await userMapperReturningID.insert(USERS);
+    await userMapperReturningID.insert().run(USERS);
 
     const updates = await userMapperReturningDefault.updateWhere(
       { name: 'Sue' },
@@ -159,7 +163,7 @@ describe('updating rows via TableMapper', () => {
   });
 
   it('update returns void when explicitly no return columns', async () => {
-    await userMapperReturningID.insert(USERS);
+    await userMapperReturningID.insert().run(USERS);
 
     const updates = await userMapperReturningNothing.updateWhere(
       { name: 'Sue' },
@@ -176,7 +180,9 @@ describe('updating rows via TableMapper', () => {
   });
 
   it('updates configured to return all columns', async () => {
-    const insertReturns = await userMapperReturningID.insert(USERS);
+    const insertReturns = await userMapperReturningID
+      .insert()
+      .getReturns(USERS);
 
     const updateValues = { email: 'new.email@xyz.pdq' };
     const updateReturns = await userMapperReturningAll.updateWhere(
@@ -192,7 +198,9 @@ describe('updating rows via TableMapper', () => {
   });
 
   it('updates all rows when no filter is given', async () => {
-    const insertReturns = await userMapperReturningID.insert(USERS);
+    const insertReturns = await userMapperReturningID
+      .insert()
+      .getReturns(USERS);
 
     const updateValues = { email: 'new.email@xyz.pdq' };
     const updateReturns = await userMapperReturningIDAndHandle.updateWhere(
@@ -213,7 +221,9 @@ describe('updating rows via TableMapper', () => {
   });
 
   it('updates rows indicated by a binary operator', async () => {
-    const insertReturns = await userMapperReturningID.insert(USERS);
+    const insertReturns = await userMapperReturningID
+      .insert()
+      .getReturns(USERS);
 
     const updateValues = { email: 'new.email@xyz.pdq' };
     const updateCount = await userMapperReturningAll.updateCount(
@@ -232,7 +242,9 @@ describe('updating rows via TableMapper', () => {
   });
 
   it('updates rows indicated by a kysely expression', async () => {
-    const insertReturns = await userMapperReturningID.insert(USERS);
+    const insertReturns = await userMapperReturningID
+      .insert()
+      .getReturns(USERS);
 
     const updateValues = { email: 'new.email@xyz.pdq' };
     const updateCount = await userMapperReturningDefault.updateCount(
@@ -251,7 +263,9 @@ describe('updating rows via TableMapper', () => {
   });
 
   it('updates rows indicated by a where expression filter', async () => {
-    const insertReturns = await userMapperReturningID.insert(USERS);
+    const insertReturns = await userMapperReturningID
+      .insert()
+      .getReturns(USERS);
 
     const updateValues1 = { email: 'foo@xyz.pdq' };
     const updateCount = await userMapperReturningAll.updateCount(
@@ -354,7 +368,9 @@ describe('update transformation', () => {
   it('transforms users for update without transforming return', async () => {
     const mapper = new UpdateTransformMapper(db);
 
-    const insertReturns = await mapper.insert([userRow1, userRow2, userRow3]);
+    const insertReturns = await mapper
+      .insert()
+      .getReturns([userRow1, userRow2, userRow3]);
     const updaterUser1 = UpdaterUser.create(
       0,
       Object.assign({}, userObject1, { firstName: 'Suzanne' })
@@ -417,7 +433,9 @@ describe('update transformation', () => {
     }
     const updateReturnTransformMapper = new UpdateReturnTransformMapper(db);
 
-    const insertReturn = await updateReturnTransformMapper.insert(userRow1);
+    const insertReturn = await updateReturnTransformMapper
+      .insert()
+      .getReturns(userRow1);
     const updateReturn = await updateReturnTransformMapper.updateWhere(
       { id: insertReturn.id },
       { name: 'Suzanne Smith' }
@@ -467,7 +485,9 @@ describe('update transformation', () => {
       db
     );
 
-    const insertReturn = await updateAndReturnTransformMapper.insert(userRow1);
+    const insertReturn = await updateAndReturnTransformMapper
+      .insert()
+      .getReturns(userRow1);
     const updateReturn = await updateAndReturnTransformMapper.updateWhere(
       { id: insertReturn.id },
       UpdaterUser.create(0, userObject1)
