@@ -38,7 +38,7 @@ describe('deleting rows via TableMapper', () => {
     const result = await testMapper.delete({ name: USERS[0].name }).run();
     expect(result).toBeUndefined();
 
-    const users = await testMapper.select().getMany();
+    const users = await testMapper.select().getAll();
     expect(users.length).toEqual(1);
     expect(users[0].handle).toEqual(USERS[1].handle);
   });
@@ -57,7 +57,7 @@ describe('deleting rows via TableMapper', () => {
       .delete({ name: USERS[0].name })
       .getCount();
     expect(count2).toEqual(BigInt(2));
-    const users = await defaultMapper.select().getMany();
+    const users = await defaultMapper.select().getAll();
     expect(users.length).toEqual(1);
     expect(users[0].handle).toEqual(USERS[1].handle);
   });
@@ -80,7 +80,7 @@ describe('deleting rows via TableMapper', () => {
 
     const count2 = await userMapper.delete({ name: USERS[0].name }).getCount();
     expect(count2).toEqual(2);
-    const users = await userMapper.select().getMany();
+    const users = await userMapper.select().getAll();
     expect(users.length).toEqual(1);
     expect(users[0].handle).toEqual(USERS[1].handle);
   });
@@ -89,13 +89,13 @@ describe('deleting rows via TableMapper', () => {
     await userMapper.insert().run(USERS);
     const count1 = await userMapper.delete().getCount();
     expect(count1).toEqual(3);
-    const users1 = await userMapper.select().getMany();
+    const users1 = await userMapper.select().getAll();
     expect(users1.length).toEqual(0);
 
     await userMapper.insert().run(USERS);
     const success = await userMapper.delete().run();
     expect(success).toBe(true);
-    const users2 = await userMapper.select().getMany();
+    const users2 = await userMapper.select().getAll();
     expect(users2.length).toEqual(0);
   });
 
@@ -139,7 +139,7 @@ describe('deleting rows via TableMapper', () => {
       .getCount();
     expect(count2).toEqual(1);
 
-    const users = await userMapper.select().getMany();
+    const users = await userMapper.select().getAll();
     expect(users.length).toEqual(1);
   });
 
@@ -161,7 +161,7 @@ describe('deleting rows via TableMapper', () => {
   //     targetName: USERS[0].name,
   //   });
   //   expect(count2).toEqual(2);
-  //   const users = await userMapper.select().getMany();
+  //   const users = await userMapper.select().getAll();
   //   expect(users.length).toEqual(1);
   //   expect(users[0].handle).toEqual(USERS[1].handle);
 
@@ -169,7 +169,7 @@ describe('deleting rows via TableMapper', () => {
   //     targetName: USERS[1].name,
   //   });
   //   expect(count3).toEqual(1);
-  //   const users2 = await userMapper.select().getMany();
+  //   const users2 = await userMapper.select().getAll();
   //   expect(users2.length).toEqual(0);
 
   //   ignore('parameterization type errors', () => {

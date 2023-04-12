@@ -37,7 +37,7 @@ describe('general selection', () => {
   //       })
   //     );
 
-  //   const users = await parameterization.getMany(db, {
+  //   const users = await parameterization.getAll(db, {
   //     name: USERS[0].name,
   //   });
   //   expect(users.length).toEqual(2);
@@ -55,7 +55,7 @@ describe('general selection', () => {
 
   //   ignore('parameterization type errors', () => {
   //     // @ts-expect-error - errors on invalid parameter names
-  //     parameterization.getMany(db, { notThere: 'foo' });
+  //     parameterization.getAll(db, { notThere: 'foo' });
   //     // @ts-expect-error - errors on invalid column names
   //     users[0].notThere;
   //     // @ts-expect-error - errors on invalid column names
@@ -71,7 +71,7 @@ describe('general selection', () => {
       .modify((qb) =>
         qb.where('name', '=', USERS[0].name).orderBy('handle', 'desc')
       )
-      .getMany();
+      .getAll();
     expect(users.length).toEqual(2);
     expect(users[0].handle).toEqual(USERS[2].handle);
     expect(users[1].handle).toEqual(USERS[0].handle);
@@ -91,7 +91,7 @@ describe('general selection', () => {
     const users = await userMapper
       .select()
       .modify((qb) => qb.select('name').orderBy('handle', 'desc'))
-      .getMany();
+      .getAll();
     expect(users).toEqual([
       { ...USERS[2], id: 3 },
       { ...USERS[1], id: 2 },
@@ -140,11 +140,11 @@ describe('general selection', () => {
   });
 });
 
-describe('select() getMany()', () => {
+describe('select() getAll()', () => {
   it('selects nothing when nothing matches filter', async () => {
     await userMapper.insert().run(USERS);
 
-    const users = await userMapper.select({ name: 'Not There' }).getMany();
+    const users = await userMapper.select({ name: 'Not There' }).getAll();
     expect(users.length).toEqual(0);
   });
 
@@ -152,7 +152,7 @@ describe('select() getMany()', () => {
     await userMapper.insert().run(USERS);
 
     // Test selecting all
-    const users = await userMapper.select().getMany();
+    const users = await userMapper.select().getAll();
     expect(users.length).toEqual(USERS.length);
     for (let i = 0; i < USERS.length; i++) {
       expect(users[i].handle).toEqual(USERS[i].handle);
@@ -166,7 +166,7 @@ describe('select() getMany()', () => {
       .select({
         name: USERS[0].name,
       })
-      .getMany();
+      .getAll();
     expect(users.length).toEqual(2);
     expect(users[0].handle).toEqual(USERS[0].handle);
     expect(users[1].handle).toEqual(USERS[2].handle);
@@ -176,7 +176,7 @@ describe('select() getMany()', () => {
         name: USERS[0].name,
         handle: USERS[2].handle,
       })
-      .getMany();
+      .getAll();
     expect(users.length).toEqual(1);
     expect(users[0].handle).toEqual(USERS[2].handle);
   });
@@ -185,13 +185,13 @@ describe('select() getMany()', () => {
     await userMapper.insert().run(USERS);
 
     // Test selecting by condition (with results)
-    let users = await userMapper.select(['name', '=', USERS[0].name]).getMany();
+    let users = await userMapper.select(['name', '=', USERS[0].name]).getAll();
     expect(users.length).toEqual(2);
     expect(users[0].handle).toEqual(USERS[0].handle);
     expect(users[1].handle).toEqual(USERS[2].handle);
 
     // Test selecting by condition (no results)
-    users = await userMapper.select(['name', '=', 'nonexistent']).getMany();
+    users = await userMapper.select(['name', '=', 'nonexistent']).getAll();
     expect(users.length).toEqual(0);
   });
 
@@ -200,7 +200,7 @@ describe('select() getMany()', () => {
 
     const users = await userMapper
       .select(sql`name != ${USERS[0].name}`)
-      .getMany();
+      .getAll();
     expect(users.length).toEqual(1);
     expect(users[0].handle).toEqual(USERS[1].handle);
   });
@@ -212,7 +212,7 @@ describe('select() getMany()', () => {
       .select({
         name: USERS[0].name,
       })
-      .getMany();
+      .getAll();
     expect(users.length).toEqual(2);
     expect(users[0].handle).toEqual(USERS[0].handle);
     expect(users[1].handle).toEqual(USERS[2].handle);
@@ -222,7 +222,7 @@ describe('select() getMany()', () => {
         name: USERS[0].name,
         handle: USERS[2].handle,
       })
-      .getMany();
+      .getAll();
     expect(users.length).toEqual(1);
     expect(users[0].handle).toEqual(USERS[2].handle);
   });
@@ -231,13 +231,13 @@ describe('select() getMany()', () => {
     await userMapper.insert().run(USERS);
 
     // Test selecting by condition (with results)
-    let users = await userMapper.select(['name', '=', USERS[0].name]).getMany();
+    let users = await userMapper.select(['name', '=', USERS[0].name]).getAll();
     expect(users.length).toEqual(2);
     expect(users[0].handle).toEqual(USERS[0].handle);
     expect(users[1].handle).toEqual(USERS[2].handle);
 
     // Test selecting by condition (no results)
-    users = await userMapper.select(['name', '=', 'nonexistent']).getMany();
+    users = await userMapper.select(['name', '=', 'nonexistent']).getAll();
     expect(users.length).toEqual(0);
   });
 
@@ -248,9 +248,9 @@ describe('select() getMany()', () => {
     });
 
     // Should allow access to aliased columns
-    (await mapper.select().getMany())[0].h;
+    (await mapper.select().getAll())[0].h;
 
-    const users = await mapper.select({ name: USERS[0].name }).getMany();
+    const users = await mapper.select({ name: USERS[0].name }).getAll();
     expect(users).toEqual([
       {
         id: ids[0].id,
@@ -266,33 +266,33 @@ describe('select() getMany()', () => {
       // @ts-expect-error - aliases are not allowed in filter expressions
       mapper.select({ h: USERS[0].handle });
       // @ts-expect-error - unselected columns are not allowed
-      (await mapper.select().getMany())[0].name;
+      (await mapper.select().getAll())[0].name;
     });
   });
 
-  ignore('detects select() getMany() simple filter type errors', async () => {
+  ignore('detects select() getAll() simple filter type errors', async () => {
     // @ts-expect-error - only table columns are accessible unfiltered
-    (await userMapper.select().getMany())[0].notThere;
+    (await userMapper.select().getAll())[0].notThere;
     // @ts-expect-error - only table columns are accessible unfiltered
-    (await userMapper.select({}).getMany())[0].notThere;
+    (await userMapper.select({}).getAll())[0].notThere;
     // @ts-expect-error - only table columns are accessible w/ object filter
     // prettier-ignore
-    (await userMapper.select({ name: "Sue" }).getMany())[0].notThere;
+    (await userMapper.select({ name: "Sue" }).getAll())[0].notThere;
     // @ts-expect-error - only table columns are accessible w/ op filter
     // prettier-ignore
-    (await userMapper.select(["name", "=", "Sue"]).getMany())[0].notThere;
+    (await userMapper.select(["name", "=", "Sue"]).getAll())[0].notThere;
     // prettier-ignore
     (
         await userMapper
           .select((qb) => qb)
-          .getMany()
+          .getAll()
         // @ts-expect-error - only table columns are accessible w/ QB filter
       )[0].notThere;
     // prettier-ignore
     (
         await userMapper
           .select(sql`name = 'Sue'`)
-          .getMany()
+          .getAll()
         // @ts-expect-error - only table columns are accessible w/ expr filter
       )[0].notThere;
   });
@@ -397,7 +397,7 @@ describe('select() getOne()', () => {
 
     ignore('inaccessible types are not allowed', async () => {
       // @ts-expect-error - unselected columns are not allowed
-      (await mapper.select().getMany())[0].name;
+      (await mapper.select().getAll())[0].name;
     });
   });
 

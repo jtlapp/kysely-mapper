@@ -83,7 +83,7 @@ describe('updating rows via TableMapper', () => {
 
     const readUsers = await userMapperReturningID
       .select(['name', '=', 'Sue'])
-      .getMany();
+      .getAll();
     expect(readUsers.length).toEqual(2);
     expect(readUsers[0].email).toEqual(updateValues.email);
     expect(readUsers[1].email).toEqual(updateValues.email);
@@ -144,7 +144,7 @@ describe('updating rows via TableMapper', () => {
     expect(updateReturns3[2].handle).toEqual(USERS[2].handle);
     const readUsers = await userMapperReturningID
       .select(['name', '=', updateValues3.name])
-      .getMany();
+      .getAll();
     expect(readUsers.length).toEqual(3);
   });
 
@@ -160,7 +160,7 @@ describe('updating rows via TableMapper', () => {
       .select({
         email: 'new.email@xyz.pdq',
       })
-      .getMany();
+      .getAll();
     expect(readUsers.length).toEqual(2);
   });
 
@@ -176,7 +176,7 @@ describe('updating rows via TableMapper', () => {
       .select({
         email: 'new.email@xyz.pdq',
       })
-      .getMany();
+      .getAll();
     expect(readUsers.length).toEqual(2);
   });
 
@@ -212,7 +212,7 @@ describe('updating rows via TableMapper', () => {
     });
     expect(updateReturns).toEqual(expectedUsers);
 
-    const readUsers = await userMapperReturningID.select().getMany();
+    const readUsers = await userMapperReturningID.select().getAll();
     expect(readUsers.length).toEqual(3);
     for (const user of readUsers) {
       expect(user.email).toEqual(updateValues.email);
@@ -232,7 +232,7 @@ describe('updating rows via TableMapper', () => {
 
     const readUsers = await userMapperReturningID
       .select(['id', '>', insertReturns[0].id])
-      .getMany();
+      .getAll();
     expect(readUsers.length).toEqual(2);
     for (const user of readUsers) {
       expect(user.email).toEqual(updateValues.email);
@@ -252,7 +252,7 @@ describe('updating rows via TableMapper', () => {
 
     const readUsers = await userMapperReturningID
       .select(['id', '>', insertReturns[0].id])
-      .getMany();
+      .getAll();
     expect(readUsers.length).toEqual(2);
     for (const user of readUsers) {
       expect(user.email).toEqual(updateValues.email);
@@ -393,7 +393,7 @@ describe('update transformation', () => {
     const readUsers = await mapper
       .select()
       .modify((qb) => qb.orderBy('id'))
-      .getMany();
+      .getAll();
     expect(readUsers).toEqual([
       Object.assign({}, userRow1, {
         id: insertReturns[0].id,

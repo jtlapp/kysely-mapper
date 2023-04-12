@@ -24,7 +24,7 @@ export class ParameterizedRowQuery<
    * @param params Object providing values for all parameters.
    * @returns Query result.
    */
-  async getMany<DB>(db: Kysely<DB>, params: P): Promise<SelectedObject[]> {
+  async getAll<DB>(db: Kysely<DB>, params: P): Promise<SelectedObject[]> {
     const results = await this.#parameterizedQuery.execute(db, params);
     return this.converter.transformRows(results.rows);
   }

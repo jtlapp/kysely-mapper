@@ -108,7 +108,7 @@ describe('insert an array of objects without transformation', () => {
     const success = await userMapperReturningDefault.insert().run(USERS);
     expect(success).toBe(true);
 
-    const readUsers = await userMapperReturningAll.select().getMany();
+    const readUsers = await userMapperReturningAll.select().getAll();
     expect(readUsers.length).toEqual(3);
     for (let i = 0; i < USERS.length; i++) {
       expect(readUsers[i].handle).toEqual(USERS[i].handle);
@@ -126,7 +126,7 @@ describe('insert an array of objects without transformation', () => {
     const success = await userMapperReturningDefault.insert().getReturns(USERS);
     expect(success).toBe(true);
 
-    const readUsers = await userMapperReturningAll.select().getMany();
+    const readUsers = await userMapperReturningAll.select().getAll();
     expect(readUsers.length).toEqual(3);
     for (let i = 0; i < USERS.length; i++) {
       expect(readUsers[i].handle).toEqual(USERS[i].handle);
@@ -150,7 +150,7 @@ describe('insert an array of objects without transformation', () => {
       expect(Object.keys(insertReturns[i]).length).toEqual(1);
     }
 
-    const readUsers = await userMapperReturningAll.select().getMany();
+    const readUsers = await userMapperReturningAll.select().getAll();
     expect(readUsers.length).toEqual(3);
     for (let i = 0; i < USERS.length; i++) {
       expect(readUsers[i].handle).toEqual(USERS[i].handle);
@@ -176,7 +176,7 @@ describe('insert an array of objects without transformation', () => {
       .getReturns(USERS);
     expect(insertReturns).toBeUndefined();
 
-    const readUsers = await userMapperReturningAll.select().getMany();
+    const readUsers = await userMapperReturningAll.select().getAll();
     expect(readUsers.length).toEqual(3);
     for (let i = 0; i < USERS.length; i++) {
       expect(readUsers[i].handle).toEqual(USERS[i].handle);
@@ -189,7 +189,7 @@ describe('insert an array of objects without transformation', () => {
       .getReturns(USERS);
     expect(insertReturns).toBeUndefined();
 
-    const readUsers = await userMapperReturningAll.select().getMany();
+    const readUsers = await userMapperReturningAll.select().getAll();
     expect(readUsers.length).toEqual(3);
     for (let i = 0; i < USERS.length; i++) {
       expect(readUsers[i].handle).toEqual(USERS[i].handle);
@@ -347,7 +347,7 @@ describe('insertion transformation', () => {
       .getReturns([insertedUser2, insertedUser3]);
     const readUsers = await insertTransformMapper
       .select(['id', '>', insertReturn.id])
-      .getMany();
+      .getAll();
     expect(readUsers.length).toEqual(2);
     expect(readUsers[0].name).toEqual(
       `${insertedUser2.firstName} ${insertedUser2.lastName}`

@@ -35,7 +35,7 @@ export class MappingSelectQuery<
    * (if provided) to map the rows to objects of type `SelectedObject`.
    * @returns An array of objects for the selected rows, possibly empty.
    */
-  async getMany(): Promise<SelectedObject[]> {
+  async getAll(): Promise<SelectedObject[]> {
     const results = await this.qb.execute();
     return this.selectTransform === undefined
       ? results
