@@ -239,6 +239,7 @@ export class TableMapper<
   ): MappingSelectQuery<
     DB,
     TB,
+    SelectedColumns,
     SelectedObject,
     SelectQueryBuilder<DB, TB, object>
   > {
@@ -247,7 +248,7 @@ export class TableMapper<
       filter === undefined
         ? this.getSelectQB()
         : applyQueryFilter(this.db, this.getSelectQB(), filter),
-      this.rowConverter
+      this.options.selectTransform
     );
   }
 

@@ -1,6 +1,7 @@
 /**
  * Converts query result rows into the mapped object type.
  */
+// TODO: delete class when able
 export class RowConverter {
   /**
    * Transforms a result row into the mapped object type.
