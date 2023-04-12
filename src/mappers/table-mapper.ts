@@ -26,6 +26,7 @@ import { RowConverter } from '../lib/row-converter';
 import { MappingSelectQuery } from '../queries/select-query';
 import { AllSelection } from '../lib/kysely-types';
 import { MappingInsertQuery } from '../queries/insert-query';
+import { MappingUpdateQuery } from '../queries/update-query';
 
 // TODO: change [binary op] notation to three parameters
 
@@ -221,7 +222,8 @@ export class TableMapper<
   }
 
   /**
-   * Returns a mapping query for selecting rows from the table.
+   * Returns a mapping query for selecting rows of the table that match
+   *  the provided filter.
    * @param filter Optional filter to apply to the query.
    * @returns A mapping query for retrieving rows as objects.
    */
@@ -247,90 +249,41 @@ export class TableMapper<
   }
 
   /**
-   * Updates rows in this table matching the provided filter, returning
-   * the number of updated rows.
-   * @param filter Filter specifying the rows to update.
-   * @param obj The object whose field values are to be assigned to the row.
-   * @returns Returns the number of updated rows.
-   * @see this.updateWhere
+   * Returns a mapping query for updating rows of the table that match
+   *  the provided filter.
+   * @param filter Optional filter to apply to the query.
+   * @returns A mapping query for updating table rows.
    */
-  async updateCount<
+  update<
     RE extends ReferenceExpression<DB, TB>,
     QB extends UpdateQueryBuilder<DB, TB, TB, UpdateResult>
   >(
-    filter: QueryFilter<
+    filter?: QueryFilter<
       DB,
       TB,
       RE,
       UpdateQueryBuilder<DB, TB, TB, UpdateResult>,
       QB
-    >,
-    obj: UpdaterObject
-  ): Promise<number> {
-    const transformedObj = this.transformUpdater(obj);
-    const uqb = this.getUpdateQB().set(transformedObj as any);
-    const fqb = applyQueryFilter(this.db, uqb, filter);
-    const result = await fqb.executeTakeFirst();
-    return Number(result.numUpdatedRows);
-  }
-
-  /**
-   * Updates rows in this table matching the provided filter. For each row
-   * updated, retrieves the columns specified in the `returnColumns` option,
-   * which are returned unless `updateReturnTransform` transforms them
-   * into `ReturnedObject`. If `returnColumns` is empty, returns nothing.
-   * @param filter Filter specifying the rows to update.
-   * @param obj The object whose field values are to be assigned to the row.
-   * @returns Returns an array of `ReturnedObject` objects, one for each
-   *  updated row, or nothing (void) if `returnColumns` is empty.
-   * @see this.updateCount
-   */
-  updateWhere<
-    RE extends ReferenceExpression<DB, TB>,
-    QB extends UpdateQueryBuilder<DB, TB, TB, UpdateResult>
-  >(
-    filter: QueryFilter<
-      DB,
-      TB,
-      RE,
-      UpdateQueryBuilder<DB, TB, TB, UpdateResult>,
-      QB
-    >,
-    obj: UpdaterObject
-  ): Promise<ReturnColumns extends [] ? void : ReturnedObject[]>;
-
-  async updateWhere<
-    RE extends ReferenceExpression<DB, TB>,
-    QB extends UpdateQueryBuilder<DB, TB, TB, UpdateResult>
-  >(
-    filter: QueryFilter<
-      DB,
-      TB,
-      RE,
-      UpdateQueryBuilder<DB, TB, TB, UpdateResult>,
-      QB
-    >,
-    obj: UpdaterObject
-  ): Promise<ReturnedObject[] | void> {
-    const transformedObj = this.transformUpdater(obj);
-    const uqb = this.getUpdateQB().set(transformedObj as any);
-    const fqb = applyQueryFilter(this.db, uqb, filter);
-
-    if (this.returnColumns.length == 0) {
-      await fqb.execute();
-      return;
-    }
-
-    // Assign `returns` all at once to capture its complex type. Can't place
-    // this in a shared method because the types are not compatible.
-    const returns =
-      this.returnColumns[0] == '*'
-        ? await fqb.returningAll().execute()
-        : await fqb.returning(this.returnColumns as any).execute();
-    if (returns === undefined) {
-      throw Error('No rows returned from update expecting returned columns');
-    }
-    return this.transformUpdateReturn(obj, returns as any) as any;
+    >
+  ): MappingUpdateQuery<
+    DB,
+    TB,
+    UpdateQueryBuilder<DB, TB, TB, UpdateResult>,
+    UpdaterObject,
+    ReturnColumns,
+    ReturnedCount,
+    ReturnedObject
+  > {
+    return new MappingUpdateQuery(
+      this.db,
+      filter === undefined
+        ? this.getUpdateQB()
+        : applyQueryFilter(this.db, this.getUpdateQB(), filter),
+      this.countTransform,
+      this.options.updaterTransform,
+      this.options.returnColumns,
+      this.options.updateReturnTransform
+    );
   }
 
   /**

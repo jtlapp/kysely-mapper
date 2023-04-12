@@ -180,7 +180,7 @@ export class KeyedTableMapper<
       | Readonly<KeyTuple<DB[TB], PrimaryKeyColumns>>,
     obj: UpdaterObject
   ): Promise<ReturnedObject | null | void> {
-    const updates = await this.updateWhere(this.filterForKey(key), obj as any);
+    const updates = await this.update(this.filterForKey(key)).getReturns(obj);
     if (updates !== undefined) {
       return updates.length == 0 ? null : updates[0];
     }
@@ -201,10 +201,7 @@ export class KeyedTableMapper<
       | Readonly<KeyTuple<DB[TB], PrimaryKeyColumns>>,
     obj: UpdaterObject
   ): Promise<boolean> {
-    const updateCount = await this.updateCount(
-      this.filterForKey(key),
-      obj as any
-    );
+    const updateCount = await this.update(this.filterForKey(key)).getCount(obj);
     return updateCount == 1;
   }
 

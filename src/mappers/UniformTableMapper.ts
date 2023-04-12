@@ -162,11 +162,12 @@ export class UniformTableMapper<
    *  no row was found; returns nothing (void) if `returnColumns` is empty.
    *  Use `updateNoReturns` if there are no return columns.
    */
-  update(
+  // TODO: base class on a non-modifying table mapper, add custom delete and update
+  updateTODO(
     obj: MappedObject
   ): Promise<ReturnColumns extends [] ? void : MappedObject | null>;
 
-  async update(obj: MappedObject): Promise<MappedObject | null | void> {
+  async updateTODO(obj: MappedObject): Promise<MappedObject | null | void> {
     // TODO: temporary "as any" cast
     return this.keyedTableMapper.updateByKey(obj.getKey(), obj) as any;
   }
