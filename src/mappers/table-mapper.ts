@@ -112,9 +112,6 @@ export class TableMapper<
         : options.selectedColumns;
     this.rowConverter = new RowConverter(options.selectTransform);
 
-    if (options.updaterTransform) {
-      this.transformUpdater = options.updaterTransform;
-    }
     if (options.countTransform) {
       this.countTransform = options.countTransform;
     }
@@ -355,44 +352,5 @@ export class TableMapper<
       this.#baseUpdateQB = this.db.updateTable(this.tableName) as any;
     }
     return this.#baseUpdateQB!;
-  }
-
-  /**
-   * Transforms an object into a row for insertion.
-   * @param obj The object to transform.
-   * @returns Row representation of the object.
-   */
-  protected transformUpdater: NonNullable<
-    TableMapperOptions<
-      DB,
-      TB,
-      SelectedColumns,
-      SelectedObject,
-      InsertedObject,
-      UpdaterObject,
-      ReturnColumns,
-      ReturnedCount,
-      ReturnedObject
-    >['updaterTransform']
-  > = (obj) => obj as Updateable<DB[TB]>;
-
-  /**
-   * Transforms an array of objects returned from an update
-   * into objects to be returned to the caller.
-   * @param source The object that provided the update values.
-   * @param returns The array of objects returned from the update.
-   * @returns Array of objects to be returned to the caller.
-   */
-  protected transformUpdateReturn(
-    source: UpdaterObject,
-    returns: ObjectWithKeys<Selectable<DB[TB]>, ReturnColumns>[]
-  ): ReturnedObject[] {
-    if (this.options.updateReturnTransform) {
-      return returns.map((returnValues) =>
-        // TS isn't seeing that that transform is defined.
-        this.options.updateReturnTransform!(source, returnValues)
-      );
-    }
-    return returns as any;
   }
 }

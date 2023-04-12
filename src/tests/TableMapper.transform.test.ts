@@ -10,13 +10,11 @@ import {
   selectedUser1,
   selectedUser2,
   selectedUser3,
-  userObject1,
   userRow1,
   userRow2,
   userRow3,
 } from './utils/test-objects';
 import {
-  User,
   SelectedUser,
   InsertedUser,
   UpdaterUser,
@@ -24,9 +22,6 @@ import {
 } from './utils/test-types';
 import { ignore } from './utils/test-utils';
 import { UserTableMapperReturningID } from './utils/test-mappers';
-
-const userObjectWithID = { id: 1, ...userObject1 };
-const updaterUser1 = UpdaterUser.create(0, userObject1);
 
 let db: Kysely<Database>;
 let userMapper: UserTableMapperReturningID;
@@ -53,20 +48,6 @@ describe('transforms between inputs and outputs', () => {
         user1,
         user2,
       ]);
-    }
-
-    testTransformUpdater() {
-      const user1 = { id: 1, ...userRow1 };
-      expect(this.transformUpdater(user1)).toEqual(user1);
-    }
-
-    testTransformUpdaterReturn() {
-      expect(this.transformUpdateReturn(userRow1, [{ id: 1 }])).toEqual([
-        { id: 1 },
-      ]);
-      expect(
-        this.transformUpdateReturn(userRow1, [{ id: 1 }, { id: 2 }])
-      ).toEqual([{ id: 1 }, { id: 2 }]);
     }
   }
 
@@ -109,46 +90,6 @@ describe('transforms between inputs and outputs', () => {
         this.transformSelection([userObject])[0].name;
       });
     }
-
-    testTransformUpdater() {
-      expect(this.transformUpdater(updaterUser1)).toEqual(userRow1);
-
-      ignore('detects transformUpdater type errors', () => {
-        const user = User.create(0, userObject1);
-
-        // @ts-expect-error - incorrect input type
-        this.transformUpdater(user);
-        // @ts-expect-error - incorrect input type
-        this.transformUpdater(userObjectWithID);
-        // @ts-expect-error - incorrect output type
-        this.transformUpdater(updaterUser1).firstName;
-      });
-    }
-
-    testTransformUpdaterReturn() {
-      expect(this.transformUpdateReturn(updaterUser1, [{ id: 1 }])).toEqual([
-        ReturnedUser.create(1, userObject1),
-      ]);
-      expect(
-        this.transformUpdateReturn(updaterUser1, [{ id: 1 }, { id: 2 }])
-      ).toEqual([
-        ReturnedUser.create(1, userObject1),
-        ReturnedUser.create(2, userObject1),
-      ]);
-
-      ignore('detects transformUpdateReturn type errors', () => {
-        const user = User.create(0, userObject1);
-
-        // @ts-expect-error - incorrect input type
-        this.transformUpdateReturn(user, [{ id: 1 }]);
-        // @ts-expect-error - incorrect input type
-        this.transformUpdateReturn(userObjectWithID, [{ id: 1 }]);
-        // @ts-expect-error - incorrect input type
-        this.transformUpdateReturn(selectedUser1, [{ id: 1 }]);
-        // @ts-expect-error - incorrect output type
-        this.transformUpdateReturn(updaterUser1, [{ id: 1 }])[0].name;
-      });
-    }
   }
 
   it('internally transforms selections', () => {
@@ -179,22 +120,6 @@ describe('transforms between inputs and outputs', () => {
 
     // @ts-expect-error - only returns transformed selection
     (await testTransformMapper.selectOne({})).name;
-  });
-
-  it('transforms updates', () => {
-    const testPassThruMapper = new TestPassThruMapper(db);
-    testPassThruMapper.testTransformUpdater();
-
-    const testTransformMapper = new TestTransformMapper(db);
-    testTransformMapper.testTransformUpdater();
-  });
-
-  it('transforms update returns', () => {
-    const testPassThruMapper = new TestPassThruMapper(db);
-    testPassThruMapper.testTransformUpdaterReturn();
-
-    const testTransformMapper = new TestTransformMapper(db);
-    testTransformMapper.testTransformUpdaterReturn();
   });
 });
 
