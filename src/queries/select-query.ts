@@ -3,7 +3,7 @@ import { Kysely, SelectQueryBuilder } from 'kysely';
 import { RowConverter } from '../lib/row-converter';
 
 /**
- * Mapper query for selecting rows from a database table.
+ * Mapping query for selecting rows from a database table.
  */
 export class MappingSelectQuery<
   DB,
@@ -19,6 +19,7 @@ export class MappingSelectQuery<
   constructor(
     readonly db: Kysely<DB>,
     readonly qb: QB,
+    // TODO: replace with selectTransform
     protected readonly rowConverter: RowConverter
   ) {}
 

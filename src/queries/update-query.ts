@@ -3,7 +3,7 @@ import { Kysely, UpdateQueryBuilder, UpdateResult } from 'kysely';
 import { RowConverter } from '../lib/row-converter';
 
 /**
- * Mapper query for updating rows from a database table.
+ * Mapping query for updating rows from a database table.
  */
 export class MappingUpdateQuery<
   DB,

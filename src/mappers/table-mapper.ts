@@ -126,18 +126,18 @@ export class TableMapper<
   }
 
   /**
-   * Creates and returns a parameterized mapper query, which can be repeatedly
+   * Creates and returns a parameterized mapping query, which can be repeatedly
    * executed with different parameter values, but which only ever compiles
    * the underlying Kysely query once (on the first execution).
    * @paramtype P Record characterizing the available parameter names and types.
    * @param factory Function that receives an object of the form `{ q, param }`,
-   *  where `q` is a mapper query and `param` is a function for creating
+   *  where `q` is a mapping query and `param` is a function for creating
    *  parameters. The argument to `param` is the name of the parameter, which
    *  must occur as a property of `P`. You may parameterize inserted values,
    *  updated values, and right-hand-side values of filters. Parameters may not
    *  be arrays, but you can parameterize the individual elements of an array.
-   *  Returns a mapper query that containing the parameterized values.
-   * @returns a parameterized mapper query
+   *  Returns a mapping query that containing the parameterized values.
+   * @returns a parameterized mapping query
    */
   // compile<P extends ParametersObject<P>>(
   //   factory: ParamedSelectionQueryFactory<
@@ -165,8 +165,9 @@ export class TableMapper<
   // }
 
   /**
-   * Deletes the rows from the table that match the provided filter.
-   * @returns A mapper query for deleting rows.
+   * Returns a mapping query for deleting rows from the table.
+   * @param filter Optional filter for selecting rows to delete.
+   * @returns A mapping query for deleting rows.
    */
   delete<
     RE extends ReferenceExpression<DB, TB>,
@@ -195,17 +196,9 @@ export class TableMapper<
   }
 
   // TODO: support listing inserted columns
-  // TODO: rewrite
   /**
-   * Inserts one or more rows into this table. For each row inserted,
-   * retrieves the columns specified in the `returnColumns` option,
-   * which are returned unless `insertReturnTransform` transforms them
-   * into `ReturnedObject`. If `returnColumns` is empty, returns nothing.
-   * @param objOrObjs The object or objects to insert as a row.
-   * @returns Returns a `ReturnedObject` for each inserted object. Will
-   *  be an array when `objOrObjs` is an array, will be a single object
-   *  otherwise. Returns nothing (void) if `returnColumns` is empty.
-   * @see this.insertNoReturns
+   * Returns a query for inserting rows into the table.
+   * @returns A mapping query for inserting rows.
    */
   insert(): MappingInsertQuery<
     DB,
@@ -234,12 +227,9 @@ export class TableMapper<
   }
 
   /**
-   * Selects rows from the underlying query, retrieving all columns,
-   * including the aliases of `SelectColumnAliases`, mapping each row
-   * to type `SelectedObject`.
-   * @param filter Optional filter to apply to the query. If not provided,
-   *  you can still apply a filter to the returned query.
-   * @returns A mapper query for retrieving entire rows as objects.
+   * Returns a mapping query for selecting rows from the table.
+   * @param filter Optional filter to apply to the query.
+   * @returns A mapping query for retrieving rows as objects.
    */
   select<
     RE extends ReferenceExpression<DB, TB>,

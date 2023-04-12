@@ -1,7 +1,7 @@
 import { DeleteQueryBuilder, DeleteResult, Kysely } from 'kysely';
 
 /**
- * Mapper query for deleting rows from a database table.
+ * Mapping query for deleting rows from a database table.
  */
 export class MappingDeleteQuery<
   DB,

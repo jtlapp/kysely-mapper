@@ -12,7 +12,7 @@ import { ObjectWithKeys } from '../lib/type-utils';
 // TODO: freeze objects
 
 /**
- * Mapper query for inserting rows into a database table.
+ * Mapping query for inserting rows into a database table.
  */
 export class MappingInsertQuery<
   DB,
@@ -28,7 +28,14 @@ export class MappingInsertQuery<
   /**
    * @param db Kysely database instance.
    * @param qb Kysely update query builder.
-   * @param rowConverter Converts objects of type `UpdaterObject` to rows.
+   * @param insertTransform A function that transforms the object to be
+   *  inserted into a row for insertion into the database.
+   * @param returnColumns The columns to return from the insert query.
+   *  If `returnColumns` is `['*']`, returns all columns. If `returnColumns`
+   *  is empty, returns nothing.
+   * @param insertReturnTransform A function that transforms the object
+   *  to be inserted and the returned row into the object to be returned
+   *  from the insert query.
    */
   constructor(
     protected readonly db: Kysely<DB>,
@@ -46,14 +53,14 @@ export class MappingInsertQuery<
   }
 
   /**
-   * Inserts one or more rows into the table. For each row inserted,
-   * retrieves the columns specified in the `returnColumns` option,
+   * Inserts the provided object or objects into the table as rows, first
+   * transforming the objects into rows via `insertTransform` (if defined).
+   * For each row inserted, retrieves the columns specified in `returnColumns`,
    * which are returned unless `insertReturnTransform` transforms them
    * into `ReturnedObject`. If `returnColumns` is empty, returns nothing.
    * @returns Returns a `ReturnedObject` for each inserted object. Will
    *  be an array when `objOrObjs` is an array, will be a single object
    *  otherwise. Returns nothing (void) if `returnColumns` is empty.
-   * @see this.insertNoReturns
    */
   getReturns(
     obj: InsertedObject
@@ -67,9 +74,9 @@ export class MappingInsertQuery<
     objOrObjs: InsertedObject | InsertedObject[]
   ): Promise<ReturnedObject | ReturnedObject[] | void> {
     if (this.returnColumns.length === 0) {
-      await this.loadQB(this.qb, objOrObjs).execute();
+      await this.loadInsertions(this.qb, objOrObjs).execute();
     } else {
-      const returns = await this.loadQB(
+      const returns = await this.loadInsertions(
         this.getReturningQB(),
         objOrObjs
       ).execute();
@@ -93,7 +100,7 @@ export class MappingInsertQuery<
    * Inserts rows into the table without returning any columns.
    */
   async run(objOrObjs: InsertedObject | InsertedObject[]): Promise<void> {
-    await this.loadQB(this.qb, objOrObjs).execute();
+    await this.loadInsertions(this.qb, objOrObjs).execute();
   }
 
   /**
@@ -138,7 +145,13 @@ export class MappingInsertQuery<
     return this.#returningQB;
   }
 
-  protected loadQB(
+  /**
+   * Loads the objects to be inserted into the query builder.
+   * @param qb The query builder to load the objects into.
+   * @param objOrObjs The object or objects to be inserted.
+   * @returns The query builder with the objects loaded.
+   */
+  protected loadInsertions(
     qb: InsertQueryBuilder<DB, TB, InsertResult>,
     objOrObjs: InsertedObject | InsertedObject[]
   ): InsertQueryBuilder<DB, TB, InsertResult> {
