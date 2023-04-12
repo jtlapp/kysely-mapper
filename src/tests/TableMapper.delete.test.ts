@@ -20,8 +20,8 @@ beforeAll(async () => {
 beforeEach(() => resetDB(db));
 afterAll(() => destroyDB(db));
 
-describe('BUILDER: deleting rows via TableMapper', () => {
-  it('BUILDER: deletes rows without returning a count', async () => {
+describe('deleting rows via TableMapper', () => {
+  it('deletes rows without returning a count', async () => {
     const testMapper = new TableMapper(db, 'users', {
       countTransform: (count) => Number(count),
     });
@@ -35,7 +35,7 @@ describe('BUILDER: deleting rows via TableMapper', () => {
     expect(users[0].handle).toEqual(USERS[1].handle);
   });
 
-  it('BUILDER: deletes rows returning the deletion count as bigint default', async () => {
+  it('deletes rows returning the deletion count as bigint default', async () => {
     const defaultMapper = new UserTableMapperReturningDefault(db);
 
     const count1 = await defaultMapper
@@ -54,7 +54,7 @@ describe('BUILDER: deleting rows via TableMapper', () => {
     expect(users[0].handle).toEqual(USERS[1].handle);
   });
 
-  it('BUILDER: deletes rows returning the deletion count inferred as a number', async () => {
+  it('deletes rows returning the deletion count inferred as a number', async () => {
     const testMapper = new TableMapper(db, 'users', {
       countTransform: (count) => Number(count),
     });
@@ -64,7 +64,7 @@ describe('BUILDER: deleting rows via TableMapper', () => {
     expect(count).toEqual(2);
   });
 
-  it('BUILDER: deletes rows returning the deletion count as number', async () => {
+  it('deletes rows returning the deletion count as number', async () => {
     const count1 = await userMapper.delete({ name: USERS[0].name }).getCount();
     expect(count1).toEqual(0);
 
@@ -77,7 +77,7 @@ describe('BUILDER: deleting rows via TableMapper', () => {
     expect(users[0].handle).toEqual(USERS[1].handle);
   });
 
-  it('BUILDER: deletes all rows without a filter', async () => {
+  it('deletes all rows without a filter', async () => {
     await userMapper.insert().run(USERS);
 
     const count = await userMapper.delete().getCount();
@@ -87,7 +87,7 @@ describe('BUILDER: deleting rows via TableMapper', () => {
     expect(users.length).toEqual(0);
   });
 
-  it('BUILDER: deletes rows specified via compound filter', async () => {
+  it('deletes rows specified via compound filter', async () => {
     await userMapper.insert().run(USERS);
 
     const count1 = await userMapper
@@ -111,7 +111,7 @@ describe('BUILDER: deleting rows via TableMapper', () => {
     expect(count2).toEqual(1);
   });
 
-  it('BUILDER: modifies a delete query builder', async () => {
+  it('modifies a delete query builder', async () => {
     await userMapper.insert().run(USERS);
     await userMapper.insert().run({ ...USERS[1], handle: 'user4' });
 
@@ -131,7 +131,7 @@ describe('BUILDER: deleting rows via TableMapper', () => {
     expect(users.length).toEqual(1);
   });
 
-  // it('BUILDER: deletes via parameterized queries', async () => {
+  // it('deletes via parameterized queries', async () => {
   //   const parameterization = userMapper
   //     .delete()
   //     .parameterize<{ targetName: string }>(({ q, param }) =>
@@ -160,13 +160,13 @@ describe('BUILDER: deleting rows via TableMapper', () => {
   //   const users2 = await userMapper.select().getMany();
   //   expect(users2.length).toEqual(0);
 
-  //   ignore('BUILDER: parameterization type errors', () => {
+  //   ignore('parameterization type errors', () => {
   //     // @ts-expect-error - errors on invalid parameter names
   //     parameterization.run(db, { notThere: 'foo' });
   //   });
   // });
 
-  ignore('BUILDER: detects deletion type errors', async () => {
+  ignore('detects deletion type errors', async () => {
     // @ts-expect-error - table must have all filter fields
     userMapper.delete({ notThere: 'xyz' });
     // @ts-expect-error - table must have all filter fields

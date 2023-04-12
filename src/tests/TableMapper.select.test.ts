@@ -23,10 +23,10 @@ beforeAll(async () => {
 beforeEach(() => resetDB(db));
 afterAll(() => destroyDB(db));
 
-describe('BUILDER: general selection', () => {
+describe('general selection', () => {
   // TODO: test parameterized queries only returning SelectedColumns and aliases
 
-  // it('BUILDER: parameterizes a selection', async () => {
+  // it('parameterizes a selection', async () => {
   //   await userMapper.insert().run(USERS);
 
   //   const parameterization = userMapper
@@ -53,7 +53,7 @@ describe('BUILDER: general selection', () => {
   //   // Ensure that the provided columns are not optional
   //   ((_: string) => {})(user!.name);
 
-  //   ignore('BUILDER: parameterization type errors', () => {
+  //   ignore('parameterization type errors', () => {
   //     // @ts-expect-error - errors on invalid parameter names
   //     parameterization.getMany(db, { notThere: 'foo' });
   //     // @ts-expect-error - errors on invalid column names
@@ -63,7 +63,7 @@ describe('BUILDER: general selection', () => {
   //   });
   // });
 
-  it('BUILDER: modifies the underlying query builder', async () => {
+  it('modifies the underlying query builder', async () => {
     await userMapper.insert().run(USERS);
 
     const users = await userMapper
@@ -85,7 +85,7 @@ describe('BUILDER: general selection', () => {
     expect(user?.handle).toEqual(USERS[2].handle);
   });
 
-  it('BUILDER: does not modify the underlying selected columns', async () => {
+  it('does not modify the underlying selected columns', async () => {
     await userMapper.insert().run(USERS);
 
     const users = await userMapper
@@ -114,7 +114,7 @@ describe('BUILDER: general selection', () => {
     ((_: string) => {})(user!.name);
     ((_: string) => {})(user!.email);
 
-    ignore('BUILDER: detects modify() type errors', async () => {
+    ignore('detects modify() type errors', async () => {
       // @ts-expect-error - cannot access invalid columns
       users[0].notThere;
       // @ts-expect-error - cannot access invalid columns
@@ -122,7 +122,7 @@ describe('BUILDER: general selection', () => {
     });
   });
 
-  ignore('BUILDER: detects select(filter) type errors', async () => {
+  ignore('detects select(filter) type errors', async () => {
     // @ts-expect-error - doesn't allow plain string expressions
     userMapper.select("name = 'John Doe'");
     // @ts-expect-error - doesn't allow only two arguments
@@ -140,15 +140,15 @@ describe('BUILDER: general selection', () => {
   });
 });
 
-describe('BUILDER: select() getMany()', () => {
-  it('BUILDER: selects nothing when nothing matches filter', async () => {
+describe('select() getMany()', () => {
+  it('selects nothing when nothing matches filter', async () => {
     await userMapper.insert().run(USERS);
 
     const users = await userMapper.select({ name: 'Not There' }).getMany();
     expect(users.length).toEqual(0);
   });
 
-  it('BUILDER: selects all rows with no filter', async () => {
+  it('selects all rows with no filter', async () => {
     await userMapper.insert().run(USERS);
 
     // Test selecting all
@@ -159,7 +159,7 @@ describe('BUILDER: select() getMany()', () => {
     }
   });
 
-  it('BUILDER: selects with a matching field filter', async () => {
+  it('selects with a matching field filter', async () => {
     await userMapper.insert().run(USERS);
 
     let users = await userMapper
@@ -181,7 +181,7 @@ describe('BUILDER: select() getMany()', () => {
     expect(users[0].handle).toEqual(USERS[2].handle);
   });
 
-  it('BUILDER: selects with a binary operation filter', async () => {
+  it('selects with a binary operation filter', async () => {
     await userMapper.insert().run(USERS);
 
     // Test selecting by condition (with results)
@@ -195,7 +195,7 @@ describe('BUILDER: select() getMany()', () => {
     expect(users.length).toEqual(0);
   });
 
-  it('BUILDER: selects with a query expression filter', async () => {
+  it('selects with a query expression filter', async () => {
     await userMapper.insert().run(USERS);
 
     const users = await userMapper
@@ -205,7 +205,7 @@ describe('BUILDER: select() getMany()', () => {
     expect(users[0].handle).toEqual(USERS[1].handle);
   });
 
-  it('BUILDER: selects with a matching field filter via filter()', async () => {
+  it('selects with a matching field filter via filter()', async () => {
     await userMapper.insert().run(USERS);
 
     let users = await userMapper
@@ -227,7 +227,7 @@ describe('BUILDER: select() getMany()', () => {
     expect(users[0].handle).toEqual(USERS[2].handle);
   });
 
-  it('BUILDER: selects with a binary operation filter via filter()', async () => {
+  it('selects with a binary operation filter via filter()', async () => {
     await userMapper.insert().run(USERS);
 
     // Test selecting by condition (with results)
@@ -241,7 +241,7 @@ describe('BUILDER: select() getMany()', () => {
     expect(users.length).toEqual(0);
   });
 
-  it('BUILDER: selects many returning selected columns and aliases', async () => {
+  it('selects many returning selected columns and aliases', async () => {
     const ids = await userMapper.insert().getReturns(USERS);
     const mapper = new TableMapper(db, 'users', {
       selectedColumns: ['id', 'handle as h'],
@@ -262,7 +262,7 @@ describe('BUILDER: select() getMany()', () => {
       },
     ]);
 
-    ignore('BUILDER: inaccessible types are not allowed', async () => {
+    ignore('inaccessible types are not allowed', async () => {
       // @ts-expect-error - aliases are not allowed in filter expressions
       mapper.select({ h: USERS[0].handle });
       // @ts-expect-error - unselected columns are not allowed
@@ -270,39 +270,36 @@ describe('BUILDER: select() getMany()', () => {
     });
   });
 
-  ignore(
-    'BUILDER: detects select() getMany() simple filter type errors',
-    async () => {
-      // @ts-expect-error - only table columns are accessible unfiltered
-      (await userMapper.select().getMany())[0].notThere;
-      // @ts-expect-error - only table columns are accessible unfiltered
-      (await userMapper.select({}).getMany())[0].notThere;
-      // @ts-expect-error - only table columns are accessible w/ object filter
-      // prettier-ignore
-      (await userMapper.select({ name: "Sue" }).getMany())[0].notThere;
-      // @ts-expect-error - only table columns are accessible w/ op filter
-      // prettier-ignore
-      (await userMapper.select(["name", "=", "Sue"]).getMany())[0].notThere;
-      // prettier-ignore
-      (
+  ignore('detects select() getMany() simple filter type errors', async () => {
+    // @ts-expect-error - only table columns are accessible unfiltered
+    (await userMapper.select().getMany())[0].notThere;
+    // @ts-expect-error - only table columns are accessible unfiltered
+    (await userMapper.select({}).getMany())[0].notThere;
+    // @ts-expect-error - only table columns are accessible w/ object filter
+    // prettier-ignore
+    (await userMapper.select({ name: "Sue" }).getMany())[0].notThere;
+    // @ts-expect-error - only table columns are accessible w/ op filter
+    // prettier-ignore
+    (await userMapper.select(["name", "=", "Sue"]).getMany())[0].notThere;
+    // prettier-ignore
+    (
         await userMapper
           .select((qb) => qb)
           .getMany()
         // @ts-expect-error - only table columns are accessible w/ QB filter
       )[0].notThere;
-      // prettier-ignore
-      (
+    // prettier-ignore
+    (
         await userMapper
           .select(sql`name = 'Sue'`)
           .getMany()
         // @ts-expect-error - only table columns are accessible w/ expr filter
       )[0].notThere;
-    }
-  );
+  });
 });
 
 describe('select() getOne()', () => {
-  it('BUILDER: selects the first row with no filter', async () => {
+  it('selects the first row with no filter', async () => {
     await userMapper.insert().run(USERS);
 
     let user = await userMapper.select().getOne();
@@ -312,7 +309,7 @@ describe('select() getOne()', () => {
     expect(user?.handle).toEqual(USERS[0].handle);
   });
 
-  it('BUILDER: selects the first row with a matching field filter', async () => {
+  it('selects the first row with a matching field filter', async () => {
     await userMapper.insert().run(USERS);
 
     let user = await userMapper.select({ name: USERS[0].name }).getOne();
@@ -327,7 +324,7 @@ describe('select() getOne()', () => {
     expect(user?.handle).toEqual(USERS[2].handle);
   });
 
-  it('BUILDER: selects the first row with a binary operation filter', async () => {
+  it('selects the first row with a binary operation filter', async () => {
     await userMapper.insert().run(USERS);
 
     // Test selecting by condition (with result)
@@ -339,7 +336,7 @@ describe('select() getOne()', () => {
     expect(user).toBeNull();
   });
 
-  it('BUILDER: selects the first row with a query expression filter', async () => {
+  it('selects the first row with a query expression filter', async () => {
     await userMapper.insert().run(USERS);
 
     const user = await userMapper
@@ -348,7 +345,7 @@ describe('select() getOne()', () => {
     expect(user?.handle).toEqual(USERS[1].handle);
   });
 
-  it('BUILDER: selects the first row with a compound filter', async () => {
+  it('selects the first row with a compound filter', async () => {
     const userIDs = await userMapper.insert().getReturns(USERS);
 
     const user = await userMapper
@@ -359,7 +356,7 @@ describe('select() getOne()', () => {
     expect(user?.handle).toEqual(USERS[2].handle);
   });
 
-  it('BUILDER: selects the first row with a matching field filter via filter()', async () => {
+  it('selects the first row with a matching field filter via filter()', async () => {
     await userMapper.insert().run(USERS);
 
     let user = await userMapper.select({ name: USERS[0].name }).getOne();
@@ -374,7 +371,7 @@ describe('select() getOne()', () => {
     expect(user?.handle).toEqual(USERS[2].handle);
   });
 
-  it('BUILDER: selects the first row with a binary operation filter via filter()', async () => {
+  it('selects the first row with a binary operation filter via filter()', async () => {
     await userMapper.insert().run(USERS);
 
     // Test selecting by condition (with result)
@@ -386,7 +383,7 @@ describe('select() getOne()', () => {
     expect(user).toBeNull();
   });
 
-  it('BUILDER: selects one returning selected columns and aliases', async () => {
+  it('selects one returning selected columns and aliases', async () => {
     const ids = await userMapper.insert().getReturns(USERS);
     const mapper = new TableMapper(db, 'users', {
       selectedColumns: ['id', 'handle as h'],
@@ -398,7 +395,7 @@ describe('select() getOne()', () => {
     const user = await mapper.select({ handle: USERS[0].handle }).getOne();
     expect(user).toEqual({ id: ids[0].id, h: USERS[0].handle });
 
-    ignore('BUILDER: inaccessible types are not allowed', async () => {
+    ignore('inaccessible types are not allowed', async () => {
       // @ts-expect-error - unselected columns are not allowed
       (await mapper.select().getMany())[0].name;
     });
