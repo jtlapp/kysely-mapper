@@ -3,7 +3,6 @@ import {
   Insertable,
   ReferenceExpression,
   Selectable,
-  Updateable,
   InsertQueryBuilder,
   InsertResult,
   SelectQueryBuilder,
