@@ -111,14 +111,8 @@ export class TableMapper<
         : options.selectedColumns;
     this.rowConverter = new RowConverter(options.selectTransform);
 
-    if (options.insertTransform) {
-      this.transformInsertion = options.insertTransform;
-    }
     if (options.updaterTransform) {
       this.transformUpdater = options.updaterTransform;
-    }
-    if (options.insertReturnTransform) {
-      this.transformInsertReturn = options.insertReturnTransform;
     }
     if (options.countTransform) {
       this.countTransform = options.countTransform;
@@ -415,88 +409,6 @@ export class TableMapper<
    * @param obj The object to transform.
    * @returns Row representation of the object.
    */
-  // This lengthy type provides better type assistance messages
-  // in VSCode than a dedicated TransformInsertion type would.
-  protected transformInsertion: NonNullable<
-    TableMapperOptions<
-      DB,
-      TB,
-      SelectedColumns,
-      SelectedObject,
-      InsertedObject,
-      UpdaterObject,
-      ReturnColumns,
-      ReturnedCount,
-      ReturnedObject
-    >['insertTransform']
-  > = (obj) => obj as Insertable<DB[TB]>;
-
-  /**
-   * Transforms an array of to-be-inserted objects into an insertable array
-   * of rows. A utility for keeping transform code simple and performant.
-   * @param source The array of inseted objects to transform.
-   * @returns Array of rows representing the objects.
-   */
-  protected transformInsertionArray(
-    source: InsertedObject[]
-  ): Insertable<DB[TB]>[] {
-    if (this.options.insertTransform) {
-      // TS isn't seeing that that transform is defined.
-      return source.map((obj) => this.options.insertTransform!(obj));
-    }
-    return source as any;
-  }
-
-  /**
-   * Transforms an object returned from an insert into an object to be
-   * returned to the caller.
-   * @param source The object that was inserted.
-   * @param returns The object returned from the insert.
-   * @returns The object to be returned to the caller.
-   */
-  // This lengthy type provides better type assistance messages
-  // in VSCode than a dedicated TransformInsertion type would.
-  protected transformInsertReturn: NonNullable<
-    TableMapperOptions<
-      DB,
-      TB,
-      SelectedColumns,
-      SelectedObject,
-      InsertedObject,
-      UpdaterObject,
-      ReturnColumns,
-      ReturnedCount,
-      ReturnedObject
-    >['insertReturnTransform']
-  > = (_obj, ret) => ret as any;
-
-  /**
-   * Transforms an array of objects returned from an insert into an array
-   * of objects to be returned to the caller.
-   * @param source The array of objects that were inserted.
-   * @param returns The array of objects returned from the insert.
-   * @returns Array of objects to be returned to the caller.
-   */
-  protected transformInsertReturnArray(
-    source: InsertedObject[],
-    returns: ObjectWithKeys<Selectable<DB[TB]>, ReturnColumns>[]
-  ): ReturnedObject[] {
-    if (this.options.insertReturnTransform) {
-      return source.map((obj, i) =>
-        // TS isn't seeing that that transform is defined.
-        this.options.insertReturnTransform!(obj, returns[i])
-      );
-    }
-    return returns as any;
-  }
-
-  /**
-   * Transforms an object into a row for insertion.
-   * @param obj The object to transform.
-   * @returns Row representation of the object.
-   */
-  // This lengthy type provides better type assistance messages
-  // in VSCode than a dedicated TransformInsertion type would.
   protected transformUpdater: NonNullable<
     TableMapperOptions<
       DB,

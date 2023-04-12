@@ -58,7 +58,9 @@ export interface TableMapperOptions<
   /** Transformation to apply to column values returned from inserts. */
   readonly insertReturnTransform?: (
     source: InsertedObject,
-    returns: ObjectWithKeys<Selectable<DB[TB]>, ReturnColumns>
+    returns: ReturnColumns extends []
+      ? never
+      : ObjectWithKeys<Selectable<DB[TB]>, ReturnColumns>
   ) => ReturnedObject;
 
   /** Transformation to apply to column values returned from updates. */

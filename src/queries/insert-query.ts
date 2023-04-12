@@ -46,8 +46,9 @@ export class MappingInsertQuery<
     returnColumns?: ReturnColumns,
     protected readonly insertReturnTransform?: (
       source: InsertedObject,
-      // TODO: reflect no return columns
-      returns: ObjectWithKeys<Selectable<DB[TB]>, ReturnColumns>
+      returns: ReturnColumns extends []
+        ? never
+        : ObjectWithKeys<Selectable<DB[TB]>, ReturnColumns>
     ) => ReturnedObject
   ) {
     this.returnColumns = returnColumns ?? ([] as any);

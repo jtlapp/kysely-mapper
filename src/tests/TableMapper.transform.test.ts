@@ -1,13 +1,11 @@
 import { Insertable, Kysely, Selectable } from 'kysely';
 
+// TODO: revisit what tests are necessary here
+
 import { TableMapper } from '../mappers/table-mapper';
 import { createDB, resetDB, destroyDB } from './utils/test-setup';
 import { Database, Users } from './utils/test-tables';
 import {
-  insertedUser1,
-  insertedUser2,
-  insertReturnedUser1,
-  insertReturnedUser2,
   STANDARD_OPTIONS,
   selectedUser1,
   selectedUser2,
@@ -57,29 +55,9 @@ describe('transforms between inputs and outputs', () => {
       ]);
     }
 
-    testTransformInsertion() {
-      expect(this.transformInsertion(userRow1)).toEqual(userRow1);
-      expect(this.transformInsertionArray([userRow1, userRow2])).toEqual([
-        userRow1,
-        userRow2,
-      ]);
-    }
-
     testTransformUpdater() {
       const user1 = { id: 1, ...userRow1 };
       expect(this.transformUpdater(user1)).toEqual(user1);
-    }
-
-    testTransformInsertReturn() {
-      expect(this.transformInsertReturn(userRow1, { id: 1 })).toEqual({
-        id: 1,
-      });
-      expect(
-        this.transformInsertReturnArray(
-          [userRow1, userRow2],
-          [{ id: 1 }, { id: 2 }]
-        )
-      ).toEqual([{ id: 1 }, { id: 2 }]);
     }
 
     testTransformUpdaterReturn() {
@@ -132,31 +110,6 @@ describe('transforms between inputs and outputs', () => {
       });
     }
 
-    testTransformInsertion() {
-      expect(this.transformInsertion(insertedUser1)).toEqual(userRow1);
-
-      expect(
-        this.transformInsertionArray([insertedUser1, insertedUser2])
-      ).toEqual([userRow1, userRow2]);
-
-      ignore('detects transformInsertion type errors', () => {
-        const user = User.create(0, userObject1);
-
-        // @ts-expect-error - incorrect input type
-        this.transformInsertion(user);
-        // @ts-expect-error - incorrect input type
-        this.transformInsertion([user]);
-        // @ts-expect-error - incorrect input type
-        this.transformInsertion(userObjectWithID);
-        // @ts-expect-error - incorrect input type
-        this.transformInsertion([userObjectWithID]);
-        // @ts-expect-error - incorrect output type
-        this.transformInsertion(insertedUser1).firstName;
-        // @ts-expect-error - incorrect output type
-        this.transformInsertion([insertedUser1])[0].firstName;
-      });
-    }
-
     testTransformUpdater() {
       expect(this.transformUpdater(updaterUser1)).toEqual(userRow1);
 
@@ -169,40 +122,6 @@ describe('transforms between inputs and outputs', () => {
         this.transformUpdater(userObjectWithID);
         // @ts-expect-error - incorrect output type
         this.transformUpdater(updaterUser1).firstName;
-      });
-    }
-
-    testTransformInsertReturn() {
-      expect(this.transformInsertReturn(insertedUser1, { id: 1 })).toEqual(
-        insertReturnedUser1
-      );
-
-      expect(
-        this.transformInsertReturnArray(
-          [insertedUser1, insertedUser2],
-          [{ id: 1 }, { id: 2 }]
-        )
-      ).toEqual([insertReturnedUser1, insertReturnedUser2]);
-
-      ignore('detects transformInsertReturn type errors', () => {
-        const user = User.create(0, userObject1);
-
-        // @ts-expect-error - incorrect input type
-        this.transformInsertReturn(user, { id: 1 });
-        // @ts-expect-error - incorrect input type
-        this.transformInsertReturn([user], [{ id: 1 }]);
-        // @ts-expect-error - incorrect input type
-        this.transformInsertReturn(userObjectWithID, { id: 1 });
-        // @ts-expect-error - incorrect input type
-        this.transformInsertReturn([userObjectWithID], [{ id: 1 }]);
-        // @ts-expect-error - incorrect input type
-        this.transformInsertReturn(selectedUser1, { id: 1 });
-        // @ts-expect-error - incorrect input type
-        this.transformInsertReturn([selectedUser1], [{ id: 1 }]);
-        // @ts-expect-error - incorrect output type
-        this.transformInsertReturn(insertedUser1, { id: 1 }).name;
-        // @ts-expect-error - incorrect output type
-        this.transformInsertReturn([insertedUser1], [{ id: 1 }])[0].name;
       });
     }
 
@@ -262,28 +181,12 @@ describe('transforms between inputs and outputs', () => {
     (await testTransformMapper.selectOne({})).name;
   });
 
-  it('transforms insertions', () => {
-    const testPassThruMapper = new TestPassThruMapper(db);
-    testPassThruMapper.testTransformInsertion();
-
-    const testTransformMapper = new TestTransformMapper(db);
-    testTransformMapper.testTransformInsertion();
-  });
-
   it('transforms updates', () => {
     const testPassThruMapper = new TestPassThruMapper(db);
     testPassThruMapper.testTransformUpdater();
 
     const testTransformMapper = new TestTransformMapper(db);
     testTransformMapper.testTransformUpdater();
-  });
-
-  it('transforms insert returns', () => {
-    const testPassThruMapper = new TestPassThruMapper(db);
-    testPassThruMapper.testTransformInsertReturn();
-
-    const testTransformMapper = new TestTransformMapper(db);
-    testTransformMapper.testTransformInsertReturn();
   });
 
   it('transforms update returns', () => {

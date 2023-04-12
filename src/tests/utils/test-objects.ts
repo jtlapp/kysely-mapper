@@ -79,6 +79,8 @@ export const userObject3 = {
   email: userRow3.email,
 };
 
+// TODO: revisit use of these values
+
 export const selectedUser1 = SelectedUser.create(1, userObject1);
 export const selectedUser2 = SelectedUser.create(2, userObject2);
 export const selectedUser3 = SelectedUser.create(3, userObject3);
