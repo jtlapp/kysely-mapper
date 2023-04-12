@@ -21,7 +21,6 @@ import {
 } from '../lib/type-utils';
 import { TableMapperOptions } from './table-mapper-options';
 import { MappingDeleteQuery } from '../queries/delete-query';
-import { RowConverter } from '../lib/row-converter';
 import { MappingSelectQuery } from '../queries/select-query';
 import { AllSelection } from '../lib/kysely-types';
 import { MappingInsertQuery } from '../queries/insert-query';
@@ -72,9 +71,6 @@ export class TableMapper<
   /** Columns to return from the table on insert or update. */
   protected returnColumns: (keyof Selectable<DB[TB]> & string)[] | ['*'];
 
-  /** Converts retrieved rows to `SelectedObject`. */
-  protected readonly rowConverter: RowConverter;
-
   /** Transforms query counts into `ReturnedCount`. */
   protected countTransform: (count: bigint) => ReturnedCount = (count) =>
     count as any;
@@ -109,7 +105,6 @@ export class TableMapper<
         : options.selectedColumns.includes('*' as any)
         ? ([] as any)
         : options.selectedColumns;
-    this.rowConverter = new RowConverter(options.selectTransform);
 
     if (options.countTransform) {
       this.countTransform = options.countTransform;
@@ -142,7 +137,6 @@ export class TableMapper<
   //       q: this,
   //       param: parameterMaker.param.bind(parameterMaker),
   //     }).qb,
-  //     this.rowConverter
   //   );
   // }
   /**

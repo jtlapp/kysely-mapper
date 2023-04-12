@@ -1,8 +1,6 @@
 import { Compilable, Kysely } from 'kysely';
 import { ParameterizedQuery, ParametersObject } from 'kysely-params';
 
-import { RowConverter } from '../lib/row-converter';
-
 /**
  * Class representing a parameterized query that returns rows. It can be
  * repeatedly executed or instantiated with different parameter values.
@@ -14,7 +12,7 @@ export class ParameterizedRowQuery<
 > {
   #parameterizedQuery: ParameterizedQuery<P, any>;
 
-  constructor(qb: Compilable<any>, protected readonly converter: RowConverter) {
+  constructor(qb: Compilable<any>, protected readonly converter: any) {
     this.#parameterizedQuery = new ParameterizedQuery(qb);
   }
 
