@@ -98,9 +98,15 @@ export class MappingUpdateQuery<
 
   /**
    * Runs the query, updating rows, without returning any columns.
+   * @param obj The object which which to update the rows.
+   * @returns `true` if any rows were updated, `false` otherwise.
    */
-  async run(obj: UpdaterObject): Promise<void> {
-    await this.loadUpdaterObject(this.qb, obj).execute();
+  async run(obj: UpdaterObject): Promise<boolean> {
+    const results = await this.loadUpdaterObject(
+      this.qb,
+      obj
+    ).executeTakeFirst();
+    return results.numUpdatedRows !== BigInt(0);
   }
 
   /**

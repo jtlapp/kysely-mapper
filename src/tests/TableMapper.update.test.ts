@@ -39,8 +39,14 @@ beforeEach(() => resetDB(db));
 afterAll(() => destroyDB(db));
 
 describe('updating rows via TableMapper', () => {
-  it('updates returning zero update count', async () => {
+  it('updates nothing returning zero update count', async () => {
     const updateValues = { email: 'new.email@xyz.pdq' };
+
+    const success = await userMapperReturningAll
+      .update({ id: 1 })
+      .run(updateValues);
+    expect(success).toBe(false);
+
     const updateCount = await userMapperReturningAll
       .update({ id: 1 })
       .getCount(updateValues);
@@ -52,7 +58,7 @@ describe('updating rows via TableMapper', () => {
     expect(updates.length).toEqual(0);
   });
 
-  it('updates returning non-zero update count', async () => {
+  it('updates something returning non-zero update count', async () => {
     const updateValues = { email: 'new.email@xyz.pdq' };
     const insertReturn0 = await userMapperReturningID
       .insert()
@@ -82,11 +88,15 @@ describe('updating rows via TableMapper', () => {
     expect(readUsers[0].email).toEqual(updateValues.email);
     expect(readUsers[1].email).toEqual(updateValues.email);
 
-    // prettier-ignore
-    const updateCount = await userMapperReturningID.update().getCount( {
-      name: "Every User",
+    const updateCount = await userMapperReturningID.update().getCount({
+      name: 'Every User',
     });
     expect(updateCount).toEqual(3);
+
+    const success = await userMapperReturningID.update().run({
+      name: 'Every User',
+    });
+    expect(success).toBe(true);
   });
 
   it('updates returning configured return columns', async () => {

@@ -21,6 +21,14 @@ beforeEach(() => resetDB(db));
 afterAll(() => destroyDB(db));
 
 describe('deleting rows via TableMapper', () => {
+  it("doesn't delete anything if no rows match", async () => {
+    const count = await userMapper.delete({ name: USERS[0].name }).getCount();
+    expect(count).toEqual(0);
+
+    const success = await userMapper.delete({ name: USERS[0].name }).run();
+    expect(success).toEqual(false);
+  });
+
   it('deletes rows without returning a count', async () => {
     const testMapper = new TableMapper(db, 'users', {
       countTransform: (count) => Number(count),
@@ -79,12 +87,16 @@ describe('deleting rows via TableMapper', () => {
 
   it('deletes all rows without a filter', async () => {
     await userMapper.insert().run(USERS);
+    const count1 = await userMapper.delete().getCount();
+    expect(count1).toEqual(3);
+    const users1 = await userMapper.select().getMany();
+    expect(users1.length).toEqual(0);
 
-    const count = await userMapper.delete().getCount();
-    expect(count).toEqual(3);
-
-    const users = await userMapper.select().getMany();
-    expect(users.length).toEqual(0);
+    await userMapper.insert().run(USERS);
+    const success = await userMapper.delete().run();
+    expect(success).toBe(true);
+    const users2 = await userMapper.select().getMany();
+    expect(users2.length).toEqual(0);
   });
 
   it('deletes rows specified via compound filter', async () => {

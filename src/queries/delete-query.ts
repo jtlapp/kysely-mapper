@@ -46,9 +46,11 @@ export class MappingDeleteQuery<
   }
 
   /**
-   * Runs the query, returning nothing.
+   * Runs the query, deleting the indicated rows, returning nothing.
+   * @returns `true` if any rows were deleted, `false` otherwise.
    */
-  async run(): Promise<void> {
-    await this.qb.execute();
+  async run(): Promise<boolean> {
+    const results = await this.qb.executeTakeFirst();
+    return results.numDeletedRows !== BigInt(0);
   }
 }

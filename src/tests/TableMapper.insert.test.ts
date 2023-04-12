@@ -105,8 +105,8 @@ ignore('requires return columns to have a consistent type', () => {
 
 describe('insert an array of objects without transformation', () => {
   it('inserts multiple via run() without returning columns', async () => {
-    const result = await userMapperReturningDefault.insert().run(USERS);
-    expect(result).toBeUndefined();
+    const success = await userMapperReturningDefault.insert().run(USERS);
+    expect(success).toBe(true);
 
     const readUsers = await userMapperReturningAll.select().getMany();
     expect(readUsers.length).toEqual(3);
@@ -123,8 +123,8 @@ describe('insert an array of objects without transformation', () => {
   });
 
   it('inserts multiple via getResult() without returning columns', async () => {
-    const result = await userMapperReturningDefault.insert().getReturns(USERS);
-    expect(result).toBeUndefined();
+    const success = await userMapperReturningDefault.insert().getReturns(USERS);
+    expect(success).toBe(true);
 
     const readUsers = await userMapperReturningAll.select().getMany();
     expect(readUsers.length).toEqual(3);
