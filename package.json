@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "author": "Joseph T. Lapp <arachnojoe@gmail.com>",
   "license": "MIT",
-  "description": "Kysely-based library for customizably mapping between tables and objects",
+  "description": "Flexible Kysely-based library for mapping between tables and objects",
   "keywords": [
     "kysely",
     "mapper",
