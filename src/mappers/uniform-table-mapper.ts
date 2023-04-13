@@ -38,10 +38,10 @@ export class UniformTableMapper<
     'id' & SelectableColumn<DB[TB]>
   ],
   SelectedColumns extends SelectionColumn<DB, TB>[] | ['*'] = ['*'],
+  ReturnCount = bigint,
   ReturnColumns extends
     | (keyof Selectable<DB[TB]> & string)[]
-    | ['*'] = PrimaryKeyColumns,
-  ReturnCount = bigint
+    | ['*'] = PrimaryKeyColumns
 > extends TableMapper<
   DB,
   TB,
