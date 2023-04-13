@@ -49,6 +49,7 @@ it('inserts/updates/deletes a mapped object w/ default transforms', async () => 
   const insertReturn1 = (await userMapper.insert().getOne(insertedUser1))!;
   expect(insertReturn1).not.toBeNull();
   expect(insertReturn1.id).toBeGreaterThan(0);
+  insertReturn1.name; // ensure 'name' is accessible
 
   // test getting a user by ID
   const selectedUser1 = await userMapper
@@ -57,6 +58,7 @@ it('inserts/updates/deletes a mapped object w/ default transforms', async () => 
   expect(selectedUser1).toEqual({ ...insertedUser1, id: insertReturn1.id });
   // ensure 'id' is accessible
   expect(selectedUser1?.id).toEqual(insertReturn1.id);
+  selectedUser1?.name; // ensure 'name' is accessible
 
   // test inserting a user with truthy id
   const insertedUser2 = new MappedUser(
@@ -66,7 +68,8 @@ it('inserts/updates/deletes a mapped object w/ default transforms', async () => 
     USERS[1].email
   );
   const insertReturn2 = (await userMapper.insert().getOne(insertedUser2))!;
-  expect(insertReturn2).toEqual({ id: 10 });
+  expect(insertReturn2).toEqual(insertedUser2);
+  insertReturn2?.name; // ensure 'name' is accessible
   const selectedUser2 = await userMapper
     .select({ id: insertReturn2.id })
     .getOne();
@@ -82,7 +85,8 @@ it('inserts/updates/deletes a mapped object w/ default transforms', async () => 
   const updateReturn = await userMapper
     .update({ id: updatingUser.id })
     .getOne(updatingUser);
-  expect(updateReturn).toEqual({ id: updatingUser.id });
+  updateReturn?.name; // ensure 'name' is accessible
+  expect(updateReturn).toEqual(updatingUser);
   const selectedUser3 = await userMapper
     .select({ id: insertReturn1.id })
     .getOne();
@@ -107,8 +111,10 @@ it('inserts/updates/deletes a mapped object w/ default transforms', async () => 
   // test updating multiple users returning select columns
   const updateReturn3 = await userMapper.update().getAll({ name: 'Everyone' });
   expect(updateReturn3).toEqual([{ id: 1 }, { id: 10 }]);
+  updateReturn3[0].id; // ensure 'id' is accessible
   const updateReturn4 = await userMapper.update().getOne({ name: 'Everyone' });
   expect(updateReturn4).toEqual({ id: 1 });
+  updateReturn4?.id; // ensure 'id' is accessible
 
   // test deleting a user
   const deleted = await userMapper.delete({ id: insertReturn1.id }).run();
@@ -199,6 +205,7 @@ it('inserts/updates/deletes a mapped object class w/ all custom transforms', asy
     insertedUser1.email
   );
   const insertReturn = (await userMapper.insert().getOne(insertedUser))!;
+  insertReturn?.firstName; // ensure 'firstName' is accessible
   expect(insertReturn).not.toBeNull();
   expect(insertReturn.serialNo).toBeGreaterThan(0);
 
@@ -206,6 +213,7 @@ it('inserts/updates/deletes a mapped object class w/ all custom transforms', asy
   const selectedUser1 = await userMapper
     .select({ id: insertReturn.serialNo })
     .getOne();
+  selectedUser1?.firstName; // ensure 'firstName' is accessible
   expect(selectedUser1).toEqual(insertReturn);
   expect(selectedUser1?.serialNo).toEqual(insertReturn.serialNo);
 
@@ -220,10 +228,12 @@ it('inserts/updates/deletes a mapped object class w/ all custom transforms', asy
   const updateReturn2 = await userMapper
     .update({ id: updatingUser.serialNo })
     .getOne(updatingUser);
+  updateReturn2?.firstName; // ensure 'firstName' is accessible
   expect(updateReturn2).toEqual(updatingUser);
   const selectedUser2 = await userMapper
     .select({ id: insertReturn.serialNo })
     .getOne();
+  selectedUser2?.firstName; // ensure 'firstName' is accessible
   expect(selectedUser2?.serialNo).toEqual(selectedUser1!.serialNo);
   expect(selectedUser2?.handle).toEqual(selectedUser1!.handle + '2');
 
@@ -233,6 +243,7 @@ it('inserts/updates/deletes a mapped object class w/ all custom transforms', asy
     .getAll({
       name: 'Foo Foo',
     });
+  updateColumnReturns[0].id; // ensure 'id' is accessible
   expect(updateColumnReturns).toEqual([{ id: selectedUser1!.serialNo }]);
   const selectedUser4 = await userMapper
     .select({ id: insertReturn.serialNo })
@@ -242,8 +253,10 @@ it('inserts/updates/deletes a mapped object class w/ all custom transforms', asy
   // test updating multiple users returning select columns
   const updateReturn3 = await userMapper.update().getAll({ name: 'Everyone' });
   expect(updateReturn3).toEqual([{ id: 1 }]);
+  updateReturn3[0].id; // ensure 'id' is accessible
   const updateReturn4 = await userMapper.update().getOne({ name: 'Everyone' });
   expect(updateReturn4).toEqual({ id: 1 });
+  updateReturn4?.id; // ensure 'id' is accessible
 
   // test deleting a user
   const deleted = await userMapper.delete({ id: insertReturn.serialNo }).run();
@@ -312,6 +325,7 @@ it('inserts/updates/deletes a mapped object class w/ default update transforms',
     insertedUser1.email
   );
   const insertReturn = (await userMapper.insert().getOne(insertedUser))!;
+  insertReturn?.firstName; // ensure 'firstName' is accessible
   expect(insertReturn).not.toBeNull();
   expect(insertReturn.id).toBeGreaterThan(0);
 
@@ -319,6 +333,7 @@ it('inserts/updates/deletes a mapped object class w/ default update transforms',
   const selectedUser1 = await userMapper
     .select({ id: insertReturn.id })
     .getOne();
+  selectedUser1?.firstName; // ensure 'firstName' is accessible
   expect(selectedUser1).toEqual(insertReturn);
   expect(selectedUser1?.id).toEqual(insertReturn.id);
 
@@ -333,7 +348,8 @@ it('inserts/updates/deletes a mapped object class w/ default update transforms',
   const updateReturn = await userMapper
     .update({ id: updatingUser.id })
     .getOne(updatingUser);
-  expect(updateReturn).toEqual({ id: updatingUser.id });
+  updateReturn?.firstName; // ensure 'firstName' is accessible
+  expect(updateReturn).toEqual(updatingUser);
   const selectedUser2 = await userMapper
     .select({ id: insertReturn.id })
     .getOne();

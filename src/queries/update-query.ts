@@ -88,41 +88,38 @@ export class MappingUpdateQuery<
    *  object for each row updated; otherwise returns `undefined`.
    */
   getAll(
-    obj: UpdatingObject
+    obj: SelectedObject
   ): Promise<
     ReturnColumns extends []
       ? void
       : UpdateReturnsSelectedObjectWhenProvided extends true
-      ? UpdatingObject extends SelectedObject
-        ? SelectedObject[]
-        : DefaultReturnObject[]
+      ? SelectedObject[]
       : DefaultReturnObject[]
   >;
 
-  async getAll(
+  getAll(
     obj: UpdatingObject
-  ): Promise<
-    | (UpdateReturnsSelectedObjectWhenProvided extends true
-        ? UpdatingObject extends SelectedObject
-          ? SelectedObject[]
-          : DefaultReturnObject[]
-        : DefaultReturnObject[])
-    | void
-  > {
+  ): Promise<ReturnColumns extends [] ? void : DefaultReturnObject[]>;
+
+  async getAll(
+    obj: UpdatingObject | SelectedObject
+  ): Promise<SelectedObject[] | DefaultReturnObject[] | void> {
     if (this.returnColumns.length === 0) {
-      await this.loadUpdatingObject(this.qb, obj).execute();
+      await this.loadUpdatingObject(this.qb, obj as any).execute();
       return;
     }
     const returns = await this.loadUpdatingObject(
       this.getReturningQB(),
-      obj
+      obj as any
     ).execute();
     if (returns === undefined) {
       throw Error('No rows returned from update expecting returned columns');
     }
     return this.updateReturnTransform === undefined
       ? (returns as any)
-      : returns.map((row) => this.updateReturnTransform!(obj, row as any));
+      : returns.map((row) =>
+          this.updateReturnTransform!(obj as any, row as any)
+        );
   }
 
   /**
@@ -138,37 +135,31 @@ export class MappingUpdateQuery<
    * no rows were updated.
    */
   getOne(
-    obj: UpdatingObject
+    obj: SelectedObject
   ): Promise<
     ReturnColumns extends []
       ? void
       :
           | (UpdateReturnsSelectedObjectWhenProvided extends true
-              ? UpdatingObject extends SelectedObject
-                ? SelectedObject
-                : DefaultReturnObject
+              ? SelectedObject
               : DefaultReturnObject)
           | null
   >;
 
-  async getOne(
+  getOne(
     obj: UpdatingObject
-  ): Promise<
-    | (UpdateReturnsSelectedObjectWhenProvided extends true
-        ? UpdatingObject extends SelectedObject
-          ? SelectedObject
-          : DefaultReturnObject
-        : DefaultReturnObject)
-    | null
-    | void
-  > {
+  ): Promise<ReturnColumns extends [] ? void : DefaultReturnObject | null>;
+
+  async getOne(
+    obj: UpdatingObject | SelectedObject
+  ): Promise<SelectedObject | DefaultReturnObject | null | void> {
     if (this.returnColumns.length === 0) {
-      await this.loadUpdatingObject(this.qb, obj).execute();
+      await this.loadUpdatingObject(this.qb, obj as any).execute();
       return;
     }
     const returns = await this.loadUpdatingObject(
       this.getReturningQB(),
-      obj
+      obj as any
     ).execute();
     if (returns === undefined) {
       throw Error('No rows returned from update expecting returned columns');
@@ -178,7 +169,7 @@ export class MappingUpdateQuery<
     }
     return this.updateReturnTransform === undefined
       ? (returns[0] as any)
-      : this.updateReturnTransform!(obj, returns[0] as any);
+      : this.updateReturnTransform!(obj as any, returns[0] as any);
   }
 
   /**

@@ -54,19 +54,12 @@ export class UniformTableMapper<
   true,
   true
 > {
-  // TODO: rewrite
   /**
-   * Create a new UniformTableMapper.
    * @param db The Kysely database instance.
    * @param tableName The name of the table.
-   * @param primaryKeyColumns The names of the primary key columns.
-   * @param options Options governing UniformTableMapper behavior.
-   *  `insertTransform` defaults to a transform that removes the primary key
-   *  columns whose values are falsy. `insertReturnTransform` defaults to a
-   *  transform that adds the return columns. The update transforms only
-   *  apply to `update()` and `updateNoReturns()`; `updateWhere()` and
-   *  `updateCount()` accept and return individual columns, not `MappedObject`.
-   *  `updateReturnTransform` defaults to the `insertReturnTransform`.
+   * @param options Options governing mapper behavior. Default to a
+   *  primary key of `id`, to selecting all columns, and to returning
+   *  the `id` on insert or update, when the caller requests returns.
    */
   constructor(
     db: Kysely<DB>,
@@ -109,6 +102,7 @@ function _prepareOptions<
 ) {
   const primaryKeyColumns = options.primaryKeyColumns ?? DEFAULT_KEY;
 
+  // Remove primary keys from inserted object, by default
   const insertTransform = (obj: MappedObject) => {
     const insertedValues = { ...obj };
     primaryKeyColumns.forEach((column) => {
@@ -119,24 +113,41 @@ function _prepareOptions<
     return insertedValues;
   };
 
+  // Add returned values to inserted object, by default
+  const insertReturnTransform = (
+    obj: MappedObject,
+    returns: ObjectWithKeys<Selectable<DB[TB]>, ReturnColumns>
+  ) => {
+    return { ...obj, ...returns };
+  };
+
+  // Use insert transform by default; or if none is provided, remove primary
+  // keys from inserted object if the object is a `MappedObject`.
   const updateTransform =
     options.insertTransform !== undefined
       ? options.insertTransform
       : (obj: MappedObject | Partial<Selectable<DB[TB]>>) =>
-          // Not using a type guard because it complicates the options assignment
           options.isMappedObject(obj) ? insertTransform(obj as any) : obj;
 
-  const returnTransform = (
-    _obj: MappedObject,
+  // If the object is a `MappedObject`, use the insert return transform by
+  // default, or if none is provided, add returned values to inserted object.
+  // If the object is not a `MappedObject`, return the raw return values.
+  const updateReturnTransform = (
+    obj: MappedObject,
     returns: ObjectWithKeys<Selectable<DB[TB]>, ReturnColumns>
-  ) => returns;
+  ) =>
+    !options.isMappedObject(obj)
+      ? returns
+      : options.insertReturnTransform === undefined
+      ? insertReturnTransform(obj, returns)
+      : options.insertReturnTransform(obj, returns as any);
 
   return {
     primaryKeyColumns,
     insertTransform,
-    insertReturnTransform: returnTransform,
+    insertReturnTransform,
     updateTransform,
-    updateReturnTransform: returnTransform,
+    updateReturnTransform,
     returnColumns: primaryKeyColumns,
     ...options,
   };

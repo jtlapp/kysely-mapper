@@ -1,10 +1,12 @@
 import { Insertable, Kysely, Selectable } from 'kysely';
 
-// TODO: revisit what tests are necessary here; and wht to call this file
+// Because tests for `UniformTableMapper` cover transform behavior,
+// this file only checks for valid types.
 
 import { TableMapper } from '../mappers/table-mapper';
 import { createDB, resetDB, destroyDB } from './utils/test-setup';
 import { Database, Users } from './utils/test-tables';
+import { User } from './utils/test-types';
 import { ignore } from './utils/test-utils';
 
 let db: Kysely<Database>;
@@ -24,8 +26,7 @@ describe('transforms between inputs and outputs', () => {
       Selectable<Users>,
       Insertable<Users>,
       Partial<Insertable<Users>>,
-      ['id'],
-      number
+      ['id']
       // @ts-expect-error - invalid return column configuration
     >(db, 'users', { returnColumns: ['notThere'] });
 
@@ -37,8 +38,7 @@ describe('transforms between inputs and outputs', () => {
       Insertable<Users>,
       Partial<Insertable<Users>>,
       // @ts-expect-error - invalid return column configuration
-      ['notThere'],
-      number
+      ['notThere']
     >(db, 'users', {});
 
     new TableMapper<
@@ -49,8 +49,7 @@ describe('transforms between inputs and outputs', () => {
       Insertable<Users>,
       Partial<Insertable<Users>>,
       // @ts-expect-error - invalid return column configuration
-      ['name', 'notThere'],
-      number
+      ['name', 'notThere']
     >(db, 'users', {});
 
     new TableMapper<
@@ -60,8 +59,7 @@ describe('transforms between inputs and outputs', () => {
       Selectable<Users>,
       Insertable<Users>,
       Partial<Insertable<Users>>,
-      ['id'],
-      number
+      ['id']
       // @ts-expect-error - invalid return column configuration
     >(db, 'users', { returnColumns: [''] });
 
@@ -86,11 +84,125 @@ describe('transforms between inputs and outputs', () => {
       Selectable<Users>,
       Insertable<Users>,
       Partial<Insertable<Users>>,
-      ReturnColumns,
-      number
+      ReturnColumns
     > {}
     // @ts-expect-error - invalid return column configuration
     new TestMapper6(db, 'users', { returnColumns: ['notThere'] });
+  });
+
+  ignore('detects invalid return count configuration', () => {
+    class TestMapper extends TableMapper<
+      Database,
+      'users',
+      ['*'],
+      Selectable<Users>,
+      Insertable<Users>,
+      Partial<Insertable<Users>>,
+      ['id'],
+      number
+    > {}
+    new TestMapper(db, 'users', {
+      // @ts-expect-error - invalid return count
+      countTransform: (count: bigint) => BigInt(count),
+    });
+  });
+
+  ignore('detects invalid select transform configuration', () => {
+    class TestMapper extends TableMapper<Database, 'users', ['*'], User> {}
+    // @ts-expect-error - invalid select transform
+    new TestMapper(db, 'users', { selectTransform: (user) => user });
+  });
+
+  ignore('detects invalid insert transform configuration', () => {
+    class TestMapper extends TableMapper<
+      Database,
+      'users',
+      ['*'],
+      Selectable<Users>,
+      User,
+      Partial<Insertable<Users>>,
+      ['id']
+    > {}
+    // @ts-expect-error - invalid insert transform
+    new TestMapper(db, 'users', { insertTransform: (user) => user });
+  });
+
+  ignore('detects invalid insert return transform configurations', () => {
+    class TestMapper<
+      InsertReturnsSelectedObject extends boolean
+    > extends TableMapper<
+      Database,
+      'users',
+      ['*'],
+      Selectable<Users>,
+      User,
+      Partial<Insertable<Users>>,
+      ['id'],
+      bigint,
+      InsertReturnsSelectedObject
+    > {}
+    new TestMapper<false>(db, 'users', {
+      // @ts-expect-error - invalid insert return transform
+      insertReturnTransform: (_user) => {
+        return { noId: 1 };
+      },
+    });
+    new TestMapper<true>(db, 'users', {
+      // @ts-expect-error - invalid insert return transform
+      insertReturnTransform: (user) => user,
+    });
+  });
+
+  ignore('detects invalid update transform configuration', () => {
+    class TestMapper extends TableMapper<
+      Database,
+      'users',
+      ['*'],
+      Selectable<Users>,
+      Insertable<Users>,
+      User,
+      ['id']
+    > {}
+    new TestMapper(db, 'users', {
+      // @ts-expect-error - invalid update transform
+      updateTransform: (_user) => {
+        return { noId: 1 };
+      },
+    });
+  });
+
+  ignore('detects invalid update return transform configurations', async () => {
+    class TestMapper<
+      UpdateReturnsSelectedObjectWhenProvided extends boolean
+    > extends TableMapper<
+      Database,
+      'users',
+      ['*'],
+      User,
+      Insertable<Users>,
+      User | Partial<Insertable<Users>>,
+      ['id'],
+      bigint,
+      false,
+      UpdateReturnsSelectedObjectWhenProvided
+    > {}
+    new TestMapper<false>(db, 'users', {
+      // @ts-expect-error - invalid update return transform
+      updateReturnTransform: (_user) => {
+        return { noId: 1 };
+      },
+    });
+    new TestMapper<true>(db, 'users', {
+      // @ts-expect-error - invalid update return transform
+      updateReturnTransform: (_user) => {
+        return { noId: 1 };
+      },
+    });
+    const testMapper = new TestMapper<true>(db, 'users');
+    (await testMapper
+      .update({ id: 1 })
+      // @ts-expect-error - ensure that return type is User
+      .getOne(new User(1, 'John', 'Doe', 'jdoe', 'jdoe@abc.def')))!.name;
   });
 
   it('dummy test', () => {
