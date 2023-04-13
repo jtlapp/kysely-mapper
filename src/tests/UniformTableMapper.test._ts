@@ -3,7 +3,7 @@ import { Insertable, Kysely } from 'kysely';
 import { createDB, resetDB, destroyDB } from './utils/test-setup';
 import { Database, Users } from './utils/test-tables';
 import { USERS, insertedUser1 } from './utils/test-objects';
-import { UniformTableMapper } from '../mappers/UniformTableMapper';
+import { UniformTableMapper } from '../mappers/uniform-table-mapper';
 
 let db: Kysely<Database>;
 
