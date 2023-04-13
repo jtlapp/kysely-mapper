@@ -2,31 +2,18 @@ import { Insertable, Kysely, Selectable } from 'kysely';
 
 import { TableMapper } from './table-mapper';
 import {
-  KeyedObject,
-  KeyedTableMapper,
-  SingleKeyValue,
-  DEFAULT_KEY,
-} from './KeyedTableMapper';
-import {
-  KeyTuple,
   ObjectWithKeys,
   SelectableColumn,
   SelectableColumnTuple,
   SelectionColumn,
 } from '../lib/type-utils';
-import { TableMapperOptions } from './table-mapper-options';
+import { UniformTableMapperOptions } from './uniform-table-mapper-options';
 
-// TODO: catch query errors and provide helpful error messages
+// TODO: look into having this class add tuple keys to method filters
+//  (or should it be based on a class that does this?)
 
-/**
- * Interface for table objects.
- */
-export interface TableObject<
-  T,
-  PrimaryKeyColumns extends SelectableColumnTuple<T>
-> extends Required<KeyedObject<T, PrimaryKeyColumns>> {
-  getKey(): KeyTuple<T, PrimaryKeyColumns>;
-}
+/** Default key columns */
+export const DEFAULT_KEY = ['id'] as const;
 
 /**
  * A mapper for a table representing a store of objects, where each object has a
@@ -34,7 +21,8 @@ export interface TableObject<
  * @typeparam DB The database type.
  * @typeparam TB The name of the table.
  * @typeparam MappedObject The type of the objects that are mapped to and from
- *  the table rows on inserts, updates, and selects.
+ *  the table rows on inserts, updates, and selects. Updates may also be given
+ *  as columns of the table.
  * @typeparam PrimaryKeyColumns Tuple of the names of the primary key columns.
  *  Defaults to `['id']`.
  * @typeparam ReturnColumns The columns that are returned from the database
@@ -45,7 +33,7 @@ export interface TableObject<
 export class UniformTableMapper<
   DB,
   TB extends keyof DB & string,
-  MappedObject extends TableObject<DB[TB], PrimaryKeyColumns>,
+  MappedObject extends object,
   PrimaryKeyColumns extends SelectableColumnTuple<DB[TB]> = [
     'id' & SelectableColumn<DB[TB]>
   ],
@@ -60,23 +48,12 @@ export class UniformTableMapper<
   SelectedColumns,
   MappedObject,
   MappedObject,
-  Partial<Insertable<DB[TB]>>,
+  MappedObject | Partial<Insertable<DB[TB]>>,
   ReturnColumns,
   ReturnedCount,
   MappedObject
 > {
-  protected keyedTableMapper: KeyedTableMapper<
-    DB,
-    TB,
-    PrimaryKeyColumns,
-    SelectedColumns,
-    MappedObject,
-    MappedObject,
-    MappedObject,
-    ReturnColumns,
-    ReturnedCount
-  >;
-
+  // TODO: rewrite
   /**
    * Create a new UniformTableMapper.
    * @param db The Kysely database instance.
@@ -93,142 +70,75 @@ export class UniformTableMapper<
   constructor(
     db: Kysely<DB>,
     tableName: TB,
-    primaryKeyColumns: Readonly<PrimaryKeyColumns> = DEFAULT_KEY as any,
-    options: TableMapperOptions<
+    options: UniformTableMapperOptions<
       DB,
       TB,
+      MappedObject,
+      PrimaryKeyColumns,
       SelectedColumns,
-      MappedObject,
-      MappedObject,
-      MappedObject,
       ReturnColumns,
-      ReturnedCount,
-      MappedObject
-    > = {}
+      ReturnedCount
+    >
   ) {
-    super(
-      db,
-      tableName,
-      _prepareBaseOptions(primaryKeyColumns, options) as any
-    );
-    this.keyedTableMapper = new KeyedTableMapper(
-      db,
-      tableName,
-      primaryKeyColumns,
-      {
-        ...this.options,
-        updaterTransform: options.updaterTransform,
-        updateReturnTransform:
-          options.updateReturnTransform ?? this.options.insertReturnTransform,
-      } as any
-    );
-  }
-
-  /**
-   * Delete the row for the object having the given key.
-   * @param key The key of the row to delete. If there is only one primary
-   *  key column, this can be the value of the key. Otherwise, this must be
-   * a tuple of the key values.
-   * @returns True if a row was deleted, false otherwise.
-   */
-  async deleteByKey(
-    key:
-      | SingleKeyValue<DB[TB], PrimaryKeyColumns>
-      | Readonly<KeyTuple<DB[TB], PrimaryKeyColumns>>
-  ): Promise<boolean> {
-    return this.keyedTableMapper.deleteByKey(key);
-  }
-
-  /**
-   * Select the object for the row having the given key.
-   * @param key The key of the row to select. If there is only one primary
-   *  key column, this can be the value of the key. Otherwise, this must be
-   *  a tuple of the key values.
-   * @returns An object for the row, or null if no row was found.
-   */
-  selectByKey(
-    key:
-      | SingleKeyValue<DB[TB], PrimaryKeyColumns>
-      | Readonly<KeyTuple<DB[TB], PrimaryKeyColumns>>
-  ): Promise<MappedObject | null> {
-    return this.keyedTableMapper.selectByKey(key);
-  }
-
-  /**
-   * Updates an existing row from the provided object, identifying the row
-   * by the object's key, returning the object updated for returned columns.
-   * @param obj Object to update.
-   * @returns Returns an object for the row, possibly transformed, or null if
-   *  no row was found; returns nothing (void) if `returnColumns` is empty.
-   *  Use `updateNoReturns` if there are no return columns.
-   */
-  // TODO: base class on a non-modifying table mapper, add custom delete and update
-  updateTODO(
-    obj: MappedObject
-  ): Promise<ReturnColumns extends [] ? void : MappedObject | null>;
-
-  async updateTODO(obj: MappedObject): Promise<MappedObject | null | void> {
-    // TODO: temporary "as any" cast
-    return this.keyedTableMapper.updateByKey(obj.getKey(), obj) as any;
-  }
-
-  /**
-   * Updates an existing row from the provided object, identifying the row
-   * by the object's key, without returning an updated object.
-   * @param obj Object to update.
-   * @returns True if a row was updated, false otherwise.
-   */
-  async updateNoReturns(obj: MappedObject): Promise<boolean> {
-    return this.keyedTableMapper.updateByKeyNoReturns(obj.getKey(), obj);
+    super(db, tableName, _prepareOptions(options) as any);
   }
 }
 
 /**
- * Provide default transformations for the base TableMapper.
+ * Provide default options.
  */
-function _prepareBaseOptions<
+function _prepareOptions<
   DB,
   TB extends keyof DB & string,
-  MappedObject extends TableObject<DB[TB], PrimaryKeyColumns>,
+  MappedObject extends object,
   PrimaryKeyColumns extends SelectableColumnTuple<DB[TB]>,
   SelectedColumns extends SelectionColumn<DB, TB>[] | ['*'],
   ReturnedCount,
   ReturnColumns extends (keyof Selectable<DB[TB]> & string)[] | ['*']
 >(
-  primaryKeyColumns: Readonly<PrimaryKeyColumns>,
-  options: TableMapperOptions<
+  options: UniformTableMapperOptions<
     DB,
     TB,
+    MappedObject,
+    PrimaryKeyColumns,
     SelectedColumns,
-    MappedObject,
-    MappedObject,
-    MappedObject,
     ReturnColumns,
-    ReturnedCount,
-    MappedObject
+    ReturnedCount
   >
 ) {
-  const baseOptions = {
-    insertTransform: (obj: MappedObject) => {
-      const insertion = { ...obj };
-      primaryKeyColumns.forEach((column) => {
-        if (!obj[column as keyof MappedObject]) {
-          delete insertion[column as keyof MappedObject];
-        }
-      });
-      return insertion;
-    },
-    insertReturnTransform: (
-      obj: MappedObject,
-      returns: ObjectWithKeys<Selectable<DB[TB]>, ReturnColumns>
-    ) => {
-      return { ...obj, ...returns };
-    },
+  const primaryKeyColumns = options.primaryKeyColumns ?? DEFAULT_KEY;
+
+  const insertTransform = (obj: MappedObject) => {
+    const insertedValues = { ...obj };
+    primaryKeyColumns.forEach((column) => {
+      if (!obj[column as keyof MappedObject]) {
+        delete insertedValues[column as keyof MappedObject];
+      }
+    });
+    return insertedValues;
+  };
+
+  const updaterTransform = (
+    obj: MappedObject | Partial<Selectable<DB[TB]>>
+  ) => {
+    // Not using a type guard because it complicates the options assignment
+    options.isMappedObject(obj) ? insertTransform(obj as any) : obj;
+  };
+
+  const returnTransform = (
+    obj: MappedObject,
+    returns: ObjectWithKeys<Selectable<DB[TB]>, ReturnColumns>
+  ) => {
+    return { ...obj, ...returns };
+  };
+
+  return {
+    primaryKeyColumns,
+    insertTransform,
+    insertReturnTransform: returnTransform,
+    updaterTransform,
+    updateReturnTransform: returnTransform,
     returnColumns: primaryKeyColumns,
     ...options,
   };
-  // Base update methods operate on columns, not the mapped object.
-  delete baseOptions['updaterTransform'];
-  delete baseOptions['updateReturnTransform'];
-  return baseOptions;
 }
