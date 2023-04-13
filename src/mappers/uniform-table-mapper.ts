@@ -28,7 +28,7 @@ export const DEFAULT_KEY = ['id'] as const;
  * @typeparam ReturnColumns The columns that are returned from the database
  *  when selecting or updating rows, for use when creating the mapped objects.
  *  `['*']` returns all columns; `[]` returns none. Defaults to `PrimaryKeyColumns`.
- * @typeparam ReturnedCount Type of count query results.
+ * @typeparam ReturnCount Type of count query results.
  */
 export class UniformTableMapper<
   DB,
@@ -41,7 +41,7 @@ export class UniformTableMapper<
   ReturnColumns extends
     | (keyof Selectable<DB[TB]> & string)[]
     | ['*'] = PrimaryKeyColumns,
-  ReturnedCount = bigint
+  ReturnCount = bigint
 > extends TableMapper<
   DB,
   TB,
@@ -50,7 +50,7 @@ export class UniformTableMapper<
   MappedObject,
   MappedObject | Partial<Insertable<DB[TB]>>,
   ReturnColumns,
-  ReturnedCount,
+  ReturnCount,
   MappedObject
 > {
   // TODO: rewrite
@@ -77,7 +77,7 @@ export class UniformTableMapper<
       PrimaryKeyColumns,
       SelectedColumns,
       ReturnColumns,
-      ReturnedCount
+      ReturnCount
     >
   ) {
     super(db, tableName, _prepareOptions(options) as any);
@@ -93,7 +93,7 @@ function _prepareOptions<
   MappedObject extends object,
   PrimaryKeyColumns extends SelectableColumnTuple<DB[TB]>,
   SelectedColumns extends SelectionColumn<DB, TB>[] | ['*'],
-  ReturnedCount,
+  ReturnCount,
   ReturnColumns extends (keyof Selectable<DB[TB]> & string)[] | ['*']
 >(
   options: UniformTableMapperOptions<
@@ -103,7 +103,7 @@ function _prepareOptions<
     PrimaryKeyColumns,
     SelectedColumns,
     ReturnColumns,
-    ReturnedCount
+    ReturnCount
   >
 ) {
   const primaryKeyColumns = options.primaryKeyColumns ?? DEFAULT_KEY;

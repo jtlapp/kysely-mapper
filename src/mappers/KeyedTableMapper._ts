@@ -54,7 +54,7 @@ export interface KeyedObject<T, KeyColumns extends SelectableColumnTuple<T>> {
  * @typeparam ReturnColumns Columns to return from the table on insert or
  *  update, except when explicitly requesting no columns. `['*']` returns
  *  all columns; `[]` returns none. Defaults to `PrimaryKeyColumns`.
- * @typeparam ReturnedCount Type of count query results.
+ * @typeparam ReturnCount Type of count query results.
  * @typeparam ReturnedObject Objects to return from inserts and updates.
  */
 export class KeyedTableMapper<
@@ -78,7 +78,7 @@ export class KeyedTableMapper<
   ReturnColumns extends
     | (keyof Selectable<DB[TB]> & string)[]
     | ['*'] = PrimaryKeyColumns,
-  ReturnedCount = bigint,
+  ReturnCount = bigint,
   ReturnedObject extends object = ReturnColumns extends ['*']
     ? Selectable<DB[TB]>
     : ObjectWithKeys<Selectable<DB[TB]>, ReturnColumns>
@@ -90,7 +90,7 @@ export class KeyedTableMapper<
   InsertedObject,
   UpdatingObject,
   ReturnColumns,
-  ReturnedCount,
+  ReturnCount,
   ReturnedObject
 > {
   /**
@@ -114,7 +114,7 @@ export class KeyedTableMapper<
       InsertedObject,
       UpdatingObject,
       ReturnColumns,
-      ReturnedCount,
+      ReturnCount,
       ReturnedObject
     > = {}
   ) {
@@ -234,7 +234,7 @@ export class KeyedTableMapper<
 function _prepareOptions<
   DB,
   TB extends keyof DB & string,
-  ReturnedCount,
+  ReturnCount,
   PrimaryKeyColumns extends Readonly<(keyof Selectable<DB[TB]> & string)[]>,
   SelectedColumns extends SelectionColumn<DB, TB>[] | ['*'],
   SelectedObject extends object,
@@ -251,7 +251,7 @@ function _prepareOptions<
     InsertedObject,
     UpdatingObject,
     ReturnColumns,
-    ReturnedCount,
+    ReturnCount,
     ReturnedObject
   >,
   primaryKeyColumns: PrimaryKeyColumns

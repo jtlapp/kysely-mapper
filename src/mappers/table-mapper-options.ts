@@ -15,7 +15,7 @@ import {
  * @typeparam ReturnColumns Columns to return from the table on insert or
  *  update, except when explicitly requesting no columns. `['*']` returns
  *  all columns; `[]` returns none and is the default.
- * @typeparam ReturnedCount Type of count query results.
+ * @typeparam ReturnCount Type of count query results.
  * @typeparam ReturnedObject Objects to return from inserts and updates.
  */
 export interface TableMapperOptions<
@@ -27,7 +27,7 @@ export interface TableMapperOptions<
   UpdatingObject extends object,
   // TODO: update the following type to support aliases
   ReturnColumns extends (keyof Selectable<DB[TB]> & string)[] | ['*'],
-  ReturnedCount,
+  ReturnCount,
   ReturnedObject extends object
 > {
   /** Transformation to apply to inserted objects before insertion. */
@@ -70,5 +70,5 @@ export interface TableMapperOptions<
   ) => ReturnedObject;
 
   /** Transformation to apply to bigint count results. */
-  readonly countTransform?: (count: bigint) => ReturnedCount;
+  readonly countTransform?: (count: bigint) => ReturnCount;
 }

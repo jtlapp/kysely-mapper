@@ -35,7 +35,7 @@ import { MappingUpdateQuery } from '../queries/update-query';
  * @typeparam SelectedObject Type of objects returned by select queries.
  * @typeparam InsertedObject Type of objects inserted into the table.
  * @typeparam UpdatingObject Type of objects used to update rows of the table.
- * @typeparam ReturnedCount Type of count query results.
+ * @typeparam ReturnCount Type of count query results.
  * @typeparam ReturnColumns Columns to return from the table on insert or
  *  update, except when explicitly requesting no columns. `['*']` returns
  *  all columns; `[]` returns none and is the default.
@@ -55,7 +55,7 @@ export class TableMapper<
   UpdatingObject extends object = Partial<Insertable<DB[TB]>>,
   // TODO: support aliases in ReturnColumns and test
   ReturnColumns extends (keyof Selectable<DB[TB]> & string)[] | ['*'] = [],
-  ReturnedCount = bigint,
+  ReturnCount = bigint,
   ReturnedObject extends object = ReturnColumns extends ['*']
     ? Selectable<DB[TB]>
     : ObjectWithKeys<Selectable<DB[TB]>, ReturnColumns>
@@ -71,8 +71,8 @@ export class TableMapper<
   /** Columns to return from the table on insert or update. */
   protected returnColumns: (keyof Selectable<DB[TB]> & string)[] | ['*'];
 
-  /** Transforms query counts into `ReturnedCount`. */
-  protected countTransform: (count: bigint) => ReturnedCount = (count) =>
+  /** Transforms query counts into `ReturnCount`. */
+  protected countTransform: (count: bigint) => ReturnCount = (count) =>
     count as any;
 
   /**
@@ -93,7 +93,7 @@ export class TableMapper<
       InsertedObject,
       UpdatingObject,
       ReturnColumns,
-      ReturnedCount,
+      ReturnCount,
       ReturnedObject
     > = {}
   ) {
@@ -169,7 +169,7 @@ export class TableMapper<
     DB,
     TB,
     DeleteQueryBuilder<DB, TB, DeleteResult>,
-    ReturnedCount
+    ReturnCount
   > {
     return new MappingDeleteQuery(
       this.db,
@@ -261,7 +261,7 @@ export class TableMapper<
     UpdateQueryBuilder<DB, TB, TB, UpdateResult>,
     UpdatingObject,
     ReturnColumns,
-    ReturnedCount,
+    ReturnCount,
     ReturnedObject
   > {
     return new MappingUpdateQuery(

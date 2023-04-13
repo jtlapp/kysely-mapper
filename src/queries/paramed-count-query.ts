@@ -8,13 +8,13 @@ import { ParameterizedQuery, ParametersObject } from 'kysely-params';
  */
 export class ParameterizedCountQuery<
   P extends ParametersObject<P>,
-  ReturnedCount
+  ReturnCount
 > {
   #parameterizedQuery: ParameterizedQuery<P, any>;
 
   constructor(
     qb: Compilable<any>,
-    protected readonly countTransform: (count: bigint) => ReturnedCount
+    protected readonly countTransform: (count: bigint) => ReturnCount
   ) {
     this.#parameterizedQuery = new ParameterizedQuery(qb);
   }
@@ -28,7 +28,7 @@ export class ParameterizedCountQuery<
    * @param params Object providing values for all parameters.
    * @returns Number of rows affected, in client-requested representation.
    */
-  async run<DB>(db: Kysely<DB>, params: P): Promise<ReturnedCount> {
+  async run<DB>(db: Kysely<DB>, params: P): Promise<ReturnCount> {
     const result = await this.#parameterizedQuery.execute(db, params);
     return this.countTransform(result.numAffectedRows!);
   }

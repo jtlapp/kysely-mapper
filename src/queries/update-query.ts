@@ -18,7 +18,7 @@ export class MappingUpdateQuery<
   QB extends UpdateQueryBuilder<DB, TB, TB, UpdateResult>,
   UpdatingObject extends object,
   ReturnColumns extends (keyof Selectable<DB[TB]> & string)[] | ['*'],
-  ReturnedCount,
+  ReturnCount,
   ReturnedObject extends object
 > {
   protected readonly returnColumns: ReturnColumns;
@@ -40,7 +40,7 @@ export class MappingUpdateQuery<
   constructor(
     readonly db: Kysely<DB>,
     readonly qb: QB,
-    protected readonly countTransform: (count: bigint) => ReturnedCount,
+    protected readonly countTransform: (count: bigint) => ReturnCount,
     protected readonly updateTransform?: (
       update: UpdatingObject
     ) => Updateable<DB[TB]>,
@@ -59,7 +59,7 @@ export class MappingUpdateQuery<
    * @param obj The object which which to update the rows.
    * @returns Number of rows updated, in client-requested representation.
    */
-  async getCount(obj: UpdatingObject): Promise<ReturnedCount> {
+  async getCount(obj: UpdatingObject): Promise<ReturnCount> {
     const result = await this.loadUpdatingObject(
       this.qb,
       obj
@@ -156,7 +156,7 @@ export class MappingUpdateQuery<
     NextQB,
     UpdatingObject,
     ReturnColumns,
-    ReturnedCount,
+    ReturnCount,
     ReturnedObject
   > {
     return new MappingUpdateQuery(

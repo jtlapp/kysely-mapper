@@ -7,7 +7,7 @@ export class MappingDeleteQuery<
   DB,
   TB extends keyof DB & string,
   QB extends DeleteQueryBuilder<DB, TB, DeleteResult>,
-  ReturnedCount
+  ReturnCount
 > {
   /**
    * @param db Kysely database instance.
@@ -17,7 +17,7 @@ export class MappingDeleteQuery<
   constructor(
     protected readonly db: Kysely<DB>,
     protected readonly qb: QB,
-    protected readonly countTransform: (count: bigint) => ReturnedCount
+    protected readonly countTransform: (count: bigint) => ReturnCount
   ) {}
 
   /**
@@ -25,7 +25,7 @@ export class MappingDeleteQuery<
    * the required client representation.
    * @returns Number of rows deleted, in client-requested representation.
    */
-  async getCount(): Promise<ReturnedCount> {
+  async getCount(): Promise<ReturnCount> {
     const result = await this.qb.executeTakeFirst();
     return this.countTransform(result.numDeletedRows);
   }
@@ -37,7 +37,7 @@ export class MappingDeleteQuery<
    */
   modify<NextQB extends DeleteQueryBuilder<DB, any, DeleteResult>>(
     factory: (qb: QB) => NextQB
-  ): MappingDeleteQuery<DB, TB, NextQB, ReturnedCount> {
+  ): MappingDeleteQuery<DB, TB, NextQB, ReturnCount> {
     return new MappingDeleteQuery(
       this.db,
       factory(this.qb),
