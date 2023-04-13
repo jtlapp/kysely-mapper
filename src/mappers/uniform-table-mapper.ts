@@ -118,9 +118,7 @@ function _prepareOptions<
     return insertedValues;
   };
 
-  const updaterTransform = (
-    obj: MappedObject | Partial<Selectable<DB[TB]>>
-  ) => {
+  const updateTransform = (obj: MappedObject | Partial<Selectable<DB[TB]>>) => {
     // Not using a type guard because it complicates the options assignment
     options.isMappedObject(obj) ? insertTransform(obj as any) : obj;
   };
@@ -136,7 +134,7 @@ function _prepareOptions<
     primaryKeyColumns,
     insertTransform,
     insertReturnTransform: returnTransform,
-    updaterTransform,
+    updateTransform,
     updateReturnTransform: returnTransform,
     returnColumns: primaryKeyColumns,
     ...options,

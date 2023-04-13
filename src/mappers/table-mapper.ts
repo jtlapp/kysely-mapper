@@ -34,7 +34,7 @@ import { MappingUpdateQuery } from '../queries/update-query';
  * @typeparam TB Name of the table.
  * @typeparam SelectedObject Type of objects returned by select queries.
  * @typeparam InsertedObject Type of objects inserted into the table.
- * @typeparam UpdaterObject Type of objects used to update rows of the table.
+ * @typeparam UpdatingObject Type of objects used to update rows of the table.
  * @typeparam ReturnedCount Type of count query results.
  * @typeparam ReturnColumns Columns to return from the table on insert or
  *  update, except when explicitly requesting no columns. `['*']` returns
@@ -52,7 +52,7 @@ export class TableMapper<
     SelectedColumns
   >,
   InsertedObject extends object = Insertable<DB[TB]>,
-  UpdaterObject extends object = Partial<Insertable<DB[TB]>>,
+  UpdatingObject extends object = Partial<Insertable<DB[TB]>>,
   // TODO: support aliases in ReturnColumns and test
   ReturnColumns extends (keyof Selectable<DB[TB]> & string)[] | ['*'] = [],
   ReturnedCount = bigint,
@@ -91,7 +91,7 @@ export class TableMapper<
       SelectedColumns,
       SelectedObject,
       InsertedObject,
-      UpdaterObject,
+      UpdatingObject,
       ReturnColumns,
       ReturnedCount,
       ReturnedObject
@@ -259,7 +259,7 @@ export class TableMapper<
     DB,
     TB,
     UpdateQueryBuilder<DB, TB, TB, UpdateResult>,
-    UpdaterObject,
+    UpdatingObject,
     ReturnColumns,
     ReturnedCount,
     ReturnedObject
@@ -270,7 +270,7 @@ export class TableMapper<
         ? this.getUpdateQB()
         : applyQueryFilter(this.db, this.getUpdateQB(), filter),
       this.countTransform,
-      this.options.updaterTransform,
+      this.options.updateTransform,
       this.options.returnColumns,
       this.options.updateReturnTransform
     );

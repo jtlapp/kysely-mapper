@@ -173,14 +173,14 @@ describe('insert an array of objects without transformation', () => {
     const post0 = Object.assign({}, POSTS[0], { userId: insertReturns[0].id });
     const post1 = Object.assign({}, POSTS[1], { userId: insertReturns[1].id });
     const post2 = Object.assign({}, POSTS[2], { userId: insertReturns[2].id });
-    const updaterPosts = await postTableMapperReturningIDAndTitle
+    const updatingPosts = await postTableMapperReturningIDAndTitle
       .insert()
       .getAll([post0, post1, post2]);
-    expect(updaterPosts.length).toEqual(3);
-    for (let i = 0; i < updaterPosts.length; i++) {
-      expect(updaterPosts[i].id).toBeGreaterThan(0);
-      expect(updaterPosts[i].title).toEqual(POSTS[i].title);
-      expect(Object.keys(updaterPosts[i]).length).toEqual(2);
+    expect(updatingPosts.length).toEqual(3);
+    for (let i = 0; i < updatingPosts.length; i++) {
+      expect(updatingPosts[i].id).toBeGreaterThan(0);
+      expect(updatingPosts[i].title).toEqual(POSTS[i].title);
+      expect(Object.keys(updatingPosts[i]).length).toEqual(2);
     }
   });
 
@@ -270,18 +270,18 @@ describe('inserting a single object without transformation', () => {
     expect(readUser0?.email).toEqual(USERS[0].email);
 
     const post0 = Object.assign({}, POSTS[0], { userId: insertReturn.id });
-    const updaterPost = await postTableMapperReturningIDAndTitle
+    const updatingPost = await postTableMapperReturningIDAndTitle
       .insert()
       .getOne(post0);
-    expect(updaterPost.id).toBeGreaterThan(0);
-    expect(updaterPost.title).toEqual(POSTS[0].title);
-    expect(Object.keys(updaterPost).length).toEqual(2);
+    expect(updatingPost.id).toBeGreaterThan(0);
+    expect(updatingPost.title).toEqual(POSTS[0].title);
+    expect(Object.keys(updatingPost).length).toEqual(2);
 
     const readPost0 = await postTableMapper
       .select(({ and, cmpr }) =>
         and([
-          cmpr('id', '=', updaterPost.id),
-          cmpr('title', '=', updaterPost.title),
+          cmpr('id', '=', updatingPost.id),
+          cmpr('title', '=', updatingPost.title),
         ])
       )
       .getOne();

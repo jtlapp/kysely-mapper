@@ -72,36 +72,36 @@ it('inserts/updates/deletes a mapped object w/ default transforms', async () => 
   expect(selectedUser2).toEqual(insertedUser2);
 
   // test updating a user, with returned object
-  const updaterUser = new MappedUser(
+  const updatingUser = new MappedUser(
     selectedUser1!.id,
     'Xana',
     selectedUser1!.handle,
     selectedUser1!.email
   );
   const updateReturn = await userMapper
-    .update({ id: updaterUser.id })
-    .getOne(updaterUser);
-  expect(updateReturn).toEqual(updaterUser);
+    .update({ id: updatingUser.id })
+    .getOne(updatingUser);
+  expect(updateReturn).toEqual(updatingUser);
   const selectedUser3 = await userMapper
     .select({ id: insertReturn1.id })
     .getOne();
   expect(selectedUser3).toEqual(updateReturn);
 
   // test updating a user, without returned object
-  const updaterUser2 = new MappedUser(
+  const updatingUser2 = new MappedUser(
     selectedUser3!.id,
     'Freddy',
     selectedUser3!.handle,
     selectedUser3!.email
   );
   const updateReturn2 = await userMapper
-    .update({ id: updaterUser2.id })
-    .run(updaterUser2);
+    .update({ id: updatingUser2.id })
+    .run(updatingUser2);
   expect(updateReturn2).toBe(true);
   const selectedUser4 = await userMapper
     .select({ id: insertReturn1.id })
     .getOne();
-  expect(selectedUser4).toEqual(updaterUser2);
+  expect(selectedUser4).toEqual(updatingUser2);
 
   // test deleting a user
   const deleted = await userMapper.delete({ id: insertReturn1.id }).run();
@@ -141,7 +141,7 @@ it('inserts/updates/deletes a mapped object class w/ all custom transforms', asy
         user.email
       );
     },
-    updaterTransform: (user: MappedUser | Partial<Insertable<Users>>) => {
+    updateTransform: (user: MappedUser | Partial<Insertable<Users>>) => {
       if (!(user instanceof MappedUser)) {
         return user;
       }
@@ -151,7 +151,7 @@ it('inserts/updates/deletes a mapped object class w/ all custom transforms', asy
         email: user.email,
       };
     },
-    // TODO: IMPORTANT: If updater obj is not of return type,
+    // TODO: IMPORTANT: If updating obj is not of return type,
     //  can't necessarily flesh out return type
     updateReturnTransform: (user, _returns) => {
       return new MappedUser(
@@ -202,7 +202,7 @@ it('inserts/updates/deletes a mapped object class w/ all custom transforms', asy
   expect(selectedUser1?.serialNo).toEqual(insertReturn.serialNo);
 
   // test updating a user, with returned object
-  const updaterUser = new MappedUser(
+  const updatingUser = new MappedUser(
     selectedUser1!.serialNo,
     selectedUser1!.firstName,
     'Xana',
@@ -210,9 +210,9 @@ it('inserts/updates/deletes a mapped object class w/ all custom transforms', asy
     selectedUser1!.email
   );
   const updateReturn = await userMapper
-    .update({ id: updaterUser.serialNo })
-    .getOne(updaterUser);
-  expect(updateReturn).toEqual(updaterUser);
+    .update({ id: updatingUser.serialNo })
+    .getOne(updatingUser);
+  expect(updateReturn).toEqual(updatingUser);
   const selectedUser2 = await userMapper
     .select({ id: insertReturn.serialNo })
     .getOne();
@@ -260,7 +260,7 @@ it('inserts/updates/deletes a mapped object class w/ inferred update transforms'
         email: user.email,
       };
     },
-    updaterTransform: (user: MappedUser | Partial<Insertable<Users>>) => {
+    updateTransform: (user: MappedUser | Partial<Insertable<Users>>) => {
       if (!(user instanceof MappedUser)) {
         return user;
       }
@@ -319,7 +319,7 @@ it('inserts/updates/deletes a mapped object class w/ inferred update transforms'
   expect(selectedUser1?.id).toEqual(insertReturn.id);
 
   // test updating a user
-  const updaterUser = new MappedUser(
+  const updatingUser = new MappedUser(
     selectedUser1!.id,
     selectedUser1!.firstName,
     'Xana',
@@ -327,16 +327,16 @@ it('inserts/updates/deletes a mapped object class w/ inferred update transforms'
     selectedUser1!.email
   );
   const updateReturn = await userMapper
-    .update({ id: updaterUser.id })
-    .getOne(updaterUser);
-  expect(updateReturn).toEqual(updaterUser);
+    .update({ id: updatingUser.id })
+    .getOne(updatingUser);
+  expect(updateReturn).toEqual(updatingUser);
   const selectedUser2 = await userMapper
     .select({ id: insertReturn.id })
     .getOne();
   expect(selectedUser2).toEqual(updateReturn);
 
   // test updating a user, without returned object
-  const updaterUser2 = new MappedUser(
+  const updatingUser2 = new MappedUser(
     selectedUser2!.id,
     'Super',
     'Man',
@@ -344,13 +344,13 @@ it('inserts/updates/deletes a mapped object class w/ inferred update transforms'
     selectedUser2!.email
   );
   const updateReturn2 = await userMapper
-    .update({ id: updaterUser2.id })
-    .run(updaterUser2);
+    .update({ id: updatingUser2.id })
+    .run(updatingUser2);
   expect(updateReturn2).toBe(true);
   const selectedUser3 = await userMapper
     .select({ id: insertReturn.id })
     .getOne();
-  expect(selectedUser3).toEqual(updaterUser2);
+  expect(selectedUser3).toEqual(updatingUser2);
 
   // test deleting a user
   const deleted = await userMapper.delete({ id: insertReturn.id }).run();

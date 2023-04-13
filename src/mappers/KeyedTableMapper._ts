@@ -34,7 +34,7 @@ export type SingleKeyValue<
 > = KA extends [any] ? Selectable<T>[KA[0]] : never;
 
 /**
- * Interface that updater objects must implement to provide a key, if
+ * Interface that updating objects must implement to provide a key, if
  * the key is not to be taken directly from the object's properties.
  * @typeparam T Table interface.
  * @typeparam KeyColumns Array of the primary key column names.
@@ -50,7 +50,7 @@ export interface KeyedObject<T, KeyColumns extends SelectableColumnTuple<T>> {
  * @typeparam PrimaryKeyColumns Arrayof names of the primary key columns.
  * @typeparam SelectedObject Type of objects returned by select queries.
  * @typeparam InsertedObject Type of objects inserted into the table.
- * @typeparam UpdaterObject Type of objects used to update rows of the table.
+ * @typeparam UpdatingObject Type of objects used to update rows of the table.
  * @typeparam ReturnColumns Columns to return from the table on insert or
  *  update, except when explicitly requesting no columns. `['*']` returns
  *  all columns; `[]` returns none. Defaults to `PrimaryKeyColumns`.
@@ -71,7 +71,7 @@ export class KeyedTableMapper<
     SelectedColumns
   >,
   InsertedObject extends object = Insertable<DB[TB]>,
-  UpdaterObject extends object &
+  UpdatingObject extends object &
     Partial<KeyedObject<DB[TB], PrimaryKeyColumns>> = Partial<
     Insertable<DB[TB]>
   >,
@@ -88,7 +88,7 @@ export class KeyedTableMapper<
   SelectedColumns,
   SelectedObject,
   InsertedObject,
-  UpdaterObject,
+  UpdatingObject,
   ReturnColumns,
   ReturnedCount,
   ReturnedObject
@@ -112,7 +112,7 @@ export class KeyedTableMapper<
       SelectedColumns,
       SelectedObject,
       InsertedObject,
-      UpdaterObject,
+      UpdatingObject,
       ReturnColumns,
       ReturnedCount,
       ReturnedObject
@@ -171,14 +171,14 @@ export class KeyedTableMapper<
     key:
       | SingleKeyValue<DB[TB], PrimaryKeyColumns>
       | Readonly<KeyTuple<DB[TB], PrimaryKeyColumns>>,
-    obj: UpdaterObject
+    obj: UpdatingObject
   ): Promise<ReturnColumns extends [] ? void : ReturnedObject | null>;
 
   async updateByKey(
     key:
       | SingleKeyValue<DB[TB], PrimaryKeyColumns>
       | Readonly<KeyTuple<DB[TB], PrimaryKeyColumns>>,
-    obj: UpdaterObject
+    obj: UpdatingObject
   ): Promise<ReturnedObject | null | void> {
     return await this.update(this.filterForKey(key)).getOne(obj);
   }
@@ -196,7 +196,7 @@ export class KeyedTableMapper<
     key:
       | SingleKeyValue<DB[TB], PrimaryKeyColumns>
       | Readonly<KeyTuple<DB[TB], PrimaryKeyColumns>>,
-    obj: UpdaterObject
+    obj: UpdatingObject
   ): Promise<boolean> {
     const updateCount = await this.update(this.filterForKey(key)).getCount(obj);
     return updateCount == 1;
@@ -239,7 +239,7 @@ function _prepareOptions<
   SelectedColumns extends SelectionColumn<DB, TB>[] | ['*'],
   SelectedObject extends object,
   InsertedObject extends object,
-  UpdaterObject extends object,
+  UpdatingObject extends object,
   ReturnColumns extends (keyof Selectable<DB[TB]> & string)[] | ['*'],
   ReturnedObject extends object
 >(
@@ -249,7 +249,7 @@ function _prepareOptions<
     SelectedColumns,
     SelectedObject,
     InsertedObject,
-    UpdaterObject,
+    UpdatingObject,
     ReturnColumns,
     ReturnedCount,
     ReturnedObject

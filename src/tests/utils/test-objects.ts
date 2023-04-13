@@ -5,7 +5,7 @@ import {
   InsertedUser,
   ReturnedUser,
   SelectedUser,
-  UpdaterUser,
+  UpdatingUser,
 } from './test-types';
 
 export const USERS: Insertable<Users>[] = [
@@ -107,7 +107,7 @@ export const STANDARD_OPTIONS = {
     handle: source.handle,
     email: source.email,
   }),
-  updaterTransform: (source: UpdaterUser) => ({
+  updateTransform: (source: UpdatingUser) => ({
     name: `${source.firstName} ${source.lastName}`,
     handle: source.handle,
     email: source.email,
@@ -124,7 +124,7 @@ export const STANDARD_OPTIONS = {
       source.email
     ),
   updateReturnTransform: (
-    source: UpdaterUser,
+    source: UpdatingUser,
     returns: Partial<Selectable<Users>>
   ) =>
     new ReturnedUser(

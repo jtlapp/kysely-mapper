@@ -9,7 +9,7 @@ import {
   selectedUser1,
 } from './utils/test-objects';
 import { KeyedTableMapper } from '../mappers/KeyedTableMapper';
-import { ReturnedUser, SelectedUser, UpdaterUser } from './utils/test-types';
+import { ReturnedUser, SelectedUser, UpdatingUser } from './utils/test-types';
 import { ignore } from './utils/test-utils';
 
 class ExplicitKeyedMapper extends KeyedTableMapper<Database, 'users', ['id']> {
@@ -210,7 +210,7 @@ describe('keyed table mapper using a single-column tuple key', () => {
     const readUser1 = await testTransformMapper.selectByKey([1]);
     expect(readUser1).toEqual(selectedUser1);
 
-    const updaterUser = new UpdaterUser(
+    const updatingUser = new UpdatingUser(
       1,
       'Jimmy',
       'James',
@@ -218,13 +218,13 @@ describe('keyed table mapper using a single-column tuple key', () => {
       'jjames@abc.def'
     );
     const updated = await testTransformMapper.updateByKeyNoReturns(
-      [updaterUser.id],
-      updaterUser
+      [updatingUser.id],
+      updatingUser
     );
     expect(updated).toEqual(true);
 
     const readUser2 = await testTransformMapper.selectByKey([1]);
-    expect(readUser2).toEqual(SelectedUser.create(1, updaterUser));
+    expect(readUser2).toEqual(SelectedUser.create(1, updatingUser));
 
     const deleted = await testTransformMapper.deleteByKey([1]);
     expect(deleted).toEqual(true);

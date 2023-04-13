@@ -16,7 +16,7 @@ export class MappingUpdateQuery<
   DB,
   TB extends keyof DB & string,
   QB extends UpdateQueryBuilder<DB, TB, TB, UpdateResult>,
-  UpdaterObject extends object,
+  UpdatingObject extends object,
   ReturnColumns extends (keyof Selectable<DB[TB]> & string)[] | ['*'],
   ReturnedCount,
   ReturnedObject extends object
@@ -29,7 +29,7 @@ export class MappingUpdateQuery<
    * @param qb Kysely update query builder.
    * @param countTransform A function that transforms the number of updated
    *  rows into the representation required by the client.
-   * @param updaterTransform A function that transforms the updating object
+   * @param updateTransform A function that transforms the updating object
    *  into a row for updating the database.
    * @param returnColumns The columns to return from the update query.
    *  If `returnColumns` is `['*']`, returns all columns. If `returnColumns`
@@ -41,12 +41,12 @@ export class MappingUpdateQuery<
     readonly db: Kysely<DB>,
     readonly qb: QB,
     protected readonly countTransform: (count: bigint) => ReturnedCount,
-    protected readonly updaterTransform?: (
-      update: UpdaterObject
+    protected readonly updateTransform?: (
+      update: UpdatingObject
     ) => Updateable<DB[TB]>,
     returnColumns?: ReturnColumns,
     protected readonly updateReturnTransform?: (
-      source: UpdaterObject,
+      source: UpdatingObject,
       returns: ObjectWithKeys<Selectable<DB[TB]>, ReturnColumns>
     ) => ReturnedObject
   ) {
@@ -59,8 +59,8 @@ export class MappingUpdateQuery<
    * @param obj The object which which to update the rows.
    * @returns Number of rows updated, in client-requested representation.
    */
-  async getCount(obj: UpdaterObject): Promise<ReturnedCount> {
-    const result = await this.loadUpdaterObject(
+  async getCount(obj: UpdatingObject): Promise<ReturnedCount> {
+    const result = await this.loadUpdatingObject(
       this.qb,
       obj
     ).executeTakeFirst();
@@ -76,15 +76,15 @@ export class MappingUpdateQuery<
    *  `ReturnedObject` for each updated object; otherwise returns `undefined`.
    */
   getAll(
-    obj: UpdaterObject
+    obj: UpdatingObject
   ): Promise<ReturnColumns extends [] ? void : ReturnedObject[]>;
 
-  async getAll(obj: UpdaterObject): Promise<ReturnedObject[] | void> {
+  async getAll(obj: UpdatingObject): Promise<ReturnedObject[] | void> {
     if (this.returnColumns.length === 0) {
-      await this.loadUpdaterObject(this.qb, obj).execute();
+      await this.loadUpdatingObject(this.qb, obj).execute();
       return;
     }
-    const returns = await this.loadUpdaterObject(
+    const returns = await this.loadUpdatingObject(
       this.getReturningQB(),
       obj
     ).execute();
@@ -107,15 +107,15 @@ export class MappingUpdateQuery<
    *  no rows were updated.
    */
   getOne(
-    obj: UpdaterObject
+    obj: UpdatingObject
   ): Promise<ReturnColumns extends [] ? void : ReturnedObject | null>;
 
-  async getOne(obj: UpdaterObject): Promise<ReturnedObject | null | void> {
+  async getOne(obj: UpdatingObject): Promise<ReturnedObject | null | void> {
     if (this.returnColumns.length === 0) {
-      await this.loadUpdaterObject(this.qb, obj).execute();
+      await this.loadUpdatingObject(this.qb, obj).execute();
       return;
     }
-    const returns = await this.loadUpdaterObject(
+    const returns = await this.loadUpdatingObject(
       this.getReturningQB(),
       obj
     ).execute();
@@ -135,8 +135,8 @@ export class MappingUpdateQuery<
    * @param obj The object which which to update the rows.
    * @returns `true` if any rows were updated, `false` otherwise.
    */
-  async run(obj: UpdaterObject): Promise<boolean> {
-    const results = await this.loadUpdaterObject(
+  async run(obj: UpdatingObject): Promise<boolean> {
+    const results = await this.loadUpdatingObject(
       this.qb,
       obj
     ).executeTakeFirst();
@@ -154,7 +154,7 @@ export class MappingUpdateQuery<
     DB,
     TB,
     NextQB,
-    UpdaterObject,
+    UpdatingObject,
     ReturnColumns,
     ReturnedCount,
     ReturnedObject
@@ -163,7 +163,7 @@ export class MappingUpdateQuery<
       this.db,
       factory(this.qb),
       this.countTransform,
-      this.updaterTransform,
+      this.updateTransform,
       this.returnColumns,
       this.updateReturnTransform
     );
@@ -193,12 +193,12 @@ export class MappingUpdateQuery<
    * @param obj The object with which to update rows.
    * @returns The query builder with the object loaded.
    */
-  protected loadUpdaterObject(
+  protected loadUpdatingObject(
     qb: UpdateQueryBuilder<DB, TB, TB, UpdateResult>,
-    obj: UpdaterObject
+    obj: UpdatingObject
   ): UpdateQueryBuilder<DB, TB, TB, UpdateResult> {
     const transformedObj =
-      this.updaterTransform === undefined ? obj : this.updaterTransform(obj);
+      this.updateTransform === undefined ? obj : this.updateTransform(obj);
     return qb.set(transformedObj);
   }
 }

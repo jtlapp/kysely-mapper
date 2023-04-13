@@ -11,7 +11,7 @@ import {
  * @typeparam TB Name of the table.
  * @typeparam SelectedObject Type of objects returned by select queries.
  * @typeparam InsertedObject Type of objects inserted into the table.
- * @typeparam UpdaterObject Type of objects used to update rows of the table.
+ * @typeparam UpdatingObject Type of objects used to update rows of the table.
  * @typeparam ReturnColumns Columns to return from the table on insert or
  *  update, except when explicitly requesting no columns. `['*']` returns
  *  all columns; `[]` returns none and is the default.
@@ -24,7 +24,7 @@ export interface TableMapperOptions<
   SelectedColumns extends SelectionColumn<DB, TB>[] | ['*'],
   SelectedObject extends object,
   InsertedObject extends object,
-  UpdaterObject extends object,
+  UpdatingObject extends object,
   // TODO: update the following type to support aliases
   ReturnColumns extends (keyof Selectable<DB[TB]> & string)[] | ['*'],
   ReturnedCount,
@@ -34,7 +34,7 @@ export interface TableMapperOptions<
   readonly insertTransform?: (obj: InsertedObject) => Insertable<DB[TB]>;
 
   /** Transformation to apply to objects provided for updating values. */
-  readonly updaterTransform?: (update: UpdaterObject) => Updateable<DB[TB]>;
+  readonly updateTransform?: (update: UpdatingObject) => Updateable<DB[TB]>;
 
   /** Columns to return from selection queries. */
   readonly selectedColumns?: SelectedColumns;
@@ -65,7 +65,7 @@ export interface TableMapperOptions<
 
   /** Transformation to apply to column values returned from updates. */
   readonly updateReturnTransform?: (
-    source: UpdaterObject,
+    source: UpdatingObject,
     returns: ObjectWithKeys<Selectable<DB[TB]>, ReturnColumns>
   ) => ReturnedObject;
 

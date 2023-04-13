@@ -18,7 +18,7 @@ import {
   USERS,
 } from './utils/test-objects';
 import { ignore } from './utils/test-utils';
-import { ReturnedUser, UpdaterUser } from './utils/test-types';
+import { ReturnedUser, UpdatingUser } from './utils/test-types';
 
 let db: Kysely<Database>;
 let userMapperReturningDefault: UserTableMapperReturningDefault;
@@ -358,12 +358,12 @@ describe('update transformation', () => {
     ['*'],
     Selectable<Database['users']>,
     Insertable<Database['users']>,
-    UpdaterUser,
+    UpdatingUser,
     ['id']
   > {
     constructor(db: Kysely<Database>) {
       super(db, 'users', {
-        updaterTransform: (source) => ({
+        updateTransform: (source) => ({
           name: `${source.firstName} ${source.lastName}`,
           handle: source.handle,
           email: source.email,
@@ -379,7 +379,7 @@ describe('update transformation', () => {
     const insertReturns = await mapper
       .insert()
       .getAll([userRow1, userRow2, userRow3]);
-    const updaterUser1 = UpdaterUser.create(
+    const updatingUser1 = UpdatingUser.create(
       0,
       Object.assign({}, userObject1, { firstName: 'Suzanne' })
     );
@@ -391,7 +391,7 @@ describe('update transformation', () => {
           cmpr('id', '=', insertReturns[2].id),
         ])
       )
-      .getAll(updaterUser1);
+      .getAll(updatingUser1);
     expect(updateReturns).toEqual([
       { id: insertReturns[0].id },
       { id: insertReturns[2].id },
@@ -465,13 +465,13 @@ describe('update transformation', () => {
       ['*'],
       Selectable<Database['users']>,
       Insertable<Database['users']>,
-      UpdaterUser,
+      UpdatingUser,
       ['id'],
       ReturnedUser
     > {
       constructor(db: Kysely<Database>) {
         super(db, 'users', {
-          updaterTransform: (source) => ({
+          updateTransform: (source) => ({
             name: `${source.firstName} ${source.lastName}`,
             handle: source.handle,
             email: source.email,
@@ -497,7 +497,7 @@ describe('update transformation', () => {
       .getOne(userRow1);
     const updateReturn = await updateAndReturnTransformMapper
       .update({ id: insertReturn.id })
-      .getAll(UpdaterUser.create(0, userObject1));
+      .getAll(UpdatingUser.create(0, userObject1));
     expect(updateReturn).toEqual([
       new ReturnedUser(
         insertReturn.id,
