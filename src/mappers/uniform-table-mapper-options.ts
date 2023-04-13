@@ -36,8 +36,7 @@ export interface UniformTableMapperOptions<
     ReturnColumns,
     ReturnCount,
     true,
-    true,
-    MappedObject
+    true
   > {
   /** Columns that make up the primary key of the table. */
   readonly primaryKeyColumns?: PrimaryKeyColumns;

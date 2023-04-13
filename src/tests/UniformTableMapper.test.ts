@@ -151,9 +151,10 @@ it('inserts/updates/deletes a mapped object class w/ all custom transforms', asy
         email: user.email,
       };
     },
-    // TODO: IMPORTANT: If updating obj is not of return type,
-    //  can't necessarily flesh out return type
     updateReturnTransform: (user, _returns) => {
+      if (!(user instanceof MappedUser)) {
+        return _returns;
+      }
       return new MappedUser(
         user.serialNo,
         user.firstName,

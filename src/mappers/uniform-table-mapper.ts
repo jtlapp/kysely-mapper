@@ -52,8 +52,7 @@ export class UniformTableMapper<
   ReturnColumns,
   ReturnCount,
   true,
-  true,
-  MappedObject
+  true
 > {
   // TODO: rewrite
   /**
@@ -122,7 +121,7 @@ function _prepareOptions<
 
   const updateTransform = (obj: MappedObject | Partial<Selectable<DB[TB]>>) => {
     // Not using a type guard because it complicates the options assignment
-    options.isMappedObject(obj) ? insertTransform(obj as any) : obj;
+    return options.isMappedObject(obj) ? insertTransform(obj as any) : obj;
   };
 
   const returnTransform = (
