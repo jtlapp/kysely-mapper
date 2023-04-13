@@ -1,7 +1,7 @@
-import { Insertable, Kysely } from 'kysely';
+import { Kysely } from 'kysely';
 
 import { createDB, resetDB, destroyDB } from './utils/test-setup';
-import { Database, Users } from './utils/test-tables';
+import { Database } from './utils/test-tables';
 import { USERS, insertedUser1 } from './utils/test-objects';
 import { UniformTableMapper } from '../mappers/uniform-table-mapper';
 
@@ -54,7 +54,8 @@ it('inserts/updates/deletes a mapped object w/ default transforms', async () => 
   const selectedUser1 = await userMapper
     .select({ id: insertReturn1.id })
     .getOne();
-  expect(selectedUser1).toEqual(insertReturn1);
+  expect(selectedUser1).toEqual({ ...insertedUser1, id: insertReturn1.id });
+  // ensure 'id' is accessible
   expect(selectedUser1?.id).toEqual(insertReturn1.id);
 
   // test inserting a user with truthy id
@@ -65,7 +66,7 @@ it('inserts/updates/deletes a mapped object w/ default transforms', async () => 
     USERS[1].email
   );
   const insertReturn2 = (await userMapper.insert().getOne(insertedUser2))!;
-  expect(insertReturn2).toEqual(insertedUser2);
+  expect(insertReturn2).toEqual({ id: 10 });
   const selectedUser2 = await userMapper
     .select({ id: insertReturn2.id })
     .getOne();
@@ -81,11 +82,11 @@ it('inserts/updates/deletes a mapped object w/ default transforms', async () => 
   const updateReturn = await userMapper
     .update({ id: updatingUser.id })
     .getOne(updatingUser);
-  expect(updateReturn).toEqual(updatingUser);
+  expect(updateReturn).toEqual({ id: updatingUser.id });
   const selectedUser3 = await userMapper
     .select({ id: insertReturn1.id })
     .getOne();
-  expect(selectedUser3).toEqual(updateReturn);
+  expect(selectedUser3).toEqual(updatingUser);
 
   // test updating a user, without returned object
   const updatingUser2 = new MappedUser(
@@ -102,6 +103,12 @@ it('inserts/updates/deletes a mapped object w/ default transforms', async () => 
     .select({ id: insertReturn1.id })
     .getOne();
   expect(selectedUser4).toEqual(updatingUser2);
+
+  // test updating multiple users returning select columns
+  const updateReturn3 = await userMapper.update().getAll({ name: 'Everyone' });
+  expect(updateReturn3).toEqual([{ id: 1 }, { id: 10 }]);
+  const updateReturn4 = await userMapper.update().getOne({ name: 'Everyone' });
+  expect(updateReturn4).toEqual({ id: 1 });
 
   // test deleting a user
   const deleted = await userMapper.delete({ id: insertReturn1.id }).run();
@@ -141,7 +148,7 @@ it('inserts/updates/deletes a mapped object class w/ all custom transforms', asy
         user.email
       );
     },
-    updateTransform: (user: MappedUser | Partial<Insertable<Users>>) => {
+    updateTransform: (user) => {
       if (!(user instanceof MappedUser)) {
         return user;
       }
@@ -210,10 +217,10 @@ it('inserts/updates/deletes a mapped object class w/ all custom transforms', asy
     selectedUser1!.handle,
     selectedUser1!.email
   );
-  const updateReturn = await userMapper
+  const updateReturn2 = await userMapper
     .update({ id: updatingUser.serialNo })
     .getOne(updatingUser);
-  expect(updateReturn).toEqual(updatingUser);
+  expect(updateReturn2).toEqual(updatingUser);
   const selectedUser2 = await userMapper
     .select({ id: insertReturn.serialNo })
     .getOne();
@@ -232,6 +239,12 @@ it('inserts/updates/deletes a mapped object class w/ all custom transforms', asy
     .getOne();
   expect(selectedUser4?.firstName).toEqual('Foo');
 
+  // test updating multiple users returning select columns
+  const updateReturn3 = await userMapper.update().getAll({ name: 'Everyone' });
+  expect(updateReturn3).toEqual([{ id: 1 }]);
+  const updateReturn4 = await userMapper.update().getOne({ name: 'Everyone' });
+  expect(updateReturn4).toEqual({ id: 1 });
+
   // test deleting a user
   const deleted = await userMapper.delete({ id: insertReturn.serialNo }).run();
   expect(deleted).toEqual(true);
@@ -241,7 +254,7 @@ it('inserts/updates/deletes a mapped object class w/ all custom transforms', asy
   expect(selectedUser3).toBeNull();
 });
 
-it('inserts/updates/deletes a mapped object class w/ inferred update transforms', async () => {
+it('inserts/updates/deletes a mapped object class w/ default update transforms', async () => {
   class MappedUser {
     constructor(
       public id: number,
@@ -255,16 +268,6 @@ it('inserts/updates/deletes a mapped object class w/ inferred update transforms'
   const userMapper = new UniformTableMapper(db, 'users', {
     isMappedObject: (obj) => obj instanceof MappedUser,
     insertTransform: (user: MappedUser) => {
-      return {
-        name: `${user.firstName} ${user.lastName}`,
-        handle: user.handle,
-        email: user.email,
-      };
-    },
-    updateTransform: (user: MappedUser | Partial<Insertable<Users>>) => {
-      if (!(user instanceof MappedUser)) {
-        return user;
-      }
       return {
         name: `${user.firstName} ${user.lastName}`,
         handle: user.handle,
@@ -330,11 +333,11 @@ it('inserts/updates/deletes a mapped object class w/ inferred update transforms'
   const updateReturn = await userMapper
     .update({ id: updatingUser.id })
     .getOne(updatingUser);
-  expect(updateReturn).toEqual(updatingUser);
+  expect(updateReturn).toEqual({ id: updatingUser.id });
   const selectedUser2 = await userMapper
     .select({ id: insertReturn.id })
     .getOne();
-  expect(selectedUser2).toEqual(updateReturn);
+  expect(selectedUser2).toEqual(updatingUser);
 
   // test updating a user, without returned object
   const updatingUser2 = new MappedUser(

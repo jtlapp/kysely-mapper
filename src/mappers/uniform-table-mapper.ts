@@ -119,17 +119,17 @@ function _prepareOptions<
     return insertedValues;
   };
 
-  const updateTransform = (obj: MappedObject | Partial<Selectable<DB[TB]>>) => {
-    // Not using a type guard because it complicates the options assignment
-    return options.isMappedObject(obj) ? insertTransform(obj as any) : obj;
-  };
+  const updateTransform =
+    options.insertTransform !== undefined
+      ? options.insertTransform
+      : (obj: MappedObject | Partial<Selectable<DB[TB]>>) =>
+          // Not using a type guard because it complicates the options assignment
+          options.isMappedObject(obj) ? insertTransform(obj as any) : obj;
 
   const returnTransform = (
-    obj: MappedObject,
+    _obj: MappedObject,
     returns: ObjectWithKeys<Selectable<DB[TB]>, ReturnColumns>
-  ) => {
-    return { ...obj, ...returns };
-  };
+  ) => returns;
 
   return {
     primaryKeyColumns,
