@@ -17,9 +17,11 @@ export class MappingUpdateQuery<
   TB extends keyof DB & string,
   QB extends UpdateQueryBuilder<DB, TB, TB, UpdateResult>,
   UpdatingObject extends object,
+  SelectedObject extends object,
   ReturnColumns extends (keyof Selectable<DB[TB]> & string)[] | ['*'],
   ReturnCount,
-  ReturnedObject extends object
+  UpdateReturnsSelectedObjectWhenProvided extends boolean,
+  DefaultReturnObject extends object
 > {
   protected readonly returnColumns: ReturnColumns;
   #returningQB: UpdateQueryBuilder<DB, TB, TB, any> | null = null;
@@ -35,7 +37,10 @@ export class MappingUpdateQuery<
    *  If `returnColumns` is `['*']`, returns all columns. If `returnColumns`
    *  is empty, returns nothing.
    * @param updateReturnTransform A function that transforms the returned
-   *  row into the object to be returned from the update query.
+   *  row into the object to be returned from the update query. When
+   * `UpdateReturnsSelectedObjectWhenProvided` is `true`, the returned
+   *  object is of type `SelectedObject` if the function's input is also
+   *  of this type; otherwise it is of type `DefaultReturnObject`.
    */
   constructor(
     readonly db: Kysely<DB>,
@@ -48,7 +53,11 @@ export class MappingUpdateQuery<
     protected readonly updateReturnTransform?: (
       source: UpdatingObject,
       returns: ObjectWithKeys<Selectable<DB[TB]>, ReturnColumns>
-    ) => ReturnedObject
+    ) => UpdateReturnsSelectedObjectWhenProvided extends true
+      ? UpdatingObject extends SelectedObject
+        ? SelectedObject
+        : DefaultReturnObject
+      : DefaultReturnObject
   ) {
     this.returnColumns = returnColumns ?? ([] as any);
   }
@@ -68,18 +77,38 @@ export class MappingUpdateQuery<
   }
 
   /**
-   * Runs the query, updating rows with the values in the provided object.
-   * For each row updated, retrieves the columns specified in `returnColumns`,
-   * returning them as an object, unless `updateReturnTransform` transforms
-   * them into `ReturnedObject`. If `returnColumns` is empty, returns `undefined`.
+   * Updates rows with the values that result from transforming the object via
+   * `insertTransform` (if defined). For each row updated, retrieves the
+   * columns specified in `returnColumns` (if defined), returning them to the
+   * caller as either `DefaultReturnObject` or `SelectedObject`, depending
+   * on whether `UpdateReturnsSelectedObjectWhenProvided` is `true` and the
+   * provided object is a `SelectedObject`, after transformation by
+   * `updateReturnTransform`. If `returnColumns` is empty, returns `undefined`.
    * @returns If `returnColumns` is not empty, returns an array containing one
-   *  `ReturnedObject` for each updated object; otherwise returns `undefined`.
+   *  object for each row updated; otherwise returns `undefined`.
    */
   getAll(
     obj: UpdatingObject
-  ): Promise<ReturnColumns extends [] ? void : ReturnedObject[]>;
+  ): Promise<
+    ReturnColumns extends []
+      ? void
+      : UpdateReturnsSelectedObjectWhenProvided extends true
+      ? UpdatingObject extends SelectedObject
+        ? SelectedObject[]
+        : DefaultReturnObject[]
+      : DefaultReturnObject[]
+  >;
 
-  async getAll(obj: UpdatingObject): Promise<ReturnedObject[] | void> {
+  async getAll(
+    obj: UpdatingObject
+  ): Promise<
+    | (UpdateReturnsSelectedObjectWhenProvided extends true
+        ? UpdatingObject extends SelectedObject
+          ? SelectedObject[]
+          : DefaultReturnObject[]
+        : DefaultReturnObject[])
+    | void
+  > {
     if (this.returnColumns.length === 0) {
       await this.loadUpdatingObject(this.qb, obj).execute();
       return;
@@ -97,20 +126,42 @@ export class MappingUpdateQuery<
   }
 
   /**
-   * Runs the query, updating rows with the values in the provided object.
-   * For the first updated row, retrieves the columns given in `returnColumns`,
-   * returning them as an object, unless `updateReturnTransform` transforms
-   * them into a `ReturnedObject`. If `returnColumns` is empty, returns
-   * `undefined`.
-   * @returns If `returnColumns` is empty, returned `undefined`. Otherwise,
-   *  returns a `ReturnedObject` if at least one row was updated, or `null` if
-   *  no rows were updated.
+   * Updates rows with the values that result from transforming the object via
+   * `insertTransform` (if defined). For the first row updated, retrieves the
+   * columns specified in `returnColumns` (if defined), returning them to the
+   * caller as either `DefaultReturnObject` or `SelectedObject`, depending
+   * on whether `UpdateReturnsSelectedObjectWhenProvided` is `true` and the
+   * provided object is a `SelectedObject`, after transformation by
+   * `updateReturnTransform`. If `returnColumns` is empty, returns `undefined`.
+   * @returns If `returnColumns` is empty, returns `undefined`. Otherwise,
+   *  returns the first object if at least one row was updated, or `null` if
+   * no rows were updated.
    */
   getOne(
     obj: UpdatingObject
-  ): Promise<ReturnColumns extends [] ? void : ReturnedObject | null>;
+  ): Promise<
+    ReturnColumns extends []
+      ? void
+      :
+          | (UpdateReturnsSelectedObjectWhenProvided extends true
+              ? UpdatingObject extends SelectedObject
+                ? SelectedObject
+                : DefaultReturnObject
+              : DefaultReturnObject)
+          | null
+  >;
 
-  async getOne(obj: UpdatingObject): Promise<ReturnedObject | null | void> {
+  async getOne(
+    obj: UpdatingObject
+  ): Promise<
+    | (UpdateReturnsSelectedObjectWhenProvided extends true
+        ? UpdatingObject extends SelectedObject
+          ? SelectedObject
+          : DefaultReturnObject
+        : DefaultReturnObject)
+    | null
+    | void
+  > {
     if (this.returnColumns.length === 0) {
       await this.loadUpdatingObject(this.qb, obj).execute();
       return;
@@ -155,9 +206,11 @@ export class MappingUpdateQuery<
     TB,
     NextQB,
     UpdatingObject,
+    SelectedObject,
     ReturnColumns,
     ReturnCount,
-    ReturnedObject
+    UpdateReturnsSelectedObjectWhenProvided,
+    DefaultReturnObject
   > {
     return new MappingUpdateQuery(
       this.db,

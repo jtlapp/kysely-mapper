@@ -51,6 +51,8 @@ export class UniformTableMapper<
   MappedObject | Partial<Insertable<DB[TB]>>,
   ReturnColumns,
   ReturnCount,
+  true,
+  true,
   MappedObject
 > {
   // TODO: rewrite

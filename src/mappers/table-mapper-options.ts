@@ -16,25 +16,51 @@ import {
  *  update, except when explicitly requesting no columns. `['*']` returns
  *  all columns; `[]` returns none and is the default.
  * @typeparam ReturnCount Type of count query results.
- * @typeparam ReturnedObject Objects to return from inserts and updates.
+ * @typeparam InsertReturnsSelectedObject Whether insert queries return
+ *  `SelectedObject` or `DefaultReturnObject`.
+ * @typeparam UpdateReturnsSelectedObjectWhenProvided Whether update queries
+ *  return `SelectedObject` when the updating object is a `SelectedObject`;
+ *  update queries otherwise return `DefaultReturnObject`.
+ * @typeparam DefaultReturnObject Type of objects returned from inserts and
+ *  updates, unless configured to return `SelectedObject`.
  */
 export interface TableMapperOptions<
   DB,
   TB extends keyof DB & string,
-  SelectedColumns extends SelectionColumn<DB, TB>[] | ['*'],
-  SelectedObject extends object,
-  InsertedObject extends object,
-  UpdatingObject extends object,
-  // TODO: update the following type to support aliases
-  ReturnColumns extends (keyof Selectable<DB[TB]> & string)[] | ['*'],
-  ReturnCount,
-  ReturnedObject extends object
+  SelectedColumns extends SelectionColumn<DB, TB>[] | ['*'] = ['*'],
+  SelectedObject extends object = SelectedRow<
+    DB,
+    TB,
+    SelectedColumns extends ['*'] ? never : SelectedColumns[number],
+    SelectedColumns
+  >,
+  InsertedObject extends object = Insertable<DB[TB]>,
+  UpdatingObject extends object = Partial<Insertable<DB[TB]>>,
+  // TODO: support aliases in ReturnColumns and test
+  ReturnColumns extends (keyof Selectable<DB[TB]> & string)[] | ['*'] = [],
+  ReturnCount = bigint,
+  InsertReturnsSelectedObject extends boolean = false,
+  UpdateReturnsSelectedObjectWhenProvided extends boolean = false,
+  DefaultReturnObject extends object = ReturnColumns extends ['*']
+    ? Selectable<DB[TB]>
+    : ObjectWithKeys<Selectable<DB[TB]>, ReturnColumns>
 > {
   /** Transformation to apply to inserted objects before insertion. */
   readonly insertTransform?: (obj: InsertedObject) => Insertable<DB[TB]>;
 
+  /** Whether insert queries return `SelectedObject` or `DefaultReturnObject`. */
+  // TODO: do I need this? can it be properly inferred?
+  readonly insertReturnsSelectedObject?: InsertReturnsSelectedObject;
+
   /** Transformation to apply to objects provided for updating values. */
   readonly updateTransform?: (update: UpdatingObject) => Updateable<DB[TB]>;
+
+  /**
+   * Whether update queries return `SelectedObject` when the updating object
+   * is a `SelectedObject`; update queries otherwise return `DefaultReturnObject`.
+   */
+  // TODO: do I need this? can it be properly inferred?
+  readonly updateReturnsSelectedObjectWhenProvided?: UpdateReturnsSelectedObjectWhenProvided;
 
   /** Columns to return from selection queries. */
   readonly selectedColumns?: SelectedColumns;
@@ -61,13 +87,19 @@ export interface TableMapperOptions<
     returns: ReturnColumns extends []
       ? never
       : ObjectWithKeys<Selectable<DB[TB]>, ReturnColumns>
-  ) => ReturnedObject;
+  ) => InsertReturnsSelectedObject extends true
+    ? SelectedObject
+    : DefaultReturnObject;
 
   /** Transformation to apply to column values returned from updates. */
   readonly updateReturnTransform?: (
     source: UpdatingObject,
     returns: ObjectWithKeys<Selectable<DB[TB]>, ReturnColumns>
-  ) => ReturnedObject;
+  ) => UpdateReturnsSelectedObjectWhenProvided extends true
+    ? UpdatingObject extends SelectedObject
+      ? SelectedObject
+      : DefaultReturnObject
+    : DefaultReturnObject;
 
   /** Transformation to apply to bigint count results. */
   readonly countTransform?: (count: bigint) => ReturnCount;

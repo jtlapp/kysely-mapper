@@ -35,6 +35,8 @@ export interface UniformTableMapperOptions<
     MappedObject | Partial<Insertable<DB[TB]>>,
     ReturnColumns,
     ReturnCount,
+    true,
+    true,
     MappedObject
   > {
   /** Columns that make up the primary key of the table. */

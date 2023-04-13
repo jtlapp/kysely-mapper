@@ -39,7 +39,13 @@ import { MappingUpdateQuery } from '../queries/update-query';
  * @typeparam ReturnColumns Columns to return from the table on insert or
  *  update, except when explicitly requesting no columns. `['*']` returns
  *  all columns; `[]` returns none and is the default.
- * @typeparam ReturnedObject Objects to return from inserts and updates.
+ * @typeparam InsertReturnsSelectedObject Whether insert queries return
+ *  `SelectedObject` or `DefaultReturnObject`.
+ * @typeparam UpdateReturnsSelectedObjectWhenProvided Whether update queries
+ *  return `SelectedObject` when the updating object is a `SelectedObject`;
+ *  update queries otherwise return `DefaultReturnObject`.
+ * @typeparam DefaultReturnObject Type of objects returned from inserts and
+ *  updates, unless configured to return `SelectedObject`.
  */
 export class TableMapper<
   DB,
@@ -56,7 +62,9 @@ export class TableMapper<
   // TODO: support aliases in ReturnColumns and test
   ReturnColumns extends (keyof Selectable<DB[TB]> & string)[] | ['*'] = [],
   ReturnCount = bigint,
-  ReturnedObject extends object = ReturnColumns extends ['*']
+  InsertReturnsSelectedObject extends boolean = false,
+  UpdateReturnsSelectedObjectWhenProvided extends boolean = false,
+  DefaultReturnObject extends object = ReturnColumns extends ['*']
     ? Selectable<DB[TB]>
     : ObjectWithKeys<Selectable<DB[TB]>, ReturnColumns>
 > {
@@ -94,7 +102,9 @@ export class TableMapper<
       UpdatingObject,
       ReturnColumns,
       ReturnCount,
-      ReturnedObject
+      InsertReturnsSelectedObject,
+      UpdateReturnsSelectedObjectWhenProvided,
+      DefaultReturnObject
     > = {}
   ) {
     this.returnColumns = options.returnColumns ?? [];
@@ -190,8 +200,10 @@ export class TableMapper<
     TB,
     InsertQueryBuilder<DB, TB, InsertResult>,
     InsertedObject,
+    SelectedObject,
     ReturnColumns,
-    ReturnedObject
+    InsertReturnsSelectedObject,
+    DefaultReturnObject
   > {
     return new MappingInsertQuery(
       this.db,
@@ -260,9 +272,11 @@ export class TableMapper<
     TB,
     UpdateQueryBuilder<DB, TB, TB, UpdateResult>,
     UpdatingObject,
+    SelectedObject,
     ReturnColumns,
     ReturnCount,
-    ReturnedObject
+    UpdateReturnsSelectedObjectWhenProvided,
+    DefaultReturnObject
   > {
     return new MappingUpdateQuery(
       this.db,

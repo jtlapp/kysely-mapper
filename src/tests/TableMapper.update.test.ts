@@ -423,6 +423,9 @@ describe('update transformation', () => {
       Insertable<Database['users']>,
       Partial<Insertable<Database['users']>>,
       ['id'],
+      bigint,
+      false,
+      false,
       ReturnedUser
     > {
       constructor(db: Kysely<Database>) {
@@ -467,6 +470,9 @@ describe('update transformation', () => {
       Insertable<Database['users']>,
       UpdatingUser,
       ['id'],
+      bigint,
+      false,
+      false,
       ReturnedUser
     > {
       constructor(db: Kysely<Database>) {

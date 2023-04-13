@@ -19,8 +19,10 @@ export class MappingInsertQuery<
   TB extends keyof DB & string,
   QB extends InsertQueryBuilder<DB, TB, InsertResult>,
   InsertedObject extends object,
+  SelectedObject extends object,
   ReturnColumns extends (keyof Selectable<DB[TB]> & string)[] | ['*'],
-  ReturnedObject extends object
+  InsertReturnsSelectedObject extends boolean,
+  DefaultReturnObject extends object
 > {
   protected readonly returnColumns: ReturnColumns;
   #returningQB: InsertQueryBuilder<DB, TB, any> | null = null;
@@ -35,7 +37,9 @@ export class MappingInsertQuery<
    *  is empty, returns nothing.
    * @param insertReturnTransform A function that transforms the object
    *  to be inserted and the returned row into the object to be returned
-   *  from the insert query.
+   *  from the insert query. When `InsertReturnsSelectedObject` is `true`,
+   *  the returned object is of type `SelectedObject`; otherwise it is of
+   *  type `DefaultReturnObject`.
    */
   constructor(
     protected readonly db: Kysely<DB>,
@@ -49,7 +53,9 @@ export class MappingInsertQuery<
       returns: ReturnColumns extends []
         ? never
         : ObjectWithKeys<Selectable<DB[TB]>, ReturnColumns>
-    ) => ReturnedObject
+    ) => InsertReturnsSelectedObject extends true
+      ? SelectedObject
+      : DefaultReturnObject
   ) {
     this.returnColumns = returnColumns ?? ([] as any);
   }
@@ -58,16 +64,30 @@ export class MappingInsertQuery<
    * Inserts the provided objects into the table as rows, first transforming
    * them into rows via `insertTransform` (if defined). For each row inserted,
    * retrieves the columns specified in `returnColumns`, returning them to
-   * the caller as an object, unless `insertReturnTransform` transforms them
-   * into `ReturnedObject`. If `returnColumns` is empty, returns `undefined`.
+   * the caller as either `DefaultReturnObject` or `SelectedObject`, depending
+   * on whether `InsertReturnsSelectedObject` is `true`, after transformation by
+   * `insertReturnTransform`. If `returnColumns` is empty, returns `undefined`.
    * @returns If `returnColumns` is not empty, returns an array containing one
-   *  `ReturnedObject` for each inserted object; otherwise returns `undefined`.
+   *  object for each inserted object; otherwise returns `undefined`.
    */
   getAll(
     objs: InsertedObject[]
-  ): Promise<ReturnColumns extends [] ? void : ReturnedObject[]>;
+  ): Promise<
+    ReturnColumns extends []
+      ? void
+      : InsertReturnsSelectedObject extends true
+      ? SelectedObject[]
+      : DefaultReturnObject[]
+  >;
 
-  async getAll(objs: InsertedObject[]): Promise<ReturnedObject[] | void> {
+  async getAll(
+    objs: InsertedObject[]
+  ): Promise<
+    | (InsertReturnsSelectedObject extends true
+        ? SelectedObject[]
+        : DefaultReturnObject[])
+    | void
+  > {
     if (this.returnColumns.length === 0) {
       await this.loadInsertedObjects(this.qb, objs).execute();
       return;
@@ -88,18 +108,33 @@ export class MappingInsertQuery<
 
   /**
    * Inserts the provided object into the table as a row, first transforming
-   * it into rows via `insertTransform` (if defined). Retrieves the columns
-   * specified in `returnColumns` (if any), returning them to the caller as
-   * an objectunless `insertReturnTransform` transforms them into a
-   * `ReturnedObject`. If `returnColumns` is empty, returns `undefined`.
-   * @returns If `returnColumns` is not empty, returns a `ReturnedObject`;
+   * it into a row via `insertTransform` (if defined). Also retrieves the
+   * columns specified in `returnColumns`, returning them to the caller as
+   * either `DefaultReturnObject` or `SelectedObject`, depending on whether
+   * `InsertReturnsSelectedObject` is `true`, after transformation by
+   * `insertReturnTransform`. If `returnColumns` is empty, returns `undefined`.
+   * @returns If `returnColumns` is not empty, returns an object;
    *  otherwise returns `undefined`.
    */
   getOne(
     obj: InsertedObject
-  ): Promise<ReturnColumns extends [] ? void : ReturnedObject>;
+  ): Promise<
+    ReturnColumns extends []
+      ? void
+      : InsertReturnsSelectedObject extends true
+      ? SelectedObject
+      : DefaultReturnObject
+  >;
 
-  async getOne(obj: InsertedObject): Promise<ReturnedObject | null | void> {
+  async getOne(
+    obj: InsertedObject
+  ): Promise<
+    | (InsertReturnsSelectedObject extends true
+        ? SelectedObject
+        : DefaultReturnObject)
+    | null
+    | void
+  > {
     if (this.returnColumns.length === 0) {
       await this.loadInsertedObjects(this.qb, obj).execute();
       return;
@@ -138,8 +173,10 @@ export class MappingInsertQuery<
     TB,
     NextQB,
     InsertedObject,
+    SelectedObject,
     ReturnColumns,
-    ReturnedObject
+    InsertReturnsSelectedObject,
+    DefaultReturnObject
   > {
     return new MappingInsertQuery(
       this.db,

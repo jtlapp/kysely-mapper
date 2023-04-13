@@ -373,6 +373,8 @@ describe('insertion transformation', () => {
       Partial<Insertable<Database['users']>>,
       ['id'],
       number,
+      false,
+      false,
       ReturnedUser
     > {
       constructor(db: Kysely<Database>) {
@@ -413,6 +415,8 @@ describe('insertion transformation', () => {
       Partial<Insertable<Database['users']>>,
       ['id'],
       number,
+      false,
+      false,
       ReturnedUser
     > {
       constructor(db: Kysely<Database>) {
