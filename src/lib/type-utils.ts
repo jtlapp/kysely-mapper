@@ -13,10 +13,10 @@ import {
 } from 'kysely';
 
 /**
- * Type of the primary key tuple whose column names are given by `KA` and are
+ * Type of the key tuple whose column names are given by `KA` and are
  * found in the table interface `T`. Supports up to 4 columns.
  * @typeparam T Table interface.
- * @typeparam KA Array of the primary key column names.
+ * @typeparam KA Array of the key column names.
  */
 export type KeyTuple<
   T,

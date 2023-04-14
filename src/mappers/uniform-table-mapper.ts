@@ -15,34 +15,33 @@ import { UniformTableMapperOptions } from './uniform-table-mapper-options';
 export const DEFAULT_KEY = ['id'] as const;
 
 /**
- * A mapper for a table representing a store of objects, where each object has a
- * unique identifying key given by one or more primary key columns.
+ * A mapper for a table representing a store of objects.
  * @typeparam DB The database type.
  * @typeparam TB The name of the table.
  * @typeparam MappedObject The type of the objects that are mapped to and from
  *  the table rows on inserts, updates, and selects. Updates may also be given
  *  as columns of the table.
- * @typeparam PrimaryKeyColumns Tuple of the names of the primary key columns.
- *  Defaults to `['id']`. By default, falsy primary keys are assumed to be
- *  generated and `insertTransform` removes them from the insertion.
+ * @typeparam KeyColumns Tuple of the names of the table's key columns.
+ *  Defaults to `['id']`. By default, falsy key values are assumed to require
+ *  generation and `insertTransform` removes them from the insertion.
  * @typeparam SelectedColumns Columns to return from selection queries.
  *  Defaults to `['*']`, returning all columns. May specify aliases.
  * @typeparam ReturnCount Type of count query results.
  * @typeparam ReturnColumns The columns that are returned from the database
  *  when selecting or updating rows, for use when creating mapped objects.
  *  `['*']` returns all columns; `[]` returns none. By default, the columns
- *  are added to objects returned on update. Defaults to `PrimaryKeyColumns`.
+ *  are added to objects returned on update. Defaults to `KeyColumns`.
  */
 export class UniformTableMapper<
   DB,
   TB extends keyof DB & string,
   MappedObject extends object,
-  PrimaryKeyColumns extends SelectableColumnTuple<DB[TB]> = [
+  KeyColumns extends SelectableColumnTuple<DB[TB]> = [
     'id' & SelectableColumn<DB[TB]>
   ],
   SelectedColumns extends SelectionColumn<DB, TB>[] | ['*'] = ['*'],
   ReturnCount = bigint,
-  ReturnColumns extends SelectionColumn<DB, TB>[] | ['*'] = PrimaryKeyColumns
+  ReturnColumns extends SelectionColumn<DB, TB>[] | ['*'] = KeyColumns
 > extends TableMapper<
   DB,
   TB,
@@ -58,8 +57,8 @@ export class UniformTableMapper<
   /**
    * @param db The Kysely database instance.
    * @param tableName The name of the table.
-   * @param options Options governing mapper behavior. Default to a
-   *  primary key of `id`, to selecting all columns, and to returning
+   * @param options Options governing mapper behavior. Defaults to
+   *  a key of `id`, to selecting all columns, and to returning
    *  the `id` on insert or update, when the caller requests returns.
    */
   constructor(
@@ -69,7 +68,7 @@ export class UniformTableMapper<
       DB,
       TB,
       MappedObject,
-      PrimaryKeyColumns,
+      KeyColumns,
       SelectedColumns,
       ReturnColumns,
       ReturnCount
@@ -86,7 +85,7 @@ function _prepareOptions<
   DB,
   TB extends keyof DB & string,
   MappedObject extends object,
-  PrimaryKeyColumns extends SelectableColumnTuple<DB[TB]>,
+  KeyColumns extends SelectableColumnTuple<DB[TB]>,
   SelectedColumns extends SelectionColumn<DB, TB>[] | ['*'],
   ReturnCount,
   ReturnColumns extends SelectionColumn<DB, TB>[] | ['*']
@@ -95,18 +94,18 @@ function _prepareOptions<
     DB,
     TB,
     MappedObject,
-    PrimaryKeyColumns,
+    KeyColumns,
     SelectedColumns,
     ReturnColumns,
     ReturnCount
   >
 ) {
-  const primaryKeyColumns = options.primaryKeyColumns ?? DEFAULT_KEY;
+  const KeyColumns = options.KeyColumns ?? DEFAULT_KEY;
 
-  // Remove falsy primary keys from inserted object, by default
+  // Remove falsy key values from inserted object, by default
   const insertTransform = (obj: MappedObject) => {
     const insertedValues = { ...obj };
-    primaryKeyColumns.forEach((column) => {
+    KeyColumns.forEach((column) => {
       if (!obj[column as keyof MappedObject]) {
         delete insertedValues[column as keyof MappedObject];
       }
@@ -120,8 +119,8 @@ function _prepareOptions<
     returns: Selection<DB, TB, ReturnColumns[number]>
   ) => ({ ...obj, ...returns });
 
-  // Use insert transform by default; or if none is provided, remove primary
-  // keys from inserted object if the object is a `MappedObject`.
+  // Use insert transform by default; or if none is provided, remove falsy
+  // key values from inserted object if the object is a `MappedObject`.
   const updateTransform =
     options.insertTransform !== undefined
       ? options.insertTransform
@@ -142,12 +141,12 @@ function _prepareOptions<
       : options.insertReturnTransform(obj, returns as any);
 
   return {
-    primaryKeyColumns,
+    KeyColumns,
     insertTransform,
     insertReturnTransform,
     updateTransform,
     updateReturnTransform,
-    returnColumns: primaryKeyColumns,
+    returnColumns: KeyColumns,
     ...options,
   };
 }
