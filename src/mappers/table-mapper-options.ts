@@ -1,10 +1,16 @@
 import { Insertable, Selectable, Selection, Updateable } from 'kysely';
-import { SelectedRow, SelectionColumn } from '../lib/type-utils';
+import {
+  SelectableColumnTuple,
+  SelectedRow,
+  SelectionColumn,
+} from '../lib/type-utils';
 
 /**
  * Options governing TableMapper behavior.
  * @typeparam DB Interface whose fields are table names defining tables.
  * @typeparam TB Name of the table.
+ * @typeparam KeyColumns Tuple of the names of the table's key columns.
+ *  Defaults to `[]`, indicating no key columns.
  * @typeparam SelectedColumns Columns to return from selection queries.
  *  Defaults to `['*']`, returning all columns. May specify aliases.
  * @typeparam SelectedObject Type of objects returned by select queries.
@@ -25,6 +31,7 @@ import { SelectedRow, SelectionColumn } from '../lib/type-utils';
 export interface TableMapperOptions<
   DB,
   TB extends keyof DB & string,
+  KeyColumns extends SelectableColumnTuple<DB[TB]> | [] = [],
   SelectedColumns extends SelectionColumn<DB, TB>[] | ['*'] = ['*'],
   SelectedObject extends object = SelectedRow<
     DB,
@@ -42,6 +49,15 @@ export interface TableMapperOptions<
     ? Selectable<DB[TB]>
     : Selection<DB, TB, ReturnColumns[number]>
 > {
+  /** Tuple of the columns that make up the table's key. May be `[]`. */
+  readonly keyColumns?: KeyColumns;
+
+  /**
+   * Columns to return from selection queries. `[*]` selects all columns.
+   * May contain aliases.
+   */
+  readonly selectedColumns?: SelectedColumns;
+
   /** Transformation to apply to inserted objects before insertion. */
   readonly insertTransform?: (obj: InsertedObject) => Insertable<DB[TB]>;
 
@@ -59,9 +75,6 @@ export interface TableMapperOptions<
   // TODO: do I need this? can it be properly inferred?
   readonly updateReturnsSelectedObjectWhenProvided?: UpdateReturnsSelectedObjectWhenProvided;
 
-  /** Columns to return from selection queries. */
-  readonly selectedColumns?: SelectedColumns;
-
   /** Transformation to apply to selected objects. */
   readonly selectTransform?: (
     row: SelectedRow<
@@ -75,6 +88,7 @@ export interface TableMapperOptions<
   /**
    * Columns to return from the table on insert or update, unless explicitly
    * requesting no columns. `['*']` returns all columns; `[]` returns none.
+   * May contain aliases.
    */
   readonly returnColumns?: ReturnColumns;
 

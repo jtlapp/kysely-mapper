@@ -36,6 +36,7 @@ let userMapperReturningAll: UserTableMapperReturningAll;
 let postTableMapper: TableMapper<
   Database,
   'posts',
+  [],
   ['*'],
   Selectable<Posts>,
   Insertable<Posts>,
@@ -46,6 +47,7 @@ let postTableMapper: TableMapper<
 let postTableMapperReturningIDAndTitleAsT: TableMapper<
   Database,
   'posts',
+  [],
   ['*'],
   Selectable<Posts>,
   Insertable<Posts>,
@@ -329,6 +331,7 @@ describe('insertion transformation', () => {
   class InsertTransformMapper extends TableMapper<
     Database,
     'users',
+    ['id'],
     ['*'],
     Selectable<Database['users']>,
     InsertedUser,
@@ -381,6 +384,7 @@ describe('insertion transformation', () => {
     class InsertReturnTransformMapper extends TableMapper<
       Database,
       'users',
+      ['id'],
       ['*'],
       Selectable<Database['users']>,
       Insertable<Database['users']>,
@@ -423,6 +427,7 @@ describe('insertion transformation', () => {
     class InsertAndReturnTransformMapper extends TableMapper<
       Database,
       'users',
+      ['id'],
       ['*'],
       Selectable<Database['users']>,
       InsertedUser,

@@ -45,6 +45,7 @@ export class UniformTableMapper<
 > extends TableMapper<
   DB,
   TB,
+  KeyColumns,
   SelectedColumns,
   MappedObject,
   MappedObject,

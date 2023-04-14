@@ -364,6 +364,7 @@ describe('update transformation', () => {
   class UpdateTransformMapper extends TableMapper<
     Database,
     'users',
+    ['id'],
     ['*'],
     Selectable<Database['users']>,
     Insertable<Database['users']>,
@@ -427,6 +428,7 @@ describe('update transformation', () => {
     class UpdateReturnTransformMapper extends TableMapper<
       Database,
       'users',
+      ['id'],
       ['*'],
       Selectable<Database['users']>,
       Insertable<Database['users']>,
@@ -474,6 +476,7 @@ describe('update transformation', () => {
     class UpdateAndReturnTransformMapper extends TableMapper<
       Database,
       'users',
+      ['id'],
       ['*'],
       Selectable<Database['users']>,
       Insertable<Database['users']>,

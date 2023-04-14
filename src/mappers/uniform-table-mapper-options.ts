@@ -10,7 +10,7 @@ import { TableMapperOptions } from './table-mapper-options';
  *  the table rows on inserts, updates, and selects. Updates may also be given
  *  as columns of the table.
  * @typeparam KeyColumns Tuple of the names of the table's key columns.
- *  Defaults to `['id']`.
+ *  Defaults to `['id']`. `[]` indicates no key columns.
  * @typeparam SelectedColumns Columns to return from selection queries.
  *  Defaults to `['*']`, returning all columns. May specify aliases.
  * @typeparam ReturnColumns The columns that are returned from the database
@@ -30,6 +30,7 @@ export interface UniformTableMapperOptions<
 > extends TableMapperOptions<
     DB,
     TB,
+    KeyColumns,
     SelectedColumns,
     MappedObject,
     MappedObject,
@@ -40,9 +41,6 @@ export interface UniformTableMapperOptions<
     true,
     true
   > {
-  /** Tuple of the columns that make up the table's key. */
-  readonly keyColumns?: KeyColumns;
-
   /** Indicates whether the provided object is an instance of `MappedObject`. */
   // Not using a type guard because it complicates assignment of the option.
   readonly isMappedObject: (obj: any) => boolean;

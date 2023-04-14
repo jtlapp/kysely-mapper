@@ -17,7 +17,7 @@ import {
 
 import { QueryFilter, applyQueryFilter } from '../lib/query-filter';
 import {
-  //SelectableColumnTuple,
+  SelectableColumnTuple,
   SelectedRow,
   SelectionColumn,
 } from '../lib/type-utils';
@@ -54,7 +54,7 @@ import { MappingUpdateQuery } from '../queries/update-query';
 export class TableMapper<
   DB,
   TB extends keyof DB & string,
-  // KeyColumns extends SelectableColumnTuple<DB[TB]> | [] = [],
+  KeyColumns extends SelectableColumnTuple<DB[TB]> | [] = [],
   SelectedColumns extends SelectionColumn<DB, TB>[] | ['*'] = ['*'],
   SelectedObject extends object = SelectedRow<
     DB,
@@ -100,6 +100,7 @@ export class TableMapper<
     readonly options: TableMapperOptions<
       DB,
       TB,
+      KeyColumns,
       SelectedColumns,
       SelectedObject,
       InsertedObject,

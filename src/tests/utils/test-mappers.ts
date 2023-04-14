@@ -17,6 +17,7 @@ export class UserTableMapperReturningDefault extends TableMapper<
 export class UserTableMapperReturningNothing extends TableMapper<
   Database,
   'users',
+  [],
   ['*'],
   Selectable<Users>,
   Insertable<Users>,
@@ -32,6 +33,7 @@ export class UserTableMapperReturningNothing extends TableMapper<
 export class UserTableMapperReturningID extends TableMapper<
   Database,
   'users',
+  ['id'],
   ['*'],
   Selectable<Users>,
   Insertable<Users>,
@@ -47,6 +49,7 @@ export class UserTableMapperReturningID extends TableMapper<
 export class UserTableMapperReturningIDAndHandleAsH extends TableMapper<
   Database,
   'users',
+  ['id'],
   ['*'],
   Selectable<Users>,
   Insertable<Users>,
@@ -65,6 +68,7 @@ export class UserTableMapperReturningIDAndHandleAsH extends TableMapper<
 export class UserTableMapperReturningAll extends TableMapper<
   Database,
   'users',
+  [],
   ['*'],
   Selectable<Users>,
   Insertable<Users>,

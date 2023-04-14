@@ -20,6 +20,7 @@ describe('TableMapperOptions type checks', () => {
     new TableMapper<
       Database,
       'users',
+      ['id'],
       ['*'],
       Selectable<Users>,
       Insertable<Users>,
@@ -31,6 +32,7 @@ describe('TableMapperOptions type checks', () => {
     new TableMapper<
       Database,
       'users',
+      [],
       ['*'],
       Selectable<Users>,
       Insertable<Users>,
@@ -42,6 +44,7 @@ describe('TableMapperOptions type checks', () => {
     new TableMapper<
       Database,
       'users',
+      [],
       ['*'],
       Selectable<Users>,
       Insertable<Users>,
@@ -53,6 +56,7 @@ describe('TableMapperOptions type checks', () => {
     new TableMapper<
       Database,
       'users',
+      ['id'],
       ['*'],
       Selectable<Users>,
       Insertable<Users>,
@@ -64,6 +68,7 @@ describe('TableMapperOptions type checks', () => {
     new TableMapper<
       Database,
       'users',
+      ['id'],
       ['*'],
       Selectable<Users>,
       Insertable<Users>,
@@ -77,6 +82,7 @@ describe('TableMapperOptions type checks', () => {
     > extends TableMapper<
       Database,
       'users',
+      [],
       ['*'],
       Selectable<Users>,
       Insertable<Users>,
@@ -91,6 +97,7 @@ describe('TableMapperOptions type checks', () => {
     class TestMapper extends TableMapper<
       Database,
       'users',
+      ['id'],
       ['*'],
       Selectable<Users>,
       Insertable<Users>,
@@ -105,7 +112,7 @@ describe('TableMapperOptions type checks', () => {
   });
 
   ignore('detects invalid select transform configuration', () => {
-    class TestMapper extends TableMapper<Database, 'users', ['*'], User> {}
+    class TestMapper extends TableMapper<Database, 'users', [], ['*'], User> {}
     // @ts-expect-error - invalid select transform
     new TestMapper(db, 'users', { selectTransform: (user) => user });
   });
@@ -114,6 +121,7 @@ describe('TableMapperOptions type checks', () => {
     class TestMapper extends TableMapper<
       Database,
       'users',
+      ['id'],
       ['*'],
       Selectable<Users>,
       User,
@@ -130,6 +138,7 @@ describe('TableMapperOptions type checks', () => {
     > extends TableMapper<
       Database,
       'users',
+      ['id'],
       ['*'],
       Selectable<Users>,
       User,
@@ -152,6 +161,7 @@ describe('TableMapperOptions type checks', () => {
     class TestMapper extends TableMapper<
       Database,
       'users',
+      ['id'],
       ['*'],
       Selectable<Users>,
       Insertable<Users>,
@@ -170,6 +180,7 @@ describe('TableMapperOptions type checks', () => {
     > extends TableMapper<
       Database,
       'users',
+      ['id'],
       ['*'],
       User,
       Insertable<Users>,
