@@ -36,7 +36,7 @@ export class UniformTableMapper<
   DB,
   TB extends keyof DB & string,
   MappedObject extends object,
-  KeyColumns extends SelectableColumnTuple<DB[TB]> = [
+  KeyColumns extends SelectableColumnTuple<DB[TB]> | [] = [
     'id' & SelectableColumn<DB[TB]>
   ],
   SelectedColumns extends SelectionColumn<DB, TB>[] | ['*'] = ['*'],
@@ -85,7 +85,7 @@ function _prepareOptions<
   DB,
   TB extends keyof DB & string,
   MappedObject extends object,
-  KeyColumns extends SelectableColumnTuple<DB[TB]>,
+  KeyColumns extends SelectableColumnTuple<DB[TB]> | [],
   SelectedColumns extends SelectionColumn<DB, TB>[] | ['*'],
   ReturnCount,
   ReturnColumns extends SelectionColumn<DB, TB>[] | ['*']
@@ -100,12 +100,12 @@ function _prepareOptions<
     ReturnCount
   >
 ) {
-  const KeyColumns = options.KeyColumns ?? DEFAULT_KEY;
+  const keyColumns = options.keyColumns ?? DEFAULT_KEY;
 
   // Remove falsy key values from inserted object, by default
   const insertTransform = (obj: MappedObject) => {
     const insertedValues = { ...obj };
-    KeyColumns.forEach((column) => {
+    keyColumns.forEach((column) => {
       if (!obj[column as keyof MappedObject]) {
         delete insertedValues[column as keyof MappedObject];
       }
@@ -141,12 +141,12 @@ function _prepareOptions<
       : options.insertReturnTransform(obj, returns as any);
 
   return {
-    KeyColumns,
+    keyColumns,
     insertTransform,
     insertReturnTransform,
     updateTransform,
     updateReturnTransform,
-    returnColumns: KeyColumns,
+    returnColumns: keyColumns,
     ...options,
   };
 }

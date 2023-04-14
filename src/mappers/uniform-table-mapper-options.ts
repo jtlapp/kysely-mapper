@@ -23,7 +23,7 @@ export interface UniformTableMapperOptions<
   DB,
   TB extends keyof DB & string,
   MappedObject extends object,
-  KeyColumns extends SelectableColumnTuple<DB[TB]>,
+  KeyColumns extends SelectableColumnTuple<DB[TB]> | [],
   SelectedColumns extends SelectionColumn<DB, TB>[] | ['*'],
   ReturnColumns extends SelectionColumn<DB, TB>[] | ['*'],
   ReturnCount
@@ -41,7 +41,7 @@ export interface UniformTableMapperOptions<
     true
   > {
   /** Tuple of the columns that make up the table's key. */
-  readonly KeyColumns?: KeyColumns;
+  readonly keyColumns?: KeyColumns;
 
   /** Indicates whether the provided object is an instance of `MappedObject`. */
   // Not using a type guard because it complicates assignment of the option.

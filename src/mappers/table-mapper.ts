@@ -16,7 +16,11 @@ import {
 } from 'kysely';
 
 import { QueryFilter, applyQueryFilter } from '../lib/query-filter';
-import { SelectedRow, SelectionColumn } from '../lib/type-utils';
+import {
+  //SelectableColumnTuple,
+  SelectedRow,
+  SelectionColumn,
+} from '../lib/type-utils';
 import { TableMapperOptions } from './table-mapper-options';
 import { MappingDeleteQuery } from '../queries/delete-query';
 import { MappingSelectQuery } from '../queries/select-query';
@@ -28,6 +32,8 @@ import { MappingUpdateQuery } from '../queries/update-query';
  * A mapper providing access to a single table.
  * @typeparam DB Interface whose fields are table names defining tables.
  * @typeparam TB Name of the table.
+ * @typeparam KeyColumns Tuple of the names of the table's key columns.
+ *  Defaults to `[]`, indicating no key columns.
  * @typeparam SelectedColumns Columns to return from selection queries.
  *  Defaults to `['*']`, returning all columns. May specify aliases.
  * @typeparam SelectedObject Type of objects returned by select queries.
@@ -48,6 +54,7 @@ import { MappingUpdateQuery } from '../queries/update-query';
 export class TableMapper<
   DB,
   TB extends keyof DB & string,
+  // KeyColumns extends SelectableColumnTuple<DB[TB]> | [] = [],
   SelectedColumns extends SelectionColumn<DB, TB>[] | ['*'] = ['*'],
   SelectedObject extends object = SelectedRow<
     DB,
