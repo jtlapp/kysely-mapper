@@ -3,6 +3,8 @@
  * be passed as an argument to query functions to constrain results.
  */
 
+// TODO: eliminate QB2 because I no longer need QueryModifier
+
 import {
   ComparisonOperatorExpression,
   Expression,
@@ -116,4 +118,36 @@ export function applyQueryFilter<
   }
 
   throw Error('Unrecognized query filter');
+}
+
+/**
+ * Returns a query builder that constrains the provided query builder
+ * according to the provided query filter or binary operation.
+ * @param base The Kysely mapper that is used to create references.
+ * @param qb The query builder to constrain.
+ * @param filter The query filter.
+ * @returns A query builder constrained for the provided query filter.
+ */
+export function applyQueryFilterOrOp<
+  DB,
+  TB extends keyof DB & string,
+  QB1 extends AnyWhereInterface,
+  // TODO: revisit making QB1 and QB2 same kind of QB, such as via QB2 extends QB1
+  QB2 extends AnyWhereInterface,
+  RE extends ReferenceExpression<DB, TB>
+>(
+  db: Kysely<DB>,
+  qb: QB1,
+  filterOrLHS: QueryFilter<DB, TB, RE, QB1, QB2> | RE,
+  op?: ComparisonOperatorExpression,
+  rhs?: OperandValueExpressionOrList<DB, TB, RE>
+): QB2 {
+  if (op === undefined) {
+    return applyQueryFilter(
+      db,
+      qb,
+      filterOrLHS as QueryFilter<DB, TB, RE, QB1, QB2>
+    );
+  }
+  return qb.where(filterOrLHS as RE, op, rhs!) as QB2;
 }
