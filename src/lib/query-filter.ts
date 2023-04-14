@@ -3,8 +3,6 @@
  * be passed as an argument to query functions to constrain results.
  */
 
-// TODO: eliminate QB2 because I no longer need QueryModifier
-
 import {
   ComparisonOperatorExpression,
   Expression,
@@ -26,13 +24,10 @@ type AnyWhereInterface = WhereInterface<any, any>;
 export type QueryFilter<
   DB,
   TB extends keyof DB & string,
-  RE extends ReferenceExpression<DB, TB>,
-  QB1 extends AnyWhereInterface,
-  QB2 extends AnyWhereInterface
+  RE extends ReferenceExpression<DB, TB>
 > =
   | BinaryOperationFilter<DB, TB, RE>
   | FieldMatchingFilter<DB, TB, RE>
-  | QueryModifier<QB1, QB2>
   | WhereExpressionFactory<DB, TB>
   | Expression<any>;
 
@@ -61,17 +56,6 @@ export type FieldMatchingFilter<
 };
 
 /**
- * A filter that is a function that takes a query builder and returns
- * a caller-modified query builder.
- */
-export class QueryModifier<
-  QB1 extends AnyWhereInterface,
-  QB2 extends AnyWhereInterface
-> {
-  constructor(readonly modifier: (qb: QB1) => QB2) {}
-}
-
-/**
  * Returns a query builder that constrains the provided query builder
  * according to the provided query filter.
  * @param base The Kysely mapper that is used to create references.
@@ -86,7 +70,7 @@ export function applyQueryFilter<
   // TODO: revisit making QB1 and QB2 same kind of QB, such as via QB2 extends QB1
   QB2 extends AnyWhereInterface,
   RE extends ReferenceExpression<DB, TB>
->(db: Kysely<DB>, qb: QB1, filter: QueryFilter<DB, TB, RE, QB1, QB2>): QB2 {
+>(db: Kysely<DB>, qb: QB1, filter: QueryFilter<DB, TB, RE>): QB2 {
   // Process a where expression factory.
   if (typeof filter === 'function') {
     return qb.where(filter) as QB2;
@@ -96,12 +80,6 @@ export function applyQueryFilter<
   // first because they could potentially be plain objects.
   if ('expressionType' in filter) {
     return qb.where(filter) as QB2;
-  }
-
-  // TODO: delete this
-  // Process a query modifier filter.
-  if (filter instanceof QueryModifier) {
-    return filter.modifier(qb);
   }
 
   // Process a field matching filter. `{}` matches all rows.
@@ -138,16 +116,12 @@ export function applyQueryFilterOrOp<
 >(
   db: Kysely<DB>,
   qb: QB1,
-  filterOrLHS: QueryFilter<DB, TB, RE, QB1, QB2> | RE,
+  filterOrLHS: QueryFilter<DB, TB, RE> | RE,
   op?: ComparisonOperatorExpression,
   rhs?: OperandValueExpressionOrList<DB, TB, RE>
 ): QB2 {
   if (op === undefined) {
-    return applyQueryFilter(
-      db,
-      qb,
-      filterOrLHS as QueryFilter<DB, TB, RE, QB1, QB2>
-    );
+    return applyQueryFilter(db, qb, filterOrLHS as QueryFilter<DB, TB, RE>);
   }
   return qb.where(filterOrLHS as RE, op, rhs!) as QB2;
 }

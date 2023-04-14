@@ -166,17 +166,8 @@ export class TableMapper<
    * @param filter Optional filter for selecting rows to delete.
    * @returns A mapping query for deleting rows.
    */
-  delete<
-    RE extends ReferenceExpression<DB, TB>,
-    QB extends DeleteQueryBuilder<DB, TB, DeleteResult>
-  >(
-    filter?: QueryFilter<
-      DB,
-      TB,
-      RE,
-      DeleteQueryBuilder<DB, any, DeleteResult>,
-      QB
-    >
+  delete<RE extends ReferenceExpression<DB, TB>>(
+    filter?: QueryFilter<DB, TB, RE>
   ): MappingDeleteQuery<
     DB,
     TB,
@@ -243,11 +234,8 @@ export class TableMapper<
     SelectQueryBuilder<DB, TB, object>
   >;
 
-  select<
-    RE extends ReferenceExpression<DB, TB>,
-    QB extends SelectQueryBuilder<DB, TB, object>
-  >(
-    filter?: QueryFilter<DB, TB, RE, SelectQueryBuilder<DB, TB, object>, QB>
+  select<RE extends ReferenceExpression<DB, TB>>(
+    filter?: QueryFilter<DB, TB, RE>
   ): MappingSelectQuery<
     DB,
     TB,
@@ -256,13 +244,8 @@ export class TableMapper<
     SelectQueryBuilder<DB, TB, object>
   >;
 
-  select<
-    RE extends ReferenceExpression<DB, TB>,
-    QB extends SelectQueryBuilder<DB, TB, object>
-  >(
-    filterOrLHS?:
-      | QueryFilter<DB, TB, RE, SelectQueryBuilder<DB, TB, object>, QB>
-      | RE,
+  select<RE extends ReferenceExpression<DB, TB>>(
+    filterOrLHS?: QueryFilter<DB, TB, RE> | RE,
     op?: ComparisonOperatorExpression,
     rhs?: OperandValueExpressionOrList<DB, TB, RE>
   ): MappingSelectQuery<
@@ -280,13 +263,7 @@ export class TableMapper<
         ? applyQueryFilter(
             this.db,
             this.getSelectQB(),
-            filterOrLHS as QueryFilter<
-              DB,
-              TB,
-              RE,
-              SelectQueryBuilder<DB, TB, object>,
-              QB
-            >
+            filterOrLHS as QueryFilter<DB, TB, RE>
           )
         : // Not sure why this `where` cast is necessary.
           (
@@ -302,17 +279,8 @@ export class TableMapper<
    * @param filter Optional filter to apply to the query.
    * @returns A mapping query for updating table rows.
    */
-  update<
-    RE extends ReferenceExpression<DB, TB>,
-    QB extends UpdateQueryBuilder<DB, TB, TB, UpdateResult>
-  >(
-    filter?: QueryFilter<
-      DB,
-      TB,
-      RE,
-      UpdateQueryBuilder<DB, TB, TB, UpdateResult>,
-      QB
-    >
+  update<RE extends ReferenceExpression<DB, TB>>(
+    filter?: QueryFilter<DB, TB, RE>
   ): MappingUpdateQuery<
     DB,
     TB,
