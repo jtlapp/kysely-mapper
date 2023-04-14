@@ -220,9 +220,10 @@ describe('updating rows via TableMapper', () => {
       .update()
       .getAll(updateValues);
 
-    const expectedUsers = USERS.map((user, i) => {
-      return { id: insertReturns[i].id, handle: user.handle };
-    });
+    const expectedUsers = USERS.map((user, i) => ({
+      id: insertReturns[i].id,
+      handle: user.handle,
+    }));
     expect(updateReturns).toEqual(expectedUsers);
 
     const readUsers = await userMapperReturningID.select().getAll();

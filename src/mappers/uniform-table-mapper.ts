@@ -117,9 +117,7 @@ function _prepareOptions<
   const insertReturnTransform = (
     obj: MappedObject,
     returns: ObjectWithKeys<Selectable<DB[TB]>, ReturnColumns>
-  ) => {
-    return { ...obj, ...returns };
-  };
+  ) => ({ ...obj, ...returns });
 
   // Use insert transform by default; or if none is provided, remove primary
   // keys from inserted object if the object is a `MappedObject`.

@@ -138,13 +138,11 @@ it('inserts/updates/deletes a mapped object class w/ all custom transforms', asy
 
   const userMapper = new UniformTableMapper(db, 'users', {
     isMappedObject: (obj) => obj instanceof MappedUser,
-    insertTransform: (user: MappedUser) => {
-      return {
-        name: `${user.firstName} ${user.lastName}`,
-        handle: user.handle,
-        email: user.email,
-      };
-    },
+    insertTransform: (user: MappedUser) => ({
+      name: `${user.firstName} ${user.lastName}`,
+      handle: user.handle,
+      email: user.email,
+    }),
     insertReturnTransform: (user, returns) => {
       return new MappedUser(
         returns.id,
@@ -280,13 +278,11 @@ it('inserts/updates/deletes a mapped object class w/ default update transforms',
 
   const userMapper = new UniformTableMapper(db, 'users', {
     isMappedObject: (obj) => obj instanceof MappedUser,
-    insertTransform: (user: MappedUser) => {
-      return {
-        name: `${user.firstName} ${user.lastName}`,
-        handle: user.handle,
-        email: user.email,
-      };
-    },
+    insertTransform: (user: MappedUser) => ({
+      name: `${user.firstName} ${user.lastName}`,
+      handle: user.handle,
+      email: user.email,
+    }),
     insertReturnTransform: (user, returns) => {
       return new MappedUser(
         returns.id,

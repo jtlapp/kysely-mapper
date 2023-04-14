@@ -143,9 +143,7 @@ describe('transforms between inputs and outputs', () => {
     > {}
     new TestMapper<false>(db, 'users', {
       // @ts-expect-error - invalid insert return transform
-      insertReturnTransform: (_user) => {
-        return { noId: 1 };
-      },
+      insertReturnTransform: (_user) => ({ noId: 1 }),
     });
     new TestMapper<true>(db, 'users', {
       // @ts-expect-error - invalid insert return transform
@@ -165,9 +163,7 @@ describe('transforms between inputs and outputs', () => {
     > {}
     new TestMapper(db, 'users', {
       // @ts-expect-error - invalid update transform
-      updateTransform: (_user) => {
-        return { noId: 1 };
-      },
+      updateTransform: (_user) => ({ noId: 1 }),
     });
   });
 
@@ -188,15 +184,11 @@ describe('transforms between inputs and outputs', () => {
     > {}
     new TestMapper<false>(db, 'users', {
       // @ts-expect-error - invalid update return transform
-      updateReturnTransform: (_user) => {
-        return { noId: 1 };
-      },
+      updateReturnTransform: (_user) => ({ noId: 1 }),
     });
     new TestMapper<true>(db, 'users', {
       // @ts-expect-error - invalid update return transform
-      updateReturnTransform: (_user) => {
-        return { noId: 1 };
-      },
+      updateReturnTransform: (_user) => ({ noId: 1 }),
     });
     const testMapper = new TestMapper<true>(db, 'users');
     (await testMapper
