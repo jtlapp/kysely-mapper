@@ -9,7 +9,6 @@ import {
 import { QueryFilter } from '../lib/query-filter';
 import {
   KeyTuple,
-  ObjectWithKeys,
   SelectableColumn,
   SelectableColumnTuple,
   SelectedRow,
@@ -81,7 +80,7 @@ export class KeyedTableMapper<
   ReturnCount = bigint,
   ReturnObject extends object = ReturnColumns extends ['*']
     ? Selectable<DB[TB]>
-    : ObjectWithKeys<Selectable<DB[TB]>, ReturnColumns>
+    : Selection<DB, TB, ReturnColumns[number]>
 > extends TableMapper<
   DB,
   TB,

@@ -35,15 +35,6 @@ export type KeyTuple<
   : [Selectable<T>[KA[0]]];
 
 /**
- * Evaluates to the subset of a the given object having the keys in
- * the provided string array of key names.
- */
-// TODO: can I use Kysely's Selection type everywhere instead?
-export type ObjectWithKeys<O, KeyArray extends string[]> = {
-  [K in KeyArray[number]]: K extends keyof O ? O[K] : never;
-};
-
-/**
  * Evalutes to the type of the query builder output.
  */
 export type QueryBuilderOutput<QB> = QB extends Compilable<infer O> ? O : never;

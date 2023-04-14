@@ -1,9 +1,5 @@
 import { Insertable, Selectable, Selection, Updateable } from 'kysely';
-import {
-  ObjectWithKeys,
-  SelectedRow,
-  SelectionColumn,
-} from '../lib/type-utils';
+import { SelectedRow, SelectionColumn } from '../lib/type-utils';
 
 /**
  * Options governing TableMapper behavior.
@@ -87,7 +83,7 @@ export interface TableMapperOptions<
     source: InsertedObject,
     returns: ReturnColumns extends []
       ? never
-      : ObjectWithKeys<Selectable<DB[TB]>, ReturnColumns>
+      : Selection<DB, TB, ReturnColumns[number]>
   ) => InsertReturnsSelectedObject extends true
     ? SelectedObject
     : DefaultReturnObject;
@@ -95,7 +91,7 @@ export interface TableMapperOptions<
   /** Transformation to apply to column values returned from updates. */
   readonly updateReturnTransform?: (
     source: UpdatingObject,
-    returns: ObjectWithKeys<Selectable<DB[TB]>, ReturnColumns>
+    returns: Selection<DB, TB, ReturnColumns[number]>
   ) => UpdateReturnsSelectedObjectWhenProvided extends true
     ? UpdatingObject extends SelectedObject
       ? SelectedObject

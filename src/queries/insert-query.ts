@@ -3,10 +3,11 @@ import {
   InsertQueryBuilder,
   InsertResult,
   Selectable,
+  Selection,
   Insertable,
 } from 'kysely';
 
-import { ObjectWithKeys, SelectionColumn } from '../lib/type-utils';
+import { SelectionColumn } from '../lib/type-utils';
 
 // TODO: see what else should be made readonly
 // TODO: freeze objects
@@ -52,7 +53,7 @@ export class MappingInsertQuery<
       source: InsertedObject,
       returns: ReturnColumns extends []
         ? never
-        : ObjectWithKeys<Selectable<DB[TB]>, ReturnColumns>
+        : Selection<DB, TB, ReturnColumns[number]>
     ) => InsertReturnsSelectedObject extends true
       ? SelectedObject
       : DefaultReturnObject

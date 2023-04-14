@@ -1,8 +1,7 @@
-import { Insertable, Kysely, Selectable } from 'kysely';
+import { Insertable, Kysely, Selectable, Selection } from 'kysely';
 
 import { TableMapper } from './table-mapper';
 import {
-  ObjectWithKeys,
   SelectableColumn,
   SelectableColumnTuple,
   SelectionColumn,
@@ -116,7 +115,7 @@ function _prepareOptions<
   // Add returned values to inserted object, by default
   const insertReturnTransform = (
     obj: MappedObject,
-    returns: ObjectWithKeys<Selectable<DB[TB]>, ReturnColumns>
+    returns: Selection<DB, TB, ReturnColumns[number]>
   ) => ({ ...obj, ...returns });
 
   // Use insert transform by default; or if none is provided, remove primary
@@ -132,7 +131,7 @@ function _prepareOptions<
   // If the object is not a `MappedObject`, return the raw return values.
   const updateReturnTransform = (
     obj: MappedObject,
-    returns: ObjectWithKeys<Selectable<DB[TB]>, ReturnColumns>
+    returns: Selection<DB, TB, ReturnColumns[number]>
   ) =>
     !options.isMappedObject(obj)
       ? returns
