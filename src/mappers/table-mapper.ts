@@ -15,7 +15,11 @@ import {
   OperandValueExpressionOrList,
 } from 'kysely';
 
-import { QueryFilter, applyQueryFilter } from '../lib/query-filter';
+import {
+  QueryFilter,
+  applyQueryFilter,
+  applyQueryFilterOrBinaryOp,
+} from '../lib/query-filter';
 import {
   ObjectWithKeys,
   SelectedRow,
@@ -259,16 +263,13 @@ export class TableMapper<
       this.db,
       filterOrLHS === undefined
         ? this.getSelectQB()
-        : op === undefined
-        ? applyQueryFilter(
+        : applyQueryFilterOrBinaryOp(
             this.db,
             this.getSelectQB(),
-            filterOrLHS as QueryFilter<DB, TB, RE>
-          )
-        : // Not sure why this `where` cast is necessary.
-          (
-            this.getSelectQB().where as SelectQueryBuilder<DB, TB, any>['where']
-          )(filterOrLHS as RE, op, rhs!),
+            filterOrLHS,
+            op,
+            rhs
+          ),
       this.options.selectTransform
     );
   }

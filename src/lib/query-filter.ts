@@ -105,7 +105,7 @@ export function applyQueryFilter<
  * @param filter The query filter.
  * @returns A query builder constrained for the provided query filter.
  */
-export function applyQueryFilterOrOp<
+export function applyQueryFilterOrBinaryOp<
   DB,
   TB extends keyof DB & string,
   QB extends AnyWhereInterface,
