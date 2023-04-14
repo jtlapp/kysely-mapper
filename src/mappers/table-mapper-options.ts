@@ -1,4 +1,4 @@
-import { Insertable, Selectable, Updateable } from 'kysely';
+import { Insertable, Selectable, Selection, Updateable } from 'kysely';
 import {
   ObjectWithKeys,
   SelectedRow,
@@ -44,7 +44,7 @@ export interface TableMapperOptions<
   UpdateReturnsSelectedObjectWhenProvided extends boolean = false,
   DefaultReturnObject extends object = ReturnColumns extends ['*']
     ? Selectable<DB[TB]>
-    : ObjectWithKeys<Selectable<DB[TB]>, ReturnColumns>
+    : Selection<DB, TB, ReturnColumns[number]>
 > {
   /** Transformation to apply to inserted objects before insertion. */
   readonly insertTransform?: (obj: InsertedObject) => Insertable<DB[TB]>;
