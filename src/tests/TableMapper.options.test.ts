@@ -1,8 +1,5 @@
 import { Insertable, Kysely, Selectable } from 'kysely';
 
-// Because tests for `UniformTableMapper` cover transform behavior,
-// this file only checks for valid types.
-
 import { TableMapper } from '../mappers/table-mapper';
 import { createDB, resetDB, destroyDB } from './utils/test-setup';
 import { Database, Users } from './utils/test-tables';
@@ -17,7 +14,7 @@ beforeAll(async () => {
 beforeEach(() => resetDB(db));
 afterAll(() => destroyDB(db));
 
-describe('transforms between inputs and outputs', () => {
+describe('TableMapperOptions type checks', () => {
   ignore('detects invalid return column configurations', () => {
     new TableMapper<
       Database,
