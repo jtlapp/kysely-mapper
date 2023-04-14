@@ -234,6 +234,7 @@ export class TableMapper<
    * @param column The column name being referenced.
    * @returns A reference to the given column.
    */
+  // TODO: do I need this?
   ref(column: string) {
     return this.db.dynamic.ref(column);
   }
@@ -287,6 +288,7 @@ export class TableMapper<
     );
   }
 
+  // TODO: support listing updated columns
   /**
    * Returns a mapping query for updating rows of the table that match
    *  the provided filter or Kysely binary operation.
