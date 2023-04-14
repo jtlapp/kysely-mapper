@@ -433,8 +433,8 @@ describe('update transformation', () => {
       Selectable<Database['users']>,
       Insertable<Database['users']>,
       Partial<Insertable<Database['users']>>,
-      ['id'],
       bigint,
+      ['id'],
       false,
       false,
       ReturnedUser
@@ -481,8 +481,8 @@ describe('update transformation', () => {
       Selectable<Database['users']>,
       Insertable<Database['users']>,
       UpdatingUser,
-      ['id'],
       bigint,
+      ['id'],
       false,
       false,
       ReturnedUser

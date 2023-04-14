@@ -20,11 +20,6 @@ describe('TableMapperOptions type checks', () => {
     new TableMapper<
       Database,
       'users',
-      ['id'],
-      ['*'],
-      Selectable<Users>,
-      Insertable<Users>,
-      Partial<Insertable<Users>>,
       ['id']
       // @ts-expect-error - invalid return column configuration
     >(db, 'users', { returnColumns: ['notThere'] });
@@ -37,6 +32,7 @@ describe('TableMapperOptions type checks', () => {
       Selectable<Users>,
       Insertable<Users>,
       Partial<Insertable<Users>>,
+      bigint,
       // @ts-expect-error - invalid return column configuration
       ['notThere']
     >(db, 'users', {});
@@ -49,6 +45,7 @@ describe('TableMapperOptions type checks', () => {
       Selectable<Users>,
       Insertable<Users>,
       Partial<Insertable<Users>>,
+      bigint,
       // @ts-expect-error - invalid return column configuration
       ['name', 'notThere']
     >(db, 'users', {});
@@ -56,11 +53,6 @@ describe('TableMapperOptions type checks', () => {
     new TableMapper<
       Database,
       'users',
-      ['id'],
-      ['*'],
-      Selectable<Users>,
-      Insertable<Users>,
-      Partial<Insertable<Users>>,
       ['id']
       // @ts-expect-error - invalid return column configuration
     >(db, 'users', { returnColumns: [''] });
@@ -68,11 +60,6 @@ describe('TableMapperOptions type checks', () => {
     new TableMapper<
       Database,
       'users',
-      ['id'],
-      ['*'],
-      Selectable<Users>,
-      Insertable<Users>,
-      Partial<Insertable<Users>>,
       ['id']
       // @ts-expect-error - invalid return column configuration
     >(db, 'users', { returnColumns: ['notThere'] });
@@ -87,6 +74,7 @@ describe('TableMapperOptions type checks', () => {
       Selectable<Users>,
       Insertable<Users>,
       Partial<Insertable<Users>>,
+      number,
       ReturnColumns
     > {}
     // @ts-expect-error - invalid return column configuration
@@ -102,7 +90,6 @@ describe('TableMapperOptions type checks', () => {
       Selectable<Users>,
       Insertable<Users>,
       Partial<Insertable<Users>>,
-      ['id'],
       number
     > {}
     new TestMapper(db, 'users', {
@@ -124,9 +111,7 @@ describe('TableMapperOptions type checks', () => {
       ['id'],
       ['*'],
       Selectable<Users>,
-      User,
-      Partial<Insertable<Users>>,
-      ['id']
+      User
     > {}
     // @ts-expect-error - invalid insert transform
     new TestMapper(db, 'users', { insertTransform: (user) => user });
@@ -143,8 +128,8 @@ describe('TableMapperOptions type checks', () => {
       Selectable<Users>,
       User,
       Partial<Insertable<Users>>,
-      ['id'],
       bigint,
+      ['id'],
       InsertReturnsSelectedObject
     > {}
     new TestMapper<false>(db, 'users', {
@@ -166,6 +151,7 @@ describe('TableMapperOptions type checks', () => {
       Selectable<Users>,
       Insertable<Users>,
       User,
+      bigint,
       ['id']
     > {}
     new TestMapper(db, 'users', {
@@ -185,8 +171,8 @@ describe('TableMapperOptions type checks', () => {
       User,
       Insertable<Users>,
       User | Partial<Insertable<Users>>,
-      ['id'],
       bigint,
+      ['id'],
       false,
       UpdateReturnsSelectedObjectWhenProvided
     > {}

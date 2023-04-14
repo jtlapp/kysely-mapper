@@ -16,10 +16,11 @@ import {
  * @typeparam SelectedObject Type of objects returned by select queries.
  * @typeparam InsertedObject Type of objects inserted into the table.
  * @typeparam UpdatingObject Type of objects used to update rows of the table.
+ * @typeparam ReturnCount Type of count query results.
  * @typeparam ReturnColumns Columns to return from the table on insert or
  *  update, except when explicitly requesting no columns. `['*']` returns
  *  all columns; `[]` returns none and is the default. May specify aliases.
- * @typeparam ReturnCount Type of count query results.
+ *  Defaults to `KeyColumns`.
  * @typeparam InsertReturnsSelectedObject Whether insert queries return
  *  `SelectedObject` or `DefaultReturnObject`.
  * @typeparam UpdateReturnsSelectedObjectWhenProvided Whether update queries
@@ -41,8 +42,8 @@ export interface TableMapperOptions<
   >,
   InsertedObject extends object = Insertable<DB[TB]>,
   UpdatingObject extends object = Partial<Insertable<DB[TB]>>,
-  ReturnColumns extends SelectionColumn<DB, TB>[] | ['*'] = [],
   ReturnCount = bigint,
+  ReturnColumns extends SelectionColumn<DB, TB>[] | ['*'] = KeyColumns,
   InsertReturnsSelectedObject extends boolean = false,
   UpdateReturnsSelectedObjectWhenProvided extends boolean = false,
   DefaultReturnObject extends object = ReturnColumns extends ['*']

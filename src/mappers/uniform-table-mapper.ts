@@ -50,8 +50,8 @@ export class UniformTableMapper<
   MappedObject,
   MappedObject,
   MappedObject | Partial<Insertable<DB[TB]>>,
-  ReturnColumns,
   ReturnCount,
+  ReturnColumns,
   true,
   true
 > {

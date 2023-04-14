@@ -22,7 +22,6 @@ export class UserTableMapperReturningNothing extends TableMapper<
   Selectable<Users>,
   Insertable<Users>,
   Partial<Insertable<Users>>,
-  [],
   number
 > {
   constructor(readonly db: Kysely<Database>) {
@@ -38,7 +37,6 @@ export class UserTableMapperReturningID extends TableMapper<
   Selectable<Users>,
   Insertable<Users>,
   Partial<Insertable<Users>>,
-  ['id'],
   number
 > {
   constructor(readonly db: Kysely<Database>) {
@@ -54,8 +52,8 @@ export class UserTableMapperReturningIDAndHandleAsH extends TableMapper<
   Selectable<Users>,
   Insertable<Users>,
   Partial<Insertable<Users>>,
-  ['id', 'handle as h'],
-  number
+  number,
+  ['id', 'handle as h']
 > {
   constructor(readonly db: Kysely<Database>) {
     super(db, 'users', {
@@ -73,8 +71,8 @@ export class UserTableMapperReturningAll extends TableMapper<
   Selectable<Users>,
   Insertable<Users>,
   Partial<Insertable<Users>>,
-  ['*'],
-  number
+  number,
+  ['*']
 > {
   constructor(readonly db: Kysely<Database>) {
     super(db, 'users', { returnColumns: ['*'], countTransform });

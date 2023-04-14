@@ -41,8 +41,8 @@ let postTableMapper: TableMapper<
   Selectable<Posts>,
   Insertable<Posts>,
   Partial<Insertable<Posts>>,
-  ['*'],
-  number
+  number,
+  ['*']
 >;
 let postTableMapperReturningIDAndTitleAsT: TableMapper<
   Database,
@@ -52,8 +52,8 @@ let postTableMapperReturningIDAndTitleAsT: TableMapper<
   Selectable<Posts>,
   Insertable<Posts>,
   Partial<Insertable<Posts>>,
-  ['id', 'title as t'],
-  number
+  number,
+  ['id', 'title as t']
 >;
 
 beforeAll(async () => {
@@ -78,11 +78,25 @@ ignore('requires return columns to have a consistent type', () => {
     // @ts-expect-error - actual and declared return types must match
     returnColumns: ['id', 'name'],
   });
-  new TableMapper<Database, 'users', any, any, any, ['id']>(db, 'users', {
+  new TableMapper<Database, 'users', ['id']>(db, 'users', {
     // @ts-expect-error - actual and declared return types must match
     returnColumns: ['id', 'name'],
   });
-  new TableMapper<Database, 'users', any, any, any, ['id', 'name']>(
+  new TableMapper<
+    Database,
+    'users',
+    [],
+    any,
+    any,
+    any,
+    any,
+    number,
+    ['id', 'name']
+  >(db, 'users', {
+    // @ts-expect-error - actual and declared return types must match
+    returnColumns: ['id'],
+  });
+  new TableMapper<Database, 'users', [], any, any, any, any, number, ['*']>(
     db,
     'users',
     {
@@ -90,19 +104,26 @@ ignore('requires return columns to have a consistent type', () => {
       returnColumns: ['id'],
     }
   );
-  new TableMapper<Database, 'users', any, any, any, ['*']>(db, 'users', {
-    // @ts-expect-error - actual and declared return types must match
-    returnColumns: ['id'],
-  });
-  new TableMapper<Database, 'users', any, any, any, []>(db, 'users', {
-    // @ts-expect-error - actual and declared return types must match
-    returnColumns: ['id'],
-  });
-  // TODO: not sure how to get this to error
-  new TableMapper<Database, 'users', any, any, any, ['id', 'name']>(
+  new TableMapper<Database, 'users', [], any, any, any, any, number, []>(
     db,
-    'users'
+    'users',
+    {
+      // @ts-expect-error - actual and declared return types must match
+      returnColumns: ['id'],
+    }
   );
+  // TODO: not sure how to get this to error
+  new TableMapper<
+    Database,
+    'users',
+    [],
+    any,
+    any,
+    any,
+    any,
+    number,
+    ['id', 'name']
+  >(db, 'users');
 });
 
 describe('insert an array of objects without transformation', () => {
@@ -336,7 +357,6 @@ describe('insertion transformation', () => {
     Selectable<Database['users']>,
     InsertedUser,
     Partial<InsertedUser>,
-    ['id'],
     number
   > {
     constructor(db: Kysely<Database>) {
@@ -389,8 +409,8 @@ describe('insertion transformation', () => {
       Selectable<Database['users']>,
       Insertable<Database['users']>,
       Partial<Insertable<Database['users']>>,
-      ['id'],
       number,
+      ['id'],
       false,
       false,
       ReturnedUser
@@ -432,8 +452,8 @@ describe('insertion transformation', () => {
       Selectable<Database['users']>,
       InsertedUser,
       Partial<Insertable<Database['users']>>,
-      ['id'],
       number,
+      ['id'],
       false,
       false,
       ReturnedUser
