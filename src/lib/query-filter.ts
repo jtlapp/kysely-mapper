@@ -26,24 +26,9 @@ export type QueryFilter<
   TB extends keyof DB & string,
   RE extends ReferenceExpression<DB, TB>
 > =
-  | BinaryOperationFilter<DB, TB, RE>
   | FieldMatchingFilter<DB, TB, RE>
   | WhereExpressionFactory<DB, TB>
   | Expression<any>;
-
-/**
- * A filter that is a binary operation, such as `eq` or `gt`.
- */
-// TODO: delete when done adding unbracketed binary operations
-export type BinaryOperationFilter<
-  DB,
-  TB extends keyof DB & string,
-  RE extends ReferenceExpression<DB, TB>
-> = [
-  lhs: RE,
-  op: ComparisonOperatorExpression,
-  rhs: OperandValueExpressionOrList<DB, TB, RE>
-];
 
 /**
  * A filter that matches columns against the fields of an object.
@@ -102,11 +87,6 @@ export function applyQueryFilter<
       qb = qb.where(db.dynamic.ref(column), '=', value) as QB;
     }
     return qb as unknown as QB;
-  }
-
-  // Process a binary operation filter.
-  if (Array.isArray(filter)) {
-    return qb.where(...filter) as QB;
   }
 
   throw Error('Unrecognized query filter');
