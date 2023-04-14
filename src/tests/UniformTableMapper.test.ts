@@ -143,15 +143,14 @@ it('inserts/updates/deletes a mapped object class w/ all custom transforms', asy
       handle: user.handle,
       email: user.email,
     }),
-    insertReturnTransform: (user, returns) => {
-      return new MappedUser(
+    insertReturnTransform: (user, returns) =>
+      new MappedUser(
         returns.id,
         user.firstName,
         user.lastName,
         user.handle,
         user.email
-      );
-    },
+      ),
     updateTransform: (user) => {
       if (!(user instanceof MappedUser)) {
         return user;
@@ -283,15 +282,14 @@ it('inserts/updates/deletes a mapped object class w/ default update transforms',
       handle: user.handle,
       email: user.email,
     }),
-    insertReturnTransform: (user, returns) => {
-      return new MappedUser(
+    insertReturnTransform: (user, returns) =>
+      new MappedUser(
         returns.id,
         user.firstName,
         user.lastName,
         user.handle,
         user.email
-      );
-    },
+      ),
     selectTransform: (row) => {
       const names = row.name.split(' ');
       return new MappedUser(row.id, names[0], names[1], row.handle, row.email);
