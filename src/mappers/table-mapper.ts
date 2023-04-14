@@ -28,8 +28,6 @@ import { AllSelection } from '../lib/kysely-types';
 import { MappingInsertQuery } from '../queries/insert-query';
 import { MappingUpdateQuery } from '../queries/update-query';
 
-// TODO: change [binary op] notation to three parameters
-
 /**
  * A mapper providing access to a single table.
  * @typeparam DB Interface whose fields are table names defining tables.
