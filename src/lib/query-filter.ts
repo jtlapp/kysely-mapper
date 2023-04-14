@@ -34,6 +34,7 @@ export type QueryFilter<
 /**
  * A filter that is a binary operation, such as `eq` or `gt`.
  */
+// TODO: delete when done adding unbracketed binary operations
 export type BinaryOperationFilter<
   DB,
   TB extends keyof DB & string,
@@ -66,33 +67,31 @@ export type FieldMatchingFilter<
 export function applyQueryFilter<
   DB,
   TB extends keyof DB & string,
-  QB1 extends AnyWhereInterface,
-  // TODO: revisit making QB1 and QB2 same kind of QB, such as via QB2 extends QB1
-  QB2 extends AnyWhereInterface,
+  QB extends AnyWhereInterface,
   RE extends ReferenceExpression<DB, TB>
->(db: Kysely<DB>, qb: QB1, filter: QueryFilter<DB, TB, RE>): QB2 {
+>(db: Kysely<DB>, qb: QB, filter: QueryFilter<DB, TB, RE>): QB {
   // Process a where expression factory.
   if (typeof filter === 'function') {
-    return qb.where(filter) as QB2;
+    return qb.where(filter) as QB;
   }
 
   // Process a query expression filter. Check for expressions
   // first because they could potentially be plain objects.
   if ('expressionType' in filter) {
-    return qb.where(filter) as QB2;
+    return qb.where(filter) as QB;
   }
 
   // Process a field matching filter. `{}` matches all rows.
   if (filter.constructor === Object) {
     for (const [column, value] of Object.entries(filter)) {
-      qb = qb.where(db.dynamic.ref(column), '=', value) as QB1;
+      qb = qb.where(db.dynamic.ref(column), '=', value) as QB;
     }
-    return qb as unknown as QB2;
+    return qb as unknown as QB;
   }
 
   // Process a binary operation filter.
   if (Array.isArray(filter)) {
-    return qb.where(...filter) as QB2;
+    return qb.where(...filter) as QB;
   }
 
   throw Error('Unrecognized query filter');
@@ -109,19 +108,17 @@ export function applyQueryFilter<
 export function applyQueryFilterOrOp<
   DB,
   TB extends keyof DB & string,
-  QB1 extends AnyWhereInterface,
-  // TODO: revisit making QB1 and QB2 same kind of QB, such as via QB2 extends QB1
-  QB2 extends AnyWhereInterface,
+  QB extends AnyWhereInterface,
   RE extends ReferenceExpression<DB, TB>
 >(
   db: Kysely<DB>,
-  qb: QB1,
+  qb: QB,
   filterOrLHS: QueryFilter<DB, TB, RE> | RE,
   op?: ComparisonOperatorExpression,
   rhs?: OperandValueExpressionOrList<DB, TB, RE>
-): QB2 {
+): QB {
   if (op === undefined) {
     return applyQueryFilter(db, qb, filterOrLHS as QueryFilter<DB, TB, RE>);
   }
-  return qb.where(filterOrLHS as RE, op, rhs!) as QB2;
+  return qb.where(filterOrLHS as RE, op, rhs!) as QB;
 }
