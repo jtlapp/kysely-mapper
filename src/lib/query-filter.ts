@@ -58,18 +58,33 @@ export type FieldMatchingFilter<
 
 /**
  * Returns a query builder that constrains the provided query builder
- * according to the provided query filter.
+ * according to the provided query filter or binary operation.
  * @param base The Kysely mapper that is used to create references.
  * @param qb The query builder to constrain.
- * @param filter The query filter.
- * @returns A query builder constrained for the provided query filter.
+ * @param filterOrLHS The query filter or left-hand side of a binary operation.
+ * @param op The operator of a binary operation.
+ * @param rhs The right-hand side of a binary operation.
+ * @returns A query builder constrained for the provided query filter
+ *  or binary operation.
  */
 export function applyQueryFilter<
   DB,
   TB extends keyof DB & string,
   QB extends AnyWhereInterface,
   RE extends ReferenceExpression<DB, TB>
->(db: Kysely<DB>, qb: QB, filter: QueryFilter<DB, TB, RE>): QB {
+>(
+  db: Kysely<DB>,
+  qb: QB,
+  filterOrLHS: QueryFilter<DB, TB, RE> | RE,
+  op?: ComparisonOperatorExpression,
+  rhs?: OperandValueExpressionOrList<DB, TB, RE>
+): QB {
+  // Process a binary operation.
+  if (op !== undefined) {
+    return qb.where(filterOrLHS as RE, op, rhs!) as QB;
+  }
+  const filter = filterOrLHS as QueryFilter<DB, TB, RE>;
+
   // Process a where expression factory.
   if (typeof filter === 'function') {
     return qb.where(filter) as QB;
@@ -95,30 +110,4 @@ export function applyQueryFilter<
   }
 
   throw Error('Unrecognized query filter');
-}
-
-/**
- * Returns a query builder that constrains the provided query builder
- * according to the provided query filter or binary operation.
- * @param base The Kysely mapper that is used to create references.
- * @param qb The query builder to constrain.
- * @param filter The query filter.
- * @returns A query builder constrained for the provided query filter.
- */
-export function applyQueryFilterOrBinaryOp<
-  DB,
-  TB extends keyof DB & string,
-  QB extends AnyWhereInterface,
-  RE extends ReferenceExpression<DB, TB>
->(
-  db: Kysely<DB>,
-  qb: QB,
-  filterOrLHS: QueryFilter<DB, TB, RE> | RE,
-  op?: ComparisonOperatorExpression,
-  rhs?: OperandValueExpressionOrList<DB, TB, RE>
-): QB {
-  if (op === undefined) {
-    return applyQueryFilter(db, qb, filterOrLHS as QueryFilter<DB, TB, RE>);
-  }
-  return qb.where(filterOrLHS as RE, op, rhs!) as QB;
 }

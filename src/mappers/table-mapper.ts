@@ -15,11 +15,7 @@ import {
   OperandValueExpressionOrList,
 } from 'kysely';
 
-import {
-  QueryFilter,
-  applyQueryFilter,
-  applyQueryFilterOrBinaryOp,
-} from '../lib/query-filter';
+import { QueryFilter, applyQueryFilter } from '../lib/query-filter';
 import {
   ObjectWithKeys,
   SelectedRow,
@@ -263,13 +259,7 @@ export class TableMapper<
       this.db,
       filterOrLHS === undefined
         ? this.getSelectQB()
-        : applyQueryFilterOrBinaryOp(
-            this.db,
-            this.getSelectQB(),
-            filterOrLHS,
-            op,
-            rhs
-          ),
+        : applyQueryFilter(this.db, this.getSelectQB(), filterOrLHS, op, rhs),
       this.options.selectTransform
     );
   }
