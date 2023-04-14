@@ -162,12 +162,36 @@ export class TableMapper<
   // }
 
   /**
-   * Returns a mapping query for deleting rows from the table.
-   * @param filter Optional filter for selecting rows to delete.
+   * Returns a mapping query for deleting the rows of the table that match
+   * the provided filter or Kysely binary operation.
+   * @param filter Optional filter to apply to the query or the left-hand-side
+   *  of a Kysely binary operation.
    * @returns A mapping query for deleting rows.
    */
   delete<RE extends ReferenceExpression<DB, TB>>(
+    lhs: RE,
+    op: ComparisonOperatorExpression,
+    rhs: OperandValueExpressionOrList<DB, TB, RE>
+  ): MappingDeleteQuery<
+    DB,
+    TB,
+    DeleteQueryBuilder<DB, TB, DeleteResult>,
+    ReturnCount
+  >;
+
+  delete<RE extends ReferenceExpression<DB, TB>>(
     filter?: QueryFilter<DB, TB, RE>
+  ): MappingDeleteQuery<
+    DB,
+    TB,
+    DeleteQueryBuilder<DB, TB, DeleteResult>,
+    ReturnCount
+  >;
+
+  delete<RE extends ReferenceExpression<DB, TB>>(
+    filterOrLHS?: QueryFilter<DB, TB, RE> | RE,
+    op?: ComparisonOperatorExpression,
+    rhs?: OperandValueExpressionOrList<DB, TB, RE>
   ): MappingDeleteQuery<
     DB,
     TB,
@@ -176,9 +200,9 @@ export class TableMapper<
   > {
     return new MappingDeleteQuery(
       this.db,
-      filter === undefined
+      filterOrLHS === undefined
         ? this.getDeleteQB()
-        : applyQueryFilter(this.db, this.getDeleteQB(), filter),
+        : applyQueryFilter(this.db, this.getDeleteQB(), filterOrLHS, op, rhs),
       this.countTransform
     );
   }
@@ -218,8 +242,9 @@ export class TableMapper<
 
   /**
    * Returns a mapping query for selecting rows of the table that match
-   *  the provided filter.
-   * @param filter Optional filter to apply to the query.
+   *  the provided filter or Kysely binary operation.
+   * @param filter Optional filter to apply to the query or the left-hand-side
+   *  of a Kysely binary operation.
    * @returns A mapping query for retrieving rows as objects.
    */
   select<RE extends ReferenceExpression<DB, TB>>(
@@ -266,12 +291,45 @@ export class TableMapper<
 
   /**
    * Returns a mapping query for updating rows of the table that match
-   *  the provided filter.
-   * @param filter Optional filter to apply to the query.
+   *  the provided filter or Kysely binary operation.
+   * @param filter Optional filter to apply to the query or the left-hand-side
+   *  of a Kysely binary operation.
    * @returns A mapping query for updating table rows.
    */
   update<RE extends ReferenceExpression<DB, TB>>(
+    lhs: RE,
+    op: ComparisonOperatorExpression,
+    rhs: OperandValueExpressionOrList<DB, TB, RE>
+  ): MappingUpdateQuery<
+    DB,
+    TB,
+    UpdateQueryBuilder<DB, TB, TB, UpdateResult>,
+    UpdatingObject,
+    SelectedObject,
+    ReturnColumns,
+    ReturnCount,
+    UpdateReturnsSelectedObjectWhenProvided,
+    DefaultReturnObject
+  >;
+
+  update<RE extends ReferenceExpression<DB, TB>>(
     filter?: QueryFilter<DB, TB, RE>
+  ): MappingUpdateQuery<
+    DB,
+    TB,
+    UpdateQueryBuilder<DB, TB, TB, UpdateResult>,
+    UpdatingObject,
+    SelectedObject,
+    ReturnColumns,
+    ReturnCount,
+    UpdateReturnsSelectedObjectWhenProvided,
+    DefaultReturnObject
+  >;
+
+  update<RE extends ReferenceExpression<DB, TB>>(
+    filterOrLHS?: QueryFilter<DB, TB, RE> | RE,
+    op?: ComparisonOperatorExpression,
+    rhs?: OperandValueExpressionOrList<DB, TB, RE>
   ): MappingUpdateQuery<
     DB,
     TB,
@@ -285,9 +343,9 @@ export class TableMapper<
   > {
     return new MappingUpdateQuery(
       this.db,
-      filter === undefined
+      filterOrLHS === undefined
         ? this.getUpdateQB()
-        : applyQueryFilter(this.db, this.getUpdateQB(), filter),
+        : applyQueryFilter(this.db, this.getUpdateQB(), filterOrLHS, op, rhs),
       this.countTransform,
       this.options.updateTransform,
       this.options.returnColumns,

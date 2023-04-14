@@ -236,7 +236,7 @@ it('inserts/updates/deletes a mapped object class w/ all custom transforms', asy
 
   // test updating a column with returns
   const updateColumnReturns = await userMapper
-    .update(['id', '=', insertReturn.serialNo])
+    .update('id', '=', insertReturn.serialNo)
     .getAll({
       name: 'Foo Foo',
     });

@@ -236,7 +236,7 @@ describe('updating rows via TableMapper', () => {
 
     const updateValues = { email: 'new.email@xyz.pdq' };
     const updateCount = await userMapperReturningAll
-      .update(['id', '>', insertReturns[0].id])
+      .update('id', '>', insertReturns[0].id)
       .getCount(updateValues);
     expect(updateCount).toEqual(2);
 
@@ -310,11 +310,11 @@ describe('updating rows via TableMapper', () => {
       )
       .getAll({ email: 'abc@def.ghi' });
     // @ts-expect-error - table must have all filter fields
-    userMapperReturningID.update(['notThere', '=', 'foo']).getAll({
+    userMapperReturningID.update('notThere', '=', 'foo').getAll({
       email: 'abc@def.ghi',
     });
     // @ts-expect-error - table must have all filter fields
-    userMapperReturningID.update(['notThere', '=', 'foo']).getAll({
+    userMapperReturningID.update('notThere', '=', 'foo').getAll({
       email: 'abc@def.ghi',
     });
     userMapperReturningID

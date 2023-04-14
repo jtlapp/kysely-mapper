@@ -123,6 +123,19 @@ describe('deleting rows via TableMapper', () => {
     expect(count2).toEqual(1);
   });
 
+  it('deletes rows specified via binary operation', async () => {
+    await userMapper.insert().run(USERS);
+
+    const count1 = await userMapper
+      .delete('name', '=', USERS[0].name)
+      .getCount();
+    expect(count1).toEqual(2);
+
+    const users = await userMapper.select().getAll();
+    expect(users.length).toEqual(1);
+    expect(users[0].handle).toEqual(USERS[1].handle);
+  });
+
   it('modifies a delete query builder', async () => {
     await userMapper.insert().run(USERS);
     await userMapper.insert().run({ ...USERS[1], handle: 'user4' });
@@ -182,7 +195,7 @@ describe('deleting rows via TableMapper', () => {
     // @ts-expect-error - table must have all filter fields
     userMapper.delete({ notThere: 'xyz' });
     // @ts-expect-error - table must have all filter fields
-    userMapper.delete(['notThere', '=', 'foo']);
+    userMapper.delete('notThere', '=', 'foo');
     // @ts-expect-error - doesn't allow plain string expression filters
     userMapper.delete("name = 'John Doe'");
     userMapper.delete(({ or, cmpr }) =>
