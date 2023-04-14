@@ -5,7 +5,7 @@ import {
   UpdateResult,
   Updateable,
 } from 'kysely';
-import { ObjectWithKeys } from '../lib/type-utils';
+import { ObjectWithKeys, SelectionColumn } from '../lib/type-utils';
 
 // TODO: look into factoring out methods into base classes
 
@@ -18,7 +18,7 @@ export class MappingUpdateQuery<
   QB extends UpdateQueryBuilder<DB, TB, TB, UpdateResult>,
   UpdatingObject extends object,
   SelectedObject extends object,
-  ReturnColumns extends (keyof Selectable<DB[TB]> & string)[] | ['*'],
+  ReturnColumns extends SelectionColumn<DB, TB>[] | ['*'],
   ReturnCount,
   UpdateReturnsSelectedObjectWhenProvided extends boolean,
   DefaultReturnObject extends object

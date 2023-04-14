@@ -44,18 +44,21 @@ export class UserTableMapperReturningID extends TableMapper<
   }
 }
 
-export class UserTableMapperReturningIDAndHandle extends TableMapper<
+export class UserTableMapperReturningIDAndHandleAsH extends TableMapper<
   Database,
   'users',
   ['*'],
   Selectable<Users>,
   Insertable<Users>,
   Partial<Insertable<Users>>,
-  ['id', 'handle'],
+  ['id', 'handle as h'],
   number
 > {
   constructor(readonly db: Kysely<Database>) {
-    super(db, 'users', { returnColumns: ['id', 'handle'], countTransform });
+    super(db, 'users', {
+      returnColumns: ['id', 'handle as h'],
+      countTransform,
+    });
   }
 }
 

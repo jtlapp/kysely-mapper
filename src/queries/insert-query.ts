@@ -6,7 +6,7 @@ import {
   Insertable,
 } from 'kysely';
 
-import { ObjectWithKeys } from '../lib/type-utils';
+import { ObjectWithKeys, SelectionColumn } from '../lib/type-utils';
 
 // TODO: see what else should be made readonly
 // TODO: freeze objects
@@ -20,7 +20,7 @@ export class MappingInsertQuery<
   QB extends InsertQueryBuilder<DB, TB, InsertResult>,
   InsertedObject extends object,
   SelectedObject extends object,
-  ReturnColumns extends (keyof Selectable<DB[TB]> & string)[] | ['*'],
+  ReturnColumns extends SelectionColumn<DB, TB>[] | ['*'],
   InsertReturnsSelectedObject extends boolean,
   DefaultReturnObject extends object
 > {

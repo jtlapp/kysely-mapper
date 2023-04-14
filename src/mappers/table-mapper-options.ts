@@ -9,12 +9,14 @@ import {
  * Options governing TableMapper behavior.
  * @typeparam DB Interface whose fields are table names defining tables.
  * @typeparam TB Name of the table.
+ * @typeparam SelectedColumns Columns to return from selection queries.
+ *  Defaults to `['*']`, returning all columns. May specify aliases.
  * @typeparam SelectedObject Type of objects returned by select queries.
  * @typeparam InsertedObject Type of objects inserted into the table.
  * @typeparam UpdatingObject Type of objects used to update rows of the table.
  * @typeparam ReturnColumns Columns to return from the table on insert or
  *  update, except when explicitly requesting no columns. `['*']` returns
- *  all columns; `[]` returns none and is the default.
+ *  all columns; `[]` returns none and is the default. May specify aliases.
  * @typeparam ReturnCount Type of count query results.
  * @typeparam InsertReturnsSelectedObject Whether insert queries return
  *  `SelectedObject` or `DefaultReturnObject`.
@@ -36,8 +38,7 @@ export interface TableMapperOptions<
   >,
   InsertedObject extends object = Insertable<DB[TB]>,
   UpdatingObject extends object = Partial<Insertable<DB[TB]>>,
-  // TODO: support aliases in ReturnColumns and test
-  ReturnColumns extends (keyof Selectable<DB[TB]> & string)[] | ['*'] = [],
+  ReturnColumns extends SelectionColumn<DB, TB>[] | ['*'] = [],
   ReturnCount = bigint,
   InsertReturnsSelectedObject extends boolean = false,
   UpdateReturnsSelectedObjectWhenProvided extends boolean = false,

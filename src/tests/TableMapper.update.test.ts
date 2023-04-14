@@ -6,7 +6,7 @@ import { Database } from './utils/test-tables';
 import {
   UserTableMapperReturningDefault,
   UserTableMapperReturningID,
-  UserTableMapperReturningIDAndHandle,
+  UserTableMapperReturningIDAndHandleAsH,
   UserTableMapperReturningAll,
   UserTableMapperReturningNothing,
 } from './utils/test-mappers';
@@ -24,7 +24,7 @@ let db: Kysely<Database>;
 let userMapperReturningDefault: UserTableMapperReturningDefault;
 let userMapperReturningNothing: UserTableMapperReturningNothing;
 let userMapperReturningID: UserTableMapperReturningID;
-let userMapperReturningIDAndHandle: UserTableMapperReturningIDAndHandle;
+let userMapperReturningIDAndHandleAsH: UserTableMapperReturningIDAndHandleAsH;
 let userMapperReturningAll: UserTableMapperReturningAll;
 
 beforeAll(async () => {
@@ -32,7 +32,8 @@ beforeAll(async () => {
   userMapperReturningDefault = new UserTableMapperReturningDefault(db);
   userMapperReturningNothing = new UserTableMapperReturningNothing(db);
   userMapperReturningID = new UserTableMapperReturningID(db);
-  userMapperReturningIDAndHandle = new UserTableMapperReturningIDAndHandle(db);
+  userMapperReturningIDAndHandleAsH =
+    new UserTableMapperReturningIDAndHandleAsH(db);
   userMapperReturningAll = new UserTableMapperReturningAll(db);
 });
 beforeEach(() => resetDB(db));
@@ -134,13 +135,15 @@ describe('updating rows via TableMapper', () => {
 
     // Verify a different change on the same row, returning multiple columns.
     const updateValues2 = { name: 'Sue' };
-    const updateReturns2 = await userMapperReturningIDAndHandle
+    const updateReturns2 = await userMapperReturningIDAndHandleAsH
       .update({ email: updateValues1.email })
       .getAll(updateValues2);
+    updateReturns2[0].id; // ensure key is accessible
+    updateReturns2[0].h; // ensure key is accessible
     expect(updateReturns2).toEqual([
       {
         id: insertReturn.id,
-        handle: USERS[1].handle,
+        h: USERS[1].handle,
       },
     ]);
     readUser = await userMapperReturningID
@@ -150,17 +153,24 @@ describe('updating rows via TableMapper', () => {
 
     // Verify that update changes all required rows.
     const updateValues3 = { name: 'Replacement Sue' };
-    const updateReturns3 = await userMapperReturningIDAndHandle
+    const updateReturns3 = await userMapperReturningIDAndHandleAsH
       .update({ name: 'Sue' })
       .getAll(updateValues3);
     expect(updateReturns3.length).toEqual(3);
-    expect(updateReturns3[0].handle).toEqual(USERS[0].handle);
-    expect(updateReturns3[1].handle).toEqual(USERS[1].handle);
-    expect(updateReturns3[2].handle).toEqual(USERS[2].handle);
+    expect(updateReturns3[0].h).toEqual(USERS[0].handle);
+    expect(updateReturns3[1].h).toEqual(USERS[1].handle);
+    expect(updateReturns3[2].h).toEqual(USERS[2].handle);
     const readUsers = await userMapperReturningID
       .select('name', '=', updateValues3.name)
       .getAll();
     expect(readUsers.length).toEqual(3);
+
+    ignore('check return types', () => {
+      // @ts-expect-error - check return types
+      updateReturns2[0].title;
+      // @ts-expect-error - check return types
+      updateReturns2[0].userId;
+    });
   });
 
   it('update returns void when defaulting to no return columns', async () => {
@@ -214,13 +224,13 @@ describe('updating rows via TableMapper', () => {
     const insertReturns = await userMapperReturningID.insert().getAll(USERS);
 
     const updateValues = { email: 'new.email@xyz.pdq' };
-    const updateReturns = await userMapperReturningIDAndHandle
+    const updateReturns = await userMapperReturningIDAndHandleAsH
       .update()
       .getAll(updateValues);
 
     const expectedUsers = USERS.map((user, i) => ({
       id: insertReturns[i].id,
-      handle: user.handle,
+      h: user.handle,
     }));
     expect(updateReturns).toEqual(expectedUsers);
 

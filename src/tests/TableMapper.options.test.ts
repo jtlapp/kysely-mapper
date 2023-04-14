@@ -5,6 +5,7 @@ import { createDB, resetDB, destroyDB } from './utils/test-setup';
 import { Database, Users } from './utils/test-tables';
 import { User } from './utils/test-types';
 import { ignore } from './utils/test-utils';
+import { SelectionColumn } from '../lib/type-utils';
 
 let db: Kysely<Database>;
 
@@ -72,8 +73,7 @@ describe('TableMapperOptions type checks', () => {
     >(db, 'users', { returnColumns: ['notThere'] });
 
     class TestMapper6<
-      // Be sure the following is the same as in TableMapper
-      ReturnColumns extends (keyof Selectable<Users> & string)[] = []
+      ReturnColumns extends SelectionColumn<Database, 'users'>[] | ['*'] = []
     > extends TableMapper<
       Database,
       'users',

@@ -43,14 +43,14 @@ let postTableMapper: TableMapper<
   ['*'],
   number
 >;
-let postTableMapperReturningIDAndTitle: TableMapper<
+let postTableMapperReturningIDAndTitleAsT: TableMapper<
   Database,
   'posts',
   ['*'],
   Selectable<Posts>,
   Insertable<Posts>,
   Partial<Insertable<Posts>>,
-  ['id', 'title'],
+  ['id', 'title as t'],
   number
 >;
 
@@ -63,8 +63,8 @@ beforeAll(async () => {
   postTableMapper = new TableMapper(db, 'posts', {
     countTransform: (count) => Number(count),
   });
-  postTableMapperReturningIDAndTitle = new TableMapper(db, 'posts', {
-    returnColumns: ['id', 'title'],
+  postTableMapperReturningIDAndTitleAsT = new TableMapper(db, 'posts', {
+    returnColumns: ['id', 'title as t'],
     countTransform: (count) => Number(count),
   });
 });
@@ -173,15 +173,22 @@ describe('insert an array of objects without transformation', () => {
     const post0 = Object.assign({}, POSTS[0], { userId: insertReturns[0].id });
     const post1 = Object.assign({}, POSTS[1], { userId: insertReturns[1].id });
     const post2 = Object.assign({}, POSTS[2], { userId: insertReturns[2].id });
-    const updatingPosts = await postTableMapperReturningIDAndTitle
+    const updateReturns = await postTableMapperReturningIDAndTitleAsT
       .insert()
       .getAll([post0, post1, post2]);
-    expect(updatingPosts.length).toEqual(3);
-    for (let i = 0; i < updatingPosts.length; i++) {
-      expect(updatingPosts[i].id).toBeGreaterThan(0);
-      expect(updatingPosts[i].title).toEqual(POSTS[i].title);
-      expect(Object.keys(updatingPosts[i]).length).toEqual(2);
+    expect(updateReturns.length).toEqual(3);
+    for (let i = 0; i < updateReturns.length; i++) {
+      expect(updateReturns[i].id).toBeGreaterThan(0);
+      expect(updateReturns[i].t).toEqual(POSTS[i].title);
+      expect(Object.keys(updateReturns[i]).length).toEqual(2);
     }
+
+    ignore('check return types', () => {
+      // @ts-expect-error - check return types
+      updateReturns[0].title;
+      // @ts-expect-error - check return types
+      updateReturns[0].userId;
+    });
   });
 
   it('inserts multiple returning no columns by default', async () => {
@@ -270,22 +277,29 @@ describe('inserting a single object without transformation', () => {
     expect(readUser0?.email).toEqual(USERS[0].email);
 
     const post0 = Object.assign({}, POSTS[0], { userId: insertReturn.id });
-    const updatingPost = await postTableMapperReturningIDAndTitle
+    const updateReturn = await postTableMapperReturningIDAndTitleAsT
       .insert()
       .getOne(post0);
-    expect(updatingPost.id).toBeGreaterThan(0);
-    expect(updatingPost.title).toEqual(POSTS[0].title);
-    expect(Object.keys(updatingPost).length).toEqual(2);
+    expect(updateReturn.id).toBeGreaterThan(0);
+    expect(updateReturn.t).toEqual(POSTS[0].title);
+    expect(Object.keys(updateReturn).length).toEqual(2);
 
     const readPost0 = await postTableMapper
       .select(({ and, cmpr }) =>
         and([
-          cmpr('id', '=', updatingPost.id),
-          cmpr('title', '=', updatingPost.title),
+          cmpr('id', '=', updateReturn.id),
+          cmpr('title', '=', updateReturn.t),
         ])
       )
       .getOne();
     expect(readPost0?.likeCount).toEqual(post0.likeCount);
+
+    ignore('check return types', () => {
+      // @ts-expect-error - check return types
+      updateReturn.title;
+      // @ts-expect-error - check return types
+      updateReturn.userId;
+    });
   });
 
   it('inserts one configured to return all columns', async () => {

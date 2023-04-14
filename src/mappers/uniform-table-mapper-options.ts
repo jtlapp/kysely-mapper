@@ -1,4 +1,4 @@
-import { Insertable, Selectable } from 'kysely';
+import { Insertable } from 'kysely';
 import { SelectableColumnTuple, SelectionColumn } from '../lib/type-utils';
 import { TableMapperOptions } from './table-mapper-options';
 
@@ -11,9 +11,12 @@ import { TableMapperOptions } from './table-mapper-options';
  *  as columns of the table.
  * @typeparam PrimaryKeyColumns Tuple of the names of the primary key columns.
  *  Defaults to `['id']`.
+ * @typeparam SelectedColumns Columns to return from selection queries.
+ *  Defaults to `['*']`, returning all columns. May specify aliases.
  * @typeparam ReturnColumns The columns that are returned from the database
  *  when selecting or updating rows, for use when creating the mapped objects.
- *  `['*']` returns all columns; `[]` returns none. Defaults to `PrimaryKeyColumns`.
+ *  `['*']` returns all columns; `[]` returns none. May specify aliases.
+ *  Defaults to `PrimaryKeyColumns`.
  * @typeparam ReturnCount Type of count query results.
  */
 export interface UniformTableMapperOptions<
@@ -22,8 +25,7 @@ export interface UniformTableMapperOptions<
   MappedObject extends object,
   PrimaryKeyColumns extends SelectableColumnTuple<DB[TB]>,
   SelectedColumns extends SelectionColumn<DB, TB>[] | ['*'],
-  // TODO: update the following type to support aliases
-  ReturnColumns extends (keyof Selectable<DB[TB]> & string)[] | ['*'],
+  ReturnColumns extends SelectionColumn<DB, TB>[] | ['*'],
   ReturnCount
 > extends TableMapperOptions<
     DB,

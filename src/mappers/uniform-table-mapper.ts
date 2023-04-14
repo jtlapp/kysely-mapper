@@ -25,10 +25,12 @@ export const DEFAULT_KEY = ['id'] as const;
  *  as columns of the table.
  * @typeparam PrimaryKeyColumns Tuple of the names of the primary key columns.
  *  Defaults to `['id']`.
+ * @typeparam SelectedColumns Columns to return from selection queries.
+ *  Defaults to `['*']`, returning all columns. May specify aliases.
+ * @typeparam ReturnCount Type of count query results.
  * @typeparam ReturnColumns The columns that are returned from the database
  *  when selecting or updating rows, for use when creating the mapped objects.
  *  `['*']` returns all columns; `[]` returns none. Defaults to `PrimaryKeyColumns`.
- * @typeparam ReturnCount Type of count query results.
  */
 export class UniformTableMapper<
   DB,
@@ -39,9 +41,7 @@ export class UniformTableMapper<
   ],
   SelectedColumns extends SelectionColumn<DB, TB>[] | ['*'] = ['*'],
   ReturnCount = bigint,
-  ReturnColumns extends
-    | (keyof Selectable<DB[TB]> & string)[]
-    | ['*'] = PrimaryKeyColumns
+  ReturnColumns extends SelectionColumn<DB, TB>[] | ['*'] = PrimaryKeyColumns
 > extends TableMapper<
   DB,
   TB,
@@ -88,7 +88,7 @@ function _prepareOptions<
   PrimaryKeyColumns extends SelectableColumnTuple<DB[TB]>,
   SelectedColumns extends SelectionColumn<DB, TB>[] | ['*'],
   ReturnCount,
-  ReturnColumns extends (keyof Selectable<DB[TB]> & string)[] | ['*']
+  ReturnColumns extends SelectionColumn<DB, TB>[] | ['*']
 >(
   options: UniformTableMapperOptions<
     DB,

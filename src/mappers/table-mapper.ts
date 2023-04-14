@@ -16,11 +16,7 @@ import {
 } from 'kysely';
 
 import { QueryFilter, applyQueryFilter } from '../lib/query-filter';
-import {
-  ObjectWithKeys,
-  SelectedRow,
-  SelectionColumn,
-} from '../lib/type-utils';
+import { SelectedRow, SelectionColumn } from '../lib/type-utils';
 import { TableMapperOptions } from './table-mapper-options';
 import { MappingDeleteQuery } from '../queries/delete-query';
 import { MappingSelectQuery } from '../queries/select-query';
@@ -32,13 +28,15 @@ import { MappingUpdateQuery } from '../queries/update-query';
  * A mapper providing access to a single table.
  * @typeparam DB Interface whose fields are table names defining tables.
  * @typeparam TB Name of the table.
+ * @typeparam SelectedColumns Columns to return from selection queries.
+ *  Defaults to `['*']`, returning all columns. May specify aliases.
  * @typeparam SelectedObject Type of objects returned by select queries.
  * @typeparam InsertedObject Type of objects inserted into the table.
  * @typeparam UpdatingObject Type of objects used to update rows of the table.
- * @typeparam ReturnCount Type of count query results.
  * @typeparam ReturnColumns Columns to return from the table on insert or
  *  update, except when explicitly requesting no columns. `['*']` returns
- *  all columns; `[]` returns none and is the default.
+ *  all columns; `[]` returns none and is the default. May specify aliases.
+ * @typeparam ReturnCount Type of count query results.
  * @typeparam InsertReturnsSelectedObject Whether insert queries return
  *  `SelectedObject` or `DefaultReturnObject`.
  * @typeparam UpdateReturnsSelectedObjectWhenProvided Whether update queries
@@ -59,14 +57,13 @@ export class TableMapper<
   >,
   InsertedObject extends object = Insertable<DB[TB]>,
   UpdatingObject extends object = Partial<Insertable<DB[TB]>>,
-  // TODO: support aliases in ReturnColumns and test
-  ReturnColumns extends (keyof Selectable<DB[TB]> & string)[] | ['*'] = [],
+  ReturnColumns extends SelectionColumn<DB, TB>[] | ['*'] = [],
   ReturnCount = bigint,
   InsertReturnsSelectedObject extends boolean = false,
   UpdateReturnsSelectedObjectWhenProvided extends boolean = false,
   DefaultReturnObject extends object = ReturnColumns extends ['*']
     ? Selectable<DB[TB]>
-    : ObjectWithKeys<Selectable<DB[TB]>, ReturnColumns>
+    : Selection<DB, TB, ReturnColumns[number]>
 > {
   #baseDeleteQB: DeleteQueryBuilder<DB, TB, DeleteResult> | null = null;
   #baseInsertQB: InsertQueryBuilder<DB, TB, InsertResult> | null = null;
@@ -77,7 +74,7 @@ export class TableMapper<
   protected readonly selectedColumns: SelectionColumn<DB, TB>[];
 
   /** Columns to return from the table on insert or update. */
-  protected returnColumns: (keyof Selectable<DB[TB]> & string)[] | ['*'];
+  protected returnColumns: SelectionColumn<DB, TB>[] | ['*'];
 
   /** Transforms query counts into `ReturnCount`. */
   protected countTransform: (count: bigint) => ReturnCount = (count) =>

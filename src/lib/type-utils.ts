@@ -13,13 +13,6 @@ import {
 } from 'kysely';
 
 /**
- * Converts a key of object O to a string of the form `${K} as ${string}`,
- * where K is the key.
- * @typeparam O Object whose keys are to be converted to strings.
- * @typeparam K Key of O.
- */
-
-/**
  * Type of the primary key tuple whose column names are given by `KA` and are
  * found in the table interface `T`. Supports up to 4 columns.
  * @typeparam T Table interface.
@@ -45,6 +38,7 @@ export type KeyTuple<
  * Evaluates to the subset of a the given object having the keys in
  * the provided string array of key names.
  */
+// TODO: can I use Kysely's Selection type everywhere instead?
 export type ObjectWithKeys<O, KeyArray extends string[]> = {
   [K in KeyArray[number]]: K extends keyof O ? O[K] : never;
 };
