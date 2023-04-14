@@ -23,13 +23,15 @@ export const DEFAULT_KEY = ['id'] as const;
  *  the table rows on inserts, updates, and selects. Updates may also be given
  *  as columns of the table.
  * @typeparam PrimaryKeyColumns Tuple of the names of the primary key columns.
- *  Defaults to `['id']`.
+ *  Defaults to `['id']`. By default, falsy primary keys are assumed to be
+ *  generated and `insertTransform` removes them from the insertion.
  * @typeparam SelectedColumns Columns to return from selection queries.
  *  Defaults to `['*']`, returning all columns. May specify aliases.
  * @typeparam ReturnCount Type of count query results.
  * @typeparam ReturnColumns The columns that are returned from the database
- *  when selecting or updating rows, for use when creating the mapped objects.
- *  `['*']` returns all columns; `[]` returns none. Defaults to `PrimaryKeyColumns`.
+ *  when selecting or updating rows, for use when creating mapped objects.
+ *  `['*']` returns all columns; `[]` returns none. By default, the columns
+ *  are added to objects returned on update. Defaults to `PrimaryKeyColumns`.
  */
 export class UniformTableMapper<
   DB,
@@ -101,7 +103,7 @@ function _prepareOptions<
 ) {
   const primaryKeyColumns = options.primaryKeyColumns ?? DEFAULT_KEY;
 
-  // Remove primary keys from inserted object, by default
+  // Remove falsy primary keys from inserted object, by default
   const insertTransform = (obj: MappedObject) => {
     const insertedValues = { ...obj };
     primaryKeyColumns.forEach((column) => {
