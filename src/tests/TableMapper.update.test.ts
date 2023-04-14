@@ -75,7 +75,7 @@ describe('updating rows via TableMapper', () => {
     expect(updateCount1).toEqual(1);
 
     const readUser1 = await userMapperReturningID
-      .select(['id', '=', insertReturn0.id])
+      .select('id', '=', insertReturn0.id)
       .getOne();
     expect(readUser1?.email).toEqual(updateValues.email);
 
@@ -85,7 +85,7 @@ describe('updating rows via TableMapper', () => {
     expect(updateCount2).toEqual(2);
 
     const readUsers = await userMapperReturningID
-      .select(['name', '=', 'Sue'])
+      .select('name', '=', 'Sue')
       .getAll();
     expect(readUsers.length).toEqual(2);
     expect(readUsers[0].email).toEqual(updateValues.email);
@@ -102,9 +102,7 @@ describe('updating rows via TableMapper', () => {
         name: 'Every User 2',
       });
     expect(update).toEqual({ id: 1 });
-    const readUser2 = await userMapperReturningID
-      .select(['id', '=', 1])
-      .getOne();
+    const readUser2 = await userMapperReturningID.select('id', '=', 1).getOne();
     expect(readUser2?.name).toEqual('Every User 2');
 
     const updateCount = await userMapperReturningID.update().getCount({
@@ -130,7 +128,7 @@ describe('updating rows via TableMapper', () => {
       .getAll(updateValues1);
     expect(updateReturns1).toEqual([{ id: insertReturn.id }]);
     let readUser = await userMapperReturningID
-      .select(['id', '=', insertReturn.id])
+      .select('id', '=', insertReturn.id)
       .getOne();
     expect(readUser?.email).toEqual(updateValues1.email);
 
@@ -146,7 +144,7 @@ describe('updating rows via TableMapper', () => {
       },
     ]);
     readUser = await userMapperReturningID
-      .select(['id', '=', insertReturn.id])
+      .select('id', '=', insertReturn.id)
       .getOne();
     expect(readUser?.name).toEqual(updateValues2.name);
 
@@ -160,7 +158,7 @@ describe('updating rows via TableMapper', () => {
     expect(updateReturns3[1].handle).toEqual(USERS[1].handle);
     expect(updateReturns3[2].handle).toEqual(USERS[2].handle);
     const readUsers = await userMapperReturningID
-      .select(['name', '=', updateValues3.name])
+      .select('name', '=', updateValues3.name)
       .getAll();
     expect(readUsers.length).toEqual(3);
   });
@@ -243,7 +241,7 @@ describe('updating rows via TableMapper', () => {
     expect(updateCount).toEqual(2);
 
     const readUsers = await userMapperReturningID
-      .select(['id', '>', insertReturns[0].id])
+      .select('id', '>', insertReturns[0].id)
       .getAll();
     expect(readUsers.length).toEqual(2);
     for (const user of readUsers) {
@@ -261,7 +259,7 @@ describe('updating rows via TableMapper', () => {
     expect(updateCount).toEqual(BigInt(2));
 
     const readUsers = await userMapperReturningID
-      .select(['id', '>', insertReturns[0].id])
+      .select('id', '>', insertReturns[0].id)
       .getAll();
     expect(readUsers.length).toEqual(2);
     for (const user of readUsers) {

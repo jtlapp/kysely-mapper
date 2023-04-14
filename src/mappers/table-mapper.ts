@@ -11,6 +11,8 @@ import {
   DeleteResult,
   UpdateResult,
   UpdateQueryBuilder,
+  ComparisonOperatorExpression,
+  OperandValueExpressionOrList,
 } from 'kysely';
 
 import { QueryFilter, applyQueryFilter } from '../lib/query-filter';
@@ -229,6 +231,18 @@ export class TableMapper<
    * @param filter Optional filter to apply to the query.
    * @returns A mapping query for retrieving rows as objects.
    */
+  select<RE extends ReferenceExpression<DB, TB>>(
+    lhs: RE,
+    op: ComparisonOperatorExpression,
+    rhs: OperandValueExpressionOrList<DB, TB, RE>
+  ): MappingSelectQuery<
+    DB,
+    TB,
+    SelectedColumns,
+    SelectedObject,
+    SelectQueryBuilder<DB, TB, object>
+  >;
+
   select<
     RE extends ReferenceExpression<DB, TB>,
     QB extends SelectQueryBuilder<DB, TB, object>
@@ -240,12 +254,44 @@ export class TableMapper<
     SelectedColumns,
     SelectedObject,
     SelectQueryBuilder<DB, TB, object>
+  >;
+
+  select<
+    RE extends ReferenceExpression<DB, TB>,
+    QB extends SelectQueryBuilder<DB, TB, object>
+  >(
+    filterOrLHS?:
+      | QueryFilter<DB, TB, RE, SelectQueryBuilder<DB, TB, object>, QB>
+      | RE,
+    op?: ComparisonOperatorExpression,
+    rhs?: OperandValueExpressionOrList<DB, TB, RE>
+  ): MappingSelectQuery<
+    DB,
+    TB,
+    SelectedColumns,
+    SelectedObject,
+    SelectQueryBuilder<DB, TB, object>
   > {
     return new MappingSelectQuery(
       this.db,
-      filter === undefined
+      filterOrLHS === undefined
         ? this.getSelectQB()
-        : applyQueryFilter(this.db, this.getSelectQB(), filter),
+        : op === undefined
+        ? applyQueryFilter(
+            this.db,
+            this.getSelectQB(),
+            filterOrLHS as QueryFilter<
+              DB,
+              TB,
+              RE,
+              SelectQueryBuilder<DB, TB, object>,
+              QB
+            >
+          )
+        : // Not sure why this `where` cast is necessary.
+          (
+            this.getSelectQB().where as SelectQueryBuilder<DB, TB, any>['where']
+          )(filterOrLHS as RE, op, rhs!),
       this.options.selectTransform
     );
   }

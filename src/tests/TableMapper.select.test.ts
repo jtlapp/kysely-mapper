@@ -134,9 +134,9 @@ describe('general selection', () => {
       or([cmpr('notThere', '=', 'Sue')])
     );
     // @ts-expect-error - binary op filter fields must be valid
-    userMapper.select(['notThere', '=', 'foo']);
+    userMapper.select('notThere', '=', 'foo');
     // @ts-expect-error - binary op filter fields must be valid
-    userMapper.select(['users.notThere', '=', 'foo']);
+    userMapper.select('users.notThere', '=', 'foo');
   });
 });
 
@@ -185,13 +185,13 @@ describe('select() getAll()', () => {
     await userMapper.insert().run(USERS);
 
     // Test selecting by condition (with results)
-    let users = await userMapper.select(['name', '=', USERS[0].name]).getAll();
+    let users = await userMapper.select('name', '=', USERS[0].name).getAll();
     expect(users.length).toEqual(2);
     expect(users[0].handle).toEqual(USERS[0].handle);
     expect(users[1].handle).toEqual(USERS[2].handle);
 
     // Test selecting by condition (no results)
-    users = await userMapper.select(['name', '=', 'nonexistent']).getAll();
+    users = await userMapper.select('name', '=', 'nonexistent').getAll();
     expect(users.length).toEqual(0);
   });
 
@@ -231,13 +231,13 @@ describe('select() getAll()', () => {
     await userMapper.insert().run(USERS);
 
     // Test selecting by condition (with results)
-    let users = await userMapper.select(['name', '=', USERS[0].name]).getAll();
+    let users = await userMapper.select('name', '=', USERS[0].name).getAll();
     expect(users.length).toEqual(2);
     expect(users[0].handle).toEqual(USERS[0].handle);
     expect(users[1].handle).toEqual(USERS[2].handle);
 
     // Test selecting by condition (no results)
-    users = await userMapper.select(['name', '=', 'nonexistent']).getAll();
+    users = await userMapper.select('name', '=', 'nonexistent').getAll();
     expect(users.length).toEqual(0);
   });
 
@@ -280,7 +280,7 @@ describe('select() getAll()', () => {
     (await userMapper.select({ name: "Sue" }).getAll())[0].notThere;
     // @ts-expect-error - only table columns are accessible w/ op filter
     // prettier-ignore
-    (await userMapper.select(["name", "=", "Sue"]).getAll())[0].notThere;
+    (await userMapper.select("name", "=", "Sue").getAll())[0].notThere;
     // prettier-ignore
     (
         await userMapper
@@ -328,11 +328,11 @@ describe('select() getOne()', () => {
     await userMapper.insert().run(USERS);
 
     // Test selecting by condition (with result)
-    let user = await userMapper.select(['name', '=', USERS[0].name]).getOne();
+    let user = await userMapper.select('name', '=', USERS[0].name).getOne();
     expect(user?.handle).toEqual(USERS[0].handle);
 
     // Test selecting by condition (no result)
-    user = await userMapper.select(['name', '=', 'nonexistent']).getOne();
+    user = await userMapper.select('name', '=', 'nonexistent').getOne();
     expect(user).toBeNull();
   });
 
@@ -375,11 +375,11 @@ describe('select() getOne()', () => {
     await userMapper.insert().run(USERS);
 
     // Test selecting by condition (with result)
-    let user = await userMapper.select(['name', '=', USERS[0].name]).getOne();
+    let user = await userMapper.select('name', '=', USERS[0].name).getOne();
     expect(user?.handle).toEqual(USERS[0].handle);
 
     // Test selecting by condition (no result)
-    user = await userMapper.select(['name', '=', 'nonexistent']).getOne();
+    user = await userMapper.select('name', '=', 'nonexistent').getOne();
     expect(user).toBeNull();
   });
 
@@ -408,7 +408,7 @@ describe('select() getOne()', () => {
     (await userMapper.select({ name: 'Sue' }).getOne()).notThere;
     // @ts-expect-error - only table columns are accessible w/ op filter
     // prettier-ignore
-    (await userMapper.select(["name", "=", "Sue"]).getOne()).notThere;
+    (await userMapper.select("name", "=", "Sue").getOne()).notThere;
     // prettier-ignore
     (
       await userMapper

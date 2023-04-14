@@ -244,7 +244,7 @@ describe('inserting a single object without transformation', () => {
     expect(success).toBe(true);
 
     const readUser0 = await userMapperReturningAll
-      .select(['email', '=', USERS[0].email])
+      .select('email', '=', USERS[0].email)
       .getOne();
     expect(readUser0?.email).toEqual(USERS[0].email);
   });
@@ -254,7 +254,7 @@ describe('inserting a single object without transformation', () => {
     expect(success).toBe(true);
 
     const readUser0 = await userMapperReturningAll
-      .select(['email', '=', USERS[0].email])
+      .select('email', '=', USERS[0].email)
       .getOne();
     expect(readUser0?.email).toEqual(USERS[0].email);
   });
@@ -265,7 +265,7 @@ describe('inserting a single object without transformation', () => {
     expect(Object.keys(insertReturn).length).toEqual(1);
 
     const readUser0 = await userMapperReturningAll
-      .select(['id', '=', insertReturn.id])
+      .select('id', '=', insertReturn.id)
       .getOne();
     expect(readUser0?.email).toEqual(USERS[0].email);
 
@@ -352,7 +352,7 @@ describe('insertion transformation', () => {
 
     await insertTransformMapper.insert().getAll([insertedUser2, insertedUser3]);
     const readUsers = await insertTransformMapper
-      .select(['id', '>', insertReturn.id])
+      .select('id', '>', insertReturn.id)
       .getAll();
     expect(readUsers.length).toEqual(2);
     expect(readUsers[0].name).toEqual(
