@@ -64,6 +64,34 @@ export class MappingUpdateQuery<
   }
 
   /**
+   * Modifies the underlying Kysely query builder.
+   * @param factory A function that takes the current query builder and
+   *  returns a new query builder.
+   */
+  modify<NextQB extends UpdateQueryBuilder<DB, TB, TB, any>>(
+    factory: (qb: QB) => NextQB
+  ): MappingUpdateQuery<
+    DB,
+    TB,
+    NextQB,
+    UpdatingObject,
+    SelectedObject,
+    ReturnColumns,
+    ReturnCount,
+    UpdateReturnsSelectedObjectWhenProvided,
+    DefaultReturnObject
+  > {
+    return new MappingUpdateQuery(
+      this.db,
+      factory(this.qb),
+      this.countTransform,
+      this.updateTransform,
+      this.returnColumns,
+      this.updateReturnTransform
+    );
+  }
+
+  /**
    * Runs the query, returning the number of rows updated, in
    * the required client representation.
    * @param obj The object which which to update the rows.
@@ -187,34 +215,6 @@ export class MappingUpdateQuery<
   }
 
   /**
-   * Modifies the underlying Kysely query builder.
-   * @param factory A function that takes the current query builder and
-   *  returns a new query builder.
-   */
-  modify<NextQB extends UpdateQueryBuilder<DB, TB, TB, any>>(
-    factory: (qb: QB) => NextQB
-  ): MappingUpdateQuery<
-    DB,
-    TB,
-    NextQB,
-    UpdatingObject,
-    SelectedObject,
-    ReturnColumns,
-    ReturnCount,
-    UpdateReturnsSelectedObjectWhenProvided,
-    DefaultReturnObject
-  > {
-    return new MappingUpdateQuery(
-      this.db,
-      factory(this.qb),
-      this.countTransform,
-      this.updateTransform,
-      this.returnColumns,
-      this.updateReturnTransform
-    );
-  }
-
-  /**
    * Returns a query builder for updating rows in the table and
    * returning values, caching the query builder for future use.
    * @returns A query builder for updating rows in the table and
@@ -244,6 +244,18 @@ export class MappingUpdateQuery<
   ): UpdateQueryBuilder<DB, TB, TB, UpdateResult> {
     const transformedObj =
       this.updateTransform === undefined ? obj : this.updateTransform(obj);
-    return qb.set(transformedObj);
+    return this.setColumnValues(qb, transformedObj);
+  }
+
+  /**
+   * Sets the values of the updated columns.
+   * @param qb The query builder to set the values into.
+   * @param obj The object of column-value pairs to be updated.
+   */
+  protected setColumnValues(
+    qb: UpdateQueryBuilder<DB, TB, TB, UpdateResult>,
+    obj: Updateable<DB[TB]>
+  ): UpdateQueryBuilder<DB, TB, TB, UpdateResult> {
+    return qb.set(obj);
   }
 }

@@ -235,7 +235,8 @@ export class MappingInsertQuery<
   /**
    * Sets the values of the inserted columns.
    * @param qb The query builder to set the values into.
-   * @param obj The object of column-value pairs to be inserted.
+   * @param objOrObjs The object or objects of column-value pairs
+   *  to be inserted.
    */
   protected setColumnValues(
     qb: InsertQueryBuilder<DB, TB, InsertResult>,

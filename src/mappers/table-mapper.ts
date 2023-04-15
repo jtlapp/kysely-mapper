@@ -28,6 +28,7 @@ import { MappingSelectQuery } from '../queries/select-query';
 import { AllSelection } from '../lib/kysely-types';
 import { MappingUpdateQuery } from '../queries/update-query';
 import { UnrestrictedMappingInsertQuery } from '../queries/unrestricted-insert-query';
+import { UnrestrictedMappingUpdateQuery } from '../queries/unrestricted-update-query';
 
 /**
  * A mapper providing access to a single table.
@@ -225,7 +226,7 @@ export class TableMapper<
     );
   }
 
-  // TODO: support listing inserted columns
+  // TODO: support listing inserted columns as a parameter (?)
   /**
    * Returns a query for inserting rows into the table.
    * @returns A mapping query for inserting rows.
@@ -327,7 +328,7 @@ export class TableMapper<
     lhs: RE,
     op: ComparisonOperatorExpression,
     rhs: OperandValueExpressionOrList<DB, TB, RE>
-  ): MappingUpdateQuery<
+  ): UnrestrictedMappingUpdateQuery<
     DB,
     TB,
     UpdateQueryBuilder<DB, TB, TB, UpdateResult>,
@@ -341,7 +342,7 @@ export class TableMapper<
 
   update<RE extends ReferenceExpression<DB, TB>>(
     filter?: QueryFilter<DB, TB, KeyColumns, RE>
-  ): MappingUpdateQuery<
+  ): UnrestrictedMappingUpdateQuery<
     DB,
     TB,
     UpdateQueryBuilder<DB, TB, TB, UpdateResult>,
@@ -368,7 +369,7 @@ export class TableMapper<
     UpdateReturnsSelectedObjectWhenProvided,
     DefaultReturnObject
   > {
-    return new MappingUpdateQuery(
+    return new UnrestrictedMappingUpdateQuery(
       this.db,
       filterOrLHS === undefined
         ? this.getUpdateQB()

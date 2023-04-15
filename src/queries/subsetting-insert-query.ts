@@ -12,8 +12,8 @@ import { MappingInsertQuery } from './insert-query';
 // TODO: where else should I use Map or Set instead of objects?
 
 /**
- * Mapping query for inserting rows into a database table that
- * inserts a specified subset of the insertable columns.
+ * Mapping query for inserting rows into a database table,
+ * inserting a specified subset of the insertable columns.
  */
 export class SubsettingMappingInsertQuery<
   DB,
