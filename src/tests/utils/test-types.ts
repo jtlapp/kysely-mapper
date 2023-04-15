@@ -10,7 +10,7 @@ export class User {
     public firstName: string,
     public lastName: string,
     public handle: string,
-    public email: string
+    public email: string | null
   ) {}
 
   static create(id: number, obj: VariableFieldsOf<User>): User {

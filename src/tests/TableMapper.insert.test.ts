@@ -278,7 +278,7 @@ describe('inserting a single object without transformation', () => {
     expect(success).toBe(true);
 
     const readUser0 = await userMapperReturningAll
-      .select('email', '=', USERS[0].email)
+      .select('email', '=', USERS[0].email!)
       .returnOne();
     expect(readUser0?.email).toEqual(USERS[0].email);
   });
@@ -288,7 +288,7 @@ describe('inserting a single object without transformation', () => {
     expect(success).toBe(true);
 
     const readUser0 = await userMapperReturningAll
-      .select('email', '=', USERS[0].email)
+      .select('email', '=', USERS[0].email!)
       .returnOne();
     expect(readUser0?.email).toEqual(USERS[0].email);
   });
@@ -356,7 +356,7 @@ describe('inserting a single object without transformation', () => {
   });
 });
 
-describe('insertion transformation', () => {
+describe('insertion queries', () => {
   class InsertTransformMapper extends TableMapper<
     Database,
     'users',
@@ -434,7 +434,7 @@ describe('insertion transformation', () => {
               source.name.split(' ')[0],
               source.name.split(' ')[1],
               source.handle,
-              source.email
+              source.email || null
             ),
           countTransform: (count) => Number(count),
         });
@@ -501,6 +501,50 @@ describe('insertion transformation', () => {
       .insert()
       .returnAll([insertedUser2, insertedUser3]);
     expect(insertReturns).toEqual([insertReturnedUser2, insertReturnedUser3]);
+  });
+
+  it('subsets inserted columns, excluding ID', async () => {
+    const subsetQuery = userMapperReturningID
+      .insert()
+      .columns(['name', 'handle']);
+    const insertReturn = await subsetQuery.returnOne({
+      id: 10,
+      name: 'John Doe',
+      handle: 'johndoe',
+      email: 'jdoe@abc.def',
+    });
+    expect(insertReturn).toEqual({ id: expect.any(Number) });
+
+    const readUser = await userMapperReturningID.select().returnAll();
+    expect(readUser).toEqual([
+      { id: 1, name: 'John Doe', handle: 'johndoe', email: null },
+    ]);
+  });
+
+  it('subsets inserted columns, including ID', async () => {
+    const subsetQuery = userMapperReturningNothing
+      .insert()
+      .columns(['id', 'name', 'handle']);
+    await subsetQuery.run({
+      id: 10,
+      name: 'John Doe',
+      handle: 'johndoe',
+      email: 'jdoe@abc.def',
+    });
+
+    const readUser = await userMapperReturningID.select().returnAll();
+    expect(readUser).toEqual([
+      { id: 10, name: 'John Doe', handle: 'johndoe', email: null },
+    ]);
+  });
+
+  it('requires all subsetted columns to be inserted', async () => {
+    const subsetQuery = userMapperReturningID
+      .insert()
+      .columns(['name', 'handle', 'email']);
+    expect(() =>
+      subsetQuery.returnOne({ name: 'John Doe', handle: 'johndoe' })
+    ).rejects.toThrow(`column 'email' missing`);
   });
 
   ignore('detects insertion transformation type errors', async () => {

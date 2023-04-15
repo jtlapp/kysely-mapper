@@ -19,7 +19,7 @@ it('inserts/updates/deletes a mapped object w/ default transforms', async () => 
       public id: number,
       public name: string,
       public handle: string,
-      public email: string
+      public email: string | null
     ) {}
   }
 
@@ -34,7 +34,7 @@ it('inserts/updates/deletes a mapped object w/ default transforms', async () => 
     1,
     USERS[0].name,
     USERS[0].handle,
-    USERS[0].email
+    USERS[0].email!
   );
   const updateReturn1 = await userMapper
     .update({ id: 1 })
@@ -46,7 +46,7 @@ it('inserts/updates/deletes a mapped object w/ default transforms', async () => 
     0,
     USERS[0].name,
     USERS[0].handle,
-    USERS[0].email
+    USERS[0].email!
   );
   const insertReturn1 = (await userMapper.insert().returnOne(insertedUser1))!;
   expect(insertReturn1).not.toBeNull();
@@ -67,7 +67,7 @@ it('inserts/updates/deletes a mapped object w/ default transforms', async () => 
     10,
     USERS[1].name,
     USERS[1].handle,
-    USERS[1].email
+    USERS[1].email!
   );
   const insertReturn2 = (await userMapper.insert().returnOne(insertedUser2))!;
   expect(insertReturn2).toEqual(insertedUser2);
@@ -138,7 +138,7 @@ it('inserts/updates/deletes a mapped object class w/ all custom transforms', asy
       public firstName: string,
       public lastName: string,
       public handle: string,
-      public email: string
+      public email: string | null
     ) {}
   }
 
@@ -281,7 +281,7 @@ it('inserts/updates/deletes a mapped object class w/ default update transforms',
       public firstName: string,
       public lastName: string,
       public handle: string,
-      public email: string
+      public email: string | null
     ) {}
   }
 
@@ -391,7 +391,7 @@ it('supports queries with no key columns', async () => {
       public id: number,
       public name: string,
       public handle: string,
-      public email: string
+      public email: string | null
     ) {}
   }
 

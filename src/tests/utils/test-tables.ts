@@ -9,7 +9,7 @@ export interface Users {
   id: Generated<number>;
   handle: string;
   name: string;
-  email: string;
+  email: string | null;
 }
 
 export interface Posts {

@@ -100,7 +100,7 @@ export const STANDARD_OPTIONS = {
       source.name.split(' ')[0],
       source.name.split(' ')[1],
       source.handle,
-      source.email
+      source.email || null
     ),
   insertTransform: (source: InsertedUser) => ({
     name: `${source.firstName} ${source.lastName}`,

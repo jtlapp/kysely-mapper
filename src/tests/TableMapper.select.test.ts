@@ -106,7 +106,7 @@ describe('general selection', () => {
     ((_: number) => {})(users[0].id);
     ((_: string) => {})(users[0].handle);
     ((_: string) => {})(users[0].name);
-    ((_: string) => {})(users[0].email);
+    ((_: string) => {})(users[0].email!);
 
     const user = await userMapper
       .select()
@@ -117,7 +117,7 @@ describe('general selection', () => {
     ((_: number) => {})(user!.id);
     ((_: string) => {})(user!.handle);
     ((_: string) => {})(user!.name);
-    ((_: string) => {})(user!.email);
+    ((_: string) => {})(user!.email!);
 
     ignore('detects modify() type errors', async () => {
       // @ts-expect-error - cannot access invalid columns

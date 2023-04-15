@@ -62,6 +62,32 @@ export class MappingInsertQuery<
   }
 
   /**
+   * Modifies the underlying Kysely query builder.
+   * @param factory A function that takes the current query builder and
+   *  returns a new query builder.
+   */
+  modify<NextQB extends InsertQueryBuilder<DB, TB, any>>(
+    factory: (qb: QB) => NextQB
+  ): MappingInsertQuery<
+    DB,
+    TB,
+    NextQB,
+    InsertedObject,
+    SelectedObject,
+    ReturnColumns,
+    InsertReturnsSelectedObject,
+    DefaultReturnObject
+  > {
+    return new MappingInsertQuery(
+      this.db,
+      factory(this.qb),
+      this.insertTransform,
+      this.returnColumns,
+      this.insertReturnTransform
+    );
+  }
+
+  /**
    * Inserts the provided objects into the table as rows, first transforming
    * them into rows via `insertTransform` (if defined). For each row inserted,
    * retrieves the columns specified in `returnColumns`, returning them to
@@ -163,32 +189,6 @@ export class MappingInsertQuery<
   }
 
   /**
-   * Modifies the underlying Kysely query builder.
-   * @param factory A function that takes the current query builder and
-   *  returns a new query builder.
-   */
-  modify<NextQB extends InsertQueryBuilder<DB, TB, any>>(
-    factory: (qb: QB) => NextQB
-  ): MappingInsertQuery<
-    DB,
-    TB,
-    NextQB,
-    InsertedObject,
-    SelectedObject,
-    ReturnColumns,
-    InsertReturnsSelectedObject,
-    DefaultReturnObject
-  > {
-    return new MappingInsertQuery(
-      this.db,
-      factory(this.qb),
-      this.insertTransform,
-      this.returnColumns,
-      this.insertReturnTransform
-    );
-  }
-
-  /**
    * Returns a query builder for inserting rows into the table and
    * returning values, caching the query builder for future use.
    * @returns A query builder for inserting rows into the table and
@@ -222,13 +222,25 @@ export class MappingInsertQuery<
           ? (objOrObjs as Insertable<DB[TB]>[])
           : objOrObjs.map(this.insertTransform);
       // TS requires separate calls to values() for different arg types.
-      return qb.values(transformedObjs);
+      return this.setColumnValues(qb, transformedObjs);
     }
     const transformedObj =
       this.insertTransform === undefined
         ? (objOrObjs as Insertable<DB[TB]>)
         : this.insertTransform(objOrObjs);
     // TS requires separate calls to values() for different arg types.
-    return qb.values(transformedObj);
+    return this.setColumnValues(qb, transformedObj);
+  }
+
+  /**
+   * Sets the values of the inserted columns.
+   * @param qb The query builder to set the values into.
+   * @param obj The object of column-value pairs to be inserted.
+   */
+  protected setColumnValues(
+    qb: InsertQueryBuilder<DB, TB, InsertResult>,
+    objOrObjs: Insertable<DB[TB]> | Insertable<DB[TB]>[]
+  ): InsertQueryBuilder<DB, TB, InsertResult> {
+    return qb.values(objOrObjs);
   }
 }

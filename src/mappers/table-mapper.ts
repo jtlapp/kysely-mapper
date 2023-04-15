@@ -26,8 +26,8 @@ import { TableMapperOptions } from './table-mapper-options';
 import { MappingDeleteQuery } from '../queries/delete-query';
 import { MappingSelectQuery } from '../queries/select-query';
 import { AllSelection } from '../lib/kysely-types';
-import { MappingInsertQuery } from '../queries/insert-query';
 import { MappingUpdateQuery } from '../queries/update-query';
+import { UnrestrictedMappingInsertQuery } from '../queries/unrestricted-insert-query';
 
 /**
  * A mapper providing access to a single table.
@@ -230,7 +230,7 @@ export class TableMapper<
    * Returns a query for inserting rows into the table.
    * @returns A mapping query for inserting rows.
    */
-  insert(): MappingInsertQuery<
+  insert(): UnrestrictedMappingInsertQuery<
     DB,
     TB,
     InsertQueryBuilder<DB, TB, InsertResult>,
@@ -240,7 +240,7 @@ export class TableMapper<
     InsertReturnsSelectedObject,
     DefaultReturnObject
   > {
-    return new MappingInsertQuery(
+    return new UnrestrictedMappingInsertQuery(
       this.db,
       this.getInsertQB(),
       this.options.insertTransform,
