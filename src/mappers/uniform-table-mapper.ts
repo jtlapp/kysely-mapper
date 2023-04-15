@@ -1,4 +1,4 @@
-import { Insertable, Kysely, Selectable, Selection } from 'kysely';
+import { Kysely, Selectable, Selection, Updateable } from 'kysely';
 
 import { TableMapper } from './table-mapper';
 import {
@@ -49,7 +49,7 @@ export class UniformTableMapper<
   SelectedColumns,
   MappedObject,
   MappedObject,
-  MappedObject | Partial<Insertable<DB[TB]>>,
+  MappedObject | Updateable<DB[TB]>,
   ReturnCount,
   ReturnColumns,
   true,

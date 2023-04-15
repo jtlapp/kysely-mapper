@@ -13,6 +13,7 @@ import {
   UpdateQueryBuilder,
   ComparisonOperatorExpression,
   OperandValueExpressionOrList,
+  Updateable,
 } from 'kysely';
 
 import { QueryFilter, applyQueryFilter } from '../lib/query-filter';
@@ -64,7 +65,7 @@ export class TableMapper<
     SelectedColumns
   >,
   InsertedObject extends object = Insertable<DB[TB]>,
-  UpdatingObject extends object = Partial<Insertable<DB[TB]>>,
+  UpdatingObject extends object = Updateable<DB[TB]>,
   ReturnCount = bigint,
   ReturnColumns extends SelectionColumn<DB, TB>[] | ['*'] = KeyColumns,
   InsertReturnsSelectedObject extends boolean = false,

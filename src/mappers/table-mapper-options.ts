@@ -41,7 +41,7 @@ export interface TableMapperOptions<
     SelectedColumns
   >,
   InsertedObject extends object = Insertable<DB[TB]>,
-  UpdatingObject extends object = Partial<Insertable<DB[TB]>>,
+  UpdatingObject extends object = Updateable<DB[TB]>,
   ReturnCount = bigint,
   ReturnColumns extends SelectionColumn<DB, TB>[] | ['*'] = KeyColumns,
   InsertReturnsSelectedObject extends boolean = false,

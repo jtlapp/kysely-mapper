@@ -1,4 +1,4 @@
-import { Insertable } from 'kysely';
+import { Updateable } from 'kysely';
 import { SelectableColumnTuple, SelectionColumn } from '../lib/type-utils';
 import { TableMapperOptions } from './table-mapper-options';
 
@@ -35,7 +35,7 @@ export interface UniformTableMapperOptions<
     MappedObject,
     MappedObject,
     // TODO: look into changing Partial<Insertable<>> into Updateable<>.
-    MappedObject | Partial<Insertable<DB[TB]>>,
+    MappedObject | Updateable<DB[TB]>,
     ReturnCount,
     ReturnColumns,
     true,
