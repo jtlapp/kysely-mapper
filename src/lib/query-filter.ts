@@ -49,7 +49,9 @@ export type FieldMatchingFilter<
   TB extends keyof DB & string,
   RE extends ReferenceExpression<DB, TB>
 > = {
-  [K in RE & string]?: SelectType<ExtractTypeFromStringReference<DB, TB, K>>;
+  [K in RE & string]?:
+    | SelectType<ExtractTypeFromStringReference<DB, TB, K>>
+    | SelectType<ExtractTypeFromStringReference<DB, TB, K>>[];
 };
 
 /**
@@ -101,7 +103,11 @@ export function applyQueryFilter<
     // Process a field matching filter. `{}` matches all rows.
     if (filter.constructor === Object) {
       for (const [column, value] of Object.entries(filter)) {
-        qb = qb.where(db.dynamic.ref(column), '=', value) as QB;
+        if (Array.isArray(value)) {
+          qb = qb.where(db.dynamic.ref(column), 'in', value) as QB;
+        } else {
+          qb = qb.where(db.dynamic.ref(column), '=', value) as QB;
+        }
       }
       return qb as unknown as QB;
     }

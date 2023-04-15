@@ -252,6 +252,15 @@ describe('select() returnAll()', () => {
       .returnAll();
     expect(users.length).toEqual(1);
     expect(users[0].handle).toEqual(USERS[2].handle);
+
+    users = await userMapper
+      .select({
+        handle: [USERS[1].handle, USERS[2].handle],
+      })
+      .returnAll();
+    expect(users.length).toEqual(2);
+    expect(users[0].handle).toEqual(USERS[1].handle);
+    expect(users[1].handle).toEqual(USERS[2].handle);
   });
 
   it('selects with a binary operation filter', async () => {
@@ -276,42 +285,6 @@ describe('select() returnAll()', () => {
       .returnAll();
     expect(users.length).toEqual(1);
     expect(users[0].handle).toEqual(USERS[1].handle);
-  });
-
-  it('selects with a matching field filter via filter()', async () => {
-    await userMapper.insert().run(USERS);
-
-    let users = await userMapper
-      .select({
-        name: USERS[0].name,
-      })
-      .returnAll();
-    expect(users.length).toEqual(2);
-    expect(users[0].handle).toEqual(USERS[0].handle);
-    expect(users[1].handle).toEqual(USERS[2].handle);
-
-    users = await userMapper
-      .select({
-        name: USERS[0].name,
-        handle: USERS[2].handle,
-      })
-      .returnAll();
-    expect(users.length).toEqual(1);
-    expect(users[0].handle).toEqual(USERS[2].handle);
-  });
-
-  it('selects with a binary operation filter via filter()', async () => {
-    await userMapper.insert().run(USERS);
-
-    // Test selecting by condition (with results)
-    let users = await userMapper.select('name', '=', USERS[0].name).returnAll();
-    expect(users.length).toEqual(2);
-    expect(users[0].handle).toEqual(USERS[0].handle);
-    expect(users[1].handle).toEqual(USERS[2].handle);
-
-    // Test selecting by condition (no results)
-    users = await userMapper.select('name', '=', 'nonexistent').returnAll();
-    expect(users.length).toEqual(0);
   });
 
   it('selects many returning selected columns and aliases', async () => {
@@ -395,6 +368,14 @@ describe('select() returnOne()', () => {
       })
       .returnOne();
     expect(user?.handle).toEqual(USERS[2].handle);
+
+    user = await userMapper
+      .select({
+        id: [1, 2],
+        handle: [USERS[1].handle, USERS[2].handle],
+      })
+      .returnOne();
+    expect(user?.handle).toEqual(USERS[1].handle);
   });
 
   it('selects the first row with a binary operation filter', async () => {
@@ -427,33 +408,6 @@ describe('select() returnOne()', () => {
       )
       .returnOne();
     expect(user?.handle).toEqual(USERS[2].handle);
-  });
-
-  it('selects the first row with a matching field filter via filter()', async () => {
-    await userMapper.insert().run(USERS);
-
-    let user = await userMapper.select({ name: USERS[0].name }).returnOne();
-    expect(user?.handle).toEqual(USERS[0].handle);
-
-    user = await userMapper
-      .select({
-        name: USERS[0].name,
-        handle: USERS[2].handle,
-      })
-      .returnOne();
-    expect(user?.handle).toEqual(USERS[2].handle);
-  });
-
-  it('selects the first row with a binary operation filter via filter()', async () => {
-    await userMapper.insert().run(USERS);
-
-    // Test selecting by condition (with result)
-    let user = await userMapper.select('name', '=', USERS[0].name).returnOne();
-    expect(user?.handle).toEqual(USERS[0].handle);
-
-    // Test selecting by condition (no result)
-    user = await userMapper.select('name', '=', 'nonexistent').returnOne();
-    expect(user).toBeNull();
   });
 
   it('selects one returning selected columns and aliases', async () => {
