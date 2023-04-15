@@ -1,4 +1,4 @@
-import { Insertable, Kysely, Selectable, sql } from 'kysely';
+import { Insertable, Kysely, Selectable, Updateable, sql } from 'kysely';
 
 import { TableMapper } from '../mappers/table-mapper';
 import { createDB, resetDB, destroyDB } from './utils/test-setup';
@@ -442,7 +442,7 @@ describe('update transformation', () => {
       ['*'],
       Selectable<Database['users']>,
       Insertable<Database['users']>,
-      Partial<Insertable<Database['users']>>,
+      Updateable<Database['users']>,
       bigint,
       ['id'],
       false,

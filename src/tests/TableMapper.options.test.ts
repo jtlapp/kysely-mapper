@@ -1,4 +1,4 @@
-import { Insertable, Kysely, Selectable } from 'kysely';
+import { Insertable, Kysely, Selectable, Updateable } from 'kysely';
 
 import { TableMapper } from '../mappers/table-mapper';
 import { createDB, resetDB, destroyDB } from './utils/test-setup';
@@ -31,7 +31,7 @@ describe('TableMapperOptions type checks', () => {
       ['*'],
       Selectable<Users>,
       Insertable<Users>,
-      Partial<Insertable<Users>>,
+      Updateable<Users>,
       bigint,
       // @ts-expect-error - invalid return column configuration
       ['notThere']
@@ -44,7 +44,7 @@ describe('TableMapperOptions type checks', () => {
       ['*'],
       Selectable<Users>,
       Insertable<Users>,
-      Partial<Insertable<Users>>,
+      Updateable<Users>,
       bigint,
       // @ts-expect-error - invalid return column configuration
       ['name', 'notThere']
@@ -73,7 +73,7 @@ describe('TableMapperOptions type checks', () => {
       ['*'],
       Selectable<Users>,
       Insertable<Users>,
-      Partial<Insertable<Users>>,
+      Updateable<Users>,
       number,
       ReturnColumns
     > {}
@@ -89,7 +89,7 @@ describe('TableMapperOptions type checks', () => {
       ['*'],
       Selectable<Users>,
       Insertable<Users>,
-      Partial<Insertable<Users>>,
+      Updateable<Users>,
       number
     > {}
     new TestMapper(db, 'users', {
@@ -127,7 +127,7 @@ describe('TableMapperOptions type checks', () => {
       ['*'],
       Selectable<Users>,
       User,
-      Partial<Insertable<Users>>,
+      Updateable<Users>,
       bigint,
       ['id'],
       InsertReturnsSelectedObject
@@ -170,7 +170,7 @@ describe('TableMapperOptions type checks', () => {
       ['*'],
       User,
       Insertable<Users>,
-      User | Partial<Insertable<Users>>,
+      User | Updateable<Users>,
       bigint,
       ['id'],
       false,

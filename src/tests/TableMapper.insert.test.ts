@@ -1,4 +1,4 @@
-import { Insertable, Kysely, Selectable } from 'kysely';
+import { Insertable, Kysely, Selectable, Updateable } from 'kysely';
 
 import { TableMapper } from '../mappers/table-mapper';
 import { createDB, resetDB, destroyDB } from './utils/test-setup';
@@ -40,7 +40,7 @@ let postTableMapper: TableMapper<
   ['*'],
   Selectable<Posts>,
   Insertable<Posts>,
-  Partial<Insertable<Posts>>,
+  Updateable<Posts>,
   number,
   ['*']
 >;
@@ -51,7 +51,7 @@ let postTableMapperReturningIDAndTitleAsT: TableMapper<
   ['*'],
   Selectable<Posts>,
   Insertable<Posts>,
-  Partial<Insertable<Posts>>,
+  Updateable<Posts>,
   number,
   ['id', 'title as t']
 >;
@@ -418,7 +418,7 @@ describe('insertion transformation', () => {
       ['*'],
       Selectable<Database['users']>,
       Insertable<Database['users']>,
-      Partial<Insertable<Database['users']>>,
+      Updateable<Database['users']>,
       number,
       ['id'],
       false,
@@ -461,7 +461,7 @@ describe('insertion transformation', () => {
       ['*'],
       Selectable<Database['users']>,
       InsertedUser,
-      Partial<Insertable<Database['users']>>,
+      Updateable<Database['users']>,
       number,
       ['id'],
       false,

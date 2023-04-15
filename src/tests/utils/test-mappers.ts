@@ -1,4 +1,4 @@
-import { Insertable, Kysely, Selectable } from 'kysely';
+import { Insertable, Kysely, Selectable, Updateable } from 'kysely';
 
 import { TableMapper } from '../../mappers/table-mapper';
 import { Database, Users } from './test-tables';
@@ -21,7 +21,7 @@ export class UserTableMapperReturningNothing extends TableMapper<
   ['*'],
   Selectable<Users>,
   Insertable<Users>,
-  Partial<Insertable<Users>>,
+  Updateable<Users>,
   number
 > {
   constructor(readonly db: Kysely<Database>) {
@@ -36,7 +36,7 @@ export class UserTableMapperReturningID extends TableMapper<
   ['*'],
   Selectable<Users>,
   Insertable<Users>,
-  Partial<Insertable<Users>>,
+  Updateable<Users>,
   number
 > {
   constructor(readonly db: Kysely<Database>) {
@@ -51,7 +51,7 @@ export class UserTableMapperReturningIDAndHandleAsH extends TableMapper<
   ['*'],
   Selectable<Users>,
   Insertable<Users>,
-  Partial<Insertable<Users>>,
+  Updateable<Users>,
   number,
   ['id', 'handle as h']
 > {
@@ -71,7 +71,7 @@ export class UserTableMapperReturningAll extends TableMapper<
   ['*'],
   Selectable<Users>,
   Insertable<Users>,
-  Partial<Insertable<Users>>,
+  Updateable<Users>,
   number,
   ['*']
 > {

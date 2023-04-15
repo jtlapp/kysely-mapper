@@ -34,7 +34,6 @@ export interface UniformTableMapperOptions<
     SelectedColumns,
     MappedObject,
     MappedObject,
-    // TODO: look into changing Partial<Insertable<>> into Updateable<>.
     MappedObject | Updateable<DB[TB]>,
     ReturnCount,
     ReturnColumns,

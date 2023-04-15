@@ -1,4 +1,4 @@
-import { Kysely, Selectable, Selection, Updateable } from 'kysely';
+import { Kysely, Selection, Updateable } from 'kysely';
 
 import { TableMapper } from './table-mapper';
 import {
@@ -125,21 +125,21 @@ function _prepareOptions<
   const updateTransform =
     options.insertTransform !== undefined
       ? options.insertTransform
-      : (obj: MappedObject | Partial<Selectable<DB[TB]>>) =>
+      : (obj: MappedObject | Updateable<DB[TB]>) =>
           options.isMappedObject(obj) ? insertTransform(obj as any) : obj;
 
   // If the object is a `MappedObject`, use the insert return transform by
   // default, or if none is provided, add returned values to inserted object.
   // If the object is not a `MappedObject`, return the raw return values.
   const updateReturnTransform = (
-    obj: MappedObject,
+    obj: MappedObject | Updateable<DB[TB]>,
     returns: Selection<DB, TB, ReturnColumns[number]>
   ) =>
     !options.isMappedObject(obj)
       ? returns
       : options.insertReturnTransform === undefined
-      ? insertReturnTransform(obj, returns)
-      : options.insertReturnTransform(obj, returns as any);
+      ? insertReturnTransform(obj as MappedObject, returns)
+      : options.insertReturnTransform(obj as MappedObject, returns as any);
 
   return {
     keyColumns,
