@@ -78,13 +78,18 @@ export class TableMapper<
   #baseSelectQB: SelectQueryBuilder<DB, TB, object> | null = null;
   #baseUpdateQB: UpdateQueryBuilder<DB, TB, TB, UpdateResult> | null = null;
 
+  /** Columns that compose the table's primary key. */
+  protected readonly keyColumns: KeyColumns;
+
   /** Columns to return from selection queries. `[]` => all columns. */
   protected readonly selectedColumns: SelectionColumn<DB, TB>[];
 
   /** Columns to return from the table on insert or update. */
+  // TODO: readonly?
   protected returnColumns: SelectionColumn<DB, TB>[] | ['*'];
 
   /** Transforms query counts into `ReturnCount`. */
+  // TODO: readonly?
   protected countTransform: (count: bigint) => ReturnCount = (count) =>
     count as any;
 
@@ -113,7 +118,8 @@ export class TableMapper<
       DefaultReturnObject
     > = {}
   ) {
-    this.returnColumns = options.returnColumns ?? [];
+    this.keyColumns = options.keyColumns ?? ([] as any);
+    this.returnColumns = options.returnColumns ?? this.keyColumns;
 
     this.selectedColumns =
       options.selectedColumns === undefined
@@ -184,7 +190,7 @@ export class TableMapper<
   >;
 
   delete<RE extends ReferenceExpression<DB, TB>>(
-    filter?: QueryFilter<DB, TB, RE>
+    filter?: QueryFilter<DB, TB, KeyColumns, RE>
   ): MappingDeleteQuery<
     DB,
     TB,
@@ -193,7 +199,7 @@ export class TableMapper<
   >;
 
   delete<RE extends ReferenceExpression<DB, TB>>(
-    filterOrLHS?: QueryFilter<DB, TB, RE> | RE,
+    filterOrLHS?: QueryFilter<DB, TB, KeyColumns, RE> | RE,
     op?: ComparisonOperatorExpression,
     rhs?: OperandValueExpressionOrList<DB, TB, RE>
   ): MappingDeleteQuery<
@@ -206,7 +212,14 @@ export class TableMapper<
       this.db,
       filterOrLHS === undefined
         ? this.getDeleteQB()
-        : applyQueryFilter(this.db, this.getDeleteQB(), filterOrLHS, op, rhs),
+        : applyQueryFilter(
+            this.db,
+            this.getDeleteQB(),
+            this.keyColumns,
+            filterOrLHS,
+            op,
+            rhs
+          ),
       this.countTransform
     );
   }
@@ -230,7 +243,7 @@ export class TableMapper<
       this.db,
       this.getInsertQB(),
       this.options.insertTransform,
-      this.options.returnColumns,
+      this.returnColumns as ReturnColumns,
       this.options.insertReturnTransform
     );
   }
@@ -265,7 +278,7 @@ export class TableMapper<
   >;
 
   select<RE extends ReferenceExpression<DB, TB>>(
-    filter?: QueryFilter<DB, TB, RE>
+    filter?: QueryFilter<DB, TB, KeyColumns, RE>
   ): MappingSelectQuery<
     DB,
     TB,
@@ -275,7 +288,7 @@ export class TableMapper<
   >;
 
   select<RE extends ReferenceExpression<DB, TB>>(
-    filterOrLHS?: QueryFilter<DB, TB, RE> | RE,
+    filterOrLHS?: QueryFilter<DB, TB, KeyColumns, RE> | RE,
     op?: ComparisonOperatorExpression,
     rhs?: OperandValueExpressionOrList<DB, TB, RE>
   ): MappingSelectQuery<
@@ -289,7 +302,14 @@ export class TableMapper<
       this.db,
       filterOrLHS === undefined
         ? this.getSelectQB()
-        : applyQueryFilter(this.db, this.getSelectQB(), filterOrLHS, op, rhs),
+        : applyQueryFilter(
+            this.db,
+            this.getSelectQB(),
+            this.keyColumns,
+            filterOrLHS,
+            op,
+            rhs
+          ),
       this.options.selectTransform
     );
   }
@@ -319,7 +339,7 @@ export class TableMapper<
   >;
 
   update<RE extends ReferenceExpression<DB, TB>>(
-    filter?: QueryFilter<DB, TB, RE>
+    filter?: QueryFilter<DB, TB, KeyColumns, RE>
   ): MappingUpdateQuery<
     DB,
     TB,
@@ -333,7 +353,7 @@ export class TableMapper<
   >;
 
   update<RE extends ReferenceExpression<DB, TB>>(
-    filterOrLHS?: QueryFilter<DB, TB, RE> | RE,
+    filterOrLHS?: QueryFilter<DB, TB, KeyColumns, RE> | RE,
     op?: ComparisonOperatorExpression,
     rhs?: OperandValueExpressionOrList<DB, TB, RE>
   ): MappingUpdateQuery<
@@ -351,10 +371,17 @@ export class TableMapper<
       this.db,
       filterOrLHS === undefined
         ? this.getUpdateQB()
-        : applyQueryFilter(this.db, this.getUpdateQB(), filterOrLHS, op, rhs),
+        : applyQueryFilter(
+            this.db,
+            this.getUpdateQB(),
+            this.keyColumns,
+            filterOrLHS,
+            op,
+            rhs
+          ),
       this.countTransform,
       this.options.updateTransform,
-      this.options.returnColumns,
+      this.returnColumns as ReturnColumns,
       this.options.updateReturnTransform
     );
   }

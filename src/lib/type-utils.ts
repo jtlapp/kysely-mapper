@@ -21,16 +21,16 @@ import {
 export type KeyTuple<
   T,
   KA extends (keyof Selectable<T> & string)[]
-> = Selectable<T>[KA[3]] extends string
+> = KA[3] extends string
   ? [
       Selectable<T>[KA[0]],
       Selectable<T>[KA[1]],
       Selectable<T>[KA[2]],
       Selectable<T>[KA[3]]
     ]
-  : Selectable<T>[KA[2]] extends string
+  : KA[2] extends string
   ? [Selectable<T>[KA[0]], Selectable<T>[KA[1]], Selectable<T>[KA[2]]]
-  : Selectable<T>[KA[1]] extends string
+  : KA[1] extends string
   ? [Selectable<T>[KA[0]], Selectable<T>[KA[1]]]
   : [Selectable<T>[KA[0]]];
 

@@ -7,7 +7,10 @@ import { Kysely, sql } from 'kysely';
 import { TableMapper } from '../mappers/table-mapper';
 import { createDB, resetDB, destroyDB } from './utils/test-setup';
 import { Database } from './utils/test-tables';
-import { UserTableMapperReturningID } from './utils/test-mappers';
+import {
+  UserTableMapperReturningID,
+  UserTableMapperReturningNothing,
+} from './utils/test-mappers';
 import { USERS } from './utils/test-objects';
 import { ignore } from './utils/test-utils';
 
@@ -15,10 +18,12 @@ import { ignore } from './utils/test-utils';
 
 let db: Kysely<Database>;
 let userMapper: UserTableMapperReturningID;
+let userMapperReturningNothing: UserTableMapperReturningNothing;
 
 beforeAll(async () => {
   db = await createDB();
   userMapper = new UserTableMapperReturningID(db);
+  userMapperReturningNothing = new UserTableMapperReturningNothing(db);
 });
 beforeEach(() => resetDB(db));
 afterAll(() => destroyDB(db));
@@ -122,9 +127,55 @@ describe('general selection', () => {
     });
   });
 
+  it('selects via a multi-column key tuple (definition order)', async () => {
+    const mapper = new TableMapper(db, 'users', {
+      keyColumns: ['id', 'name'],
+    });
+    await mapper.insert().run(USERS);
+
+    const users = await mapper.select([3, 'Sue']).getAll();
+    expect(users.length).toEqual(1);
+    expect(users[0].name).toEqual(USERS[2].name);
+
+    ignore('detects key colum tuple type errors', () => {
+      // @ts-expect-error - key tuple must have correct length
+      mapper.select(['Sue']);
+      // @ts-expect-error - key tuple must have correct length
+      mapper.select(['Sue', 3, 'foo']);
+      // @ts-expect-error - key tuple must have correct types
+      mapper.select(['Sue', 'foo']);
+      // @ts-expect-error - primitive key values are not allowed
+      mapper.select('Sue');
+      // @ts-expect-error - primitive key values are not allowed
+      mapper.select(1);
+    });
+  });
+
+  it('selects via a multi-column key tuple (different order)', async () => {
+    const mapper = new TableMapper(db, 'users', {
+      keyColumns: ['name', 'id'],
+    });
+    await mapper.insert().run(USERS);
+
+    const users = await mapper.select(['Sue', 3]).getAll();
+    expect(users.length).toEqual(1);
+    expect(users[0].name).toEqual(USERS[2].name);
+
+    ignore('detects key colum tuple type errors', () => {
+      // @ts-expect-error - key tuple must have correct length
+      mapper.select(['Sue']);
+      // @ts-expect-error - key tuple must have correct length
+      mapper.select(['Sue', 3, 'foo']);
+      // @ts-expect-error - key tuple must have correct types
+      mapper.select(['Sue', 'foo']);
+      // @ts-expect-error - primitive key values are not allowed
+      mapper.select('Sue');
+      // @ts-expect-error - primitive key values are not allowed
+      mapper.select(1);
+    });
+  });
+
   ignore('detects select(filter) type errors', async () => {
-    // @ts-expect-error - doesn't allow plain string expressions
-    userMapper.select("name = 'John Doe'");
     // @ts-expect-error - doesn't allow only two arguments
     userMapper.select('name', '=');
     // @ts-expect-error - object filter fields must be valid
@@ -137,6 +188,14 @@ describe('general selection', () => {
     userMapper.select('notThere', '=', 'foo');
     // @ts-expect-error - binary op filter fields must be valid
     userMapper.select('users.notThere', '=', 'foo');
+    // @ts-expect-error - ID filter must have correct type
+    userMapper.select('str');
+    // @ts-expect-error - ID filter must have correct type
+    userMapper.select(['str']);
+    // @ts-expect-error - ID filter not allowed when when no ID column
+    userMapperReturningNothing.select(1);
+    // @ts-expect-error - ID filter not allowed when when no ID column
+    userMapperReturningNothing.select([1]);
   });
 });
 
@@ -157,6 +216,20 @@ describe('select() getAll()', () => {
     for (let i = 0; i < USERS.length; i++) {
       expect(users[i].handle).toEqual(USERS[i].handle);
     }
+  });
+
+  it('selects via key column values', async () => {
+    await userMapper.insert().run(USERS);
+
+    // Test selecting via key value
+    const users1 = await userMapper.select(2).getAll();
+    expect(users1.length).toEqual(1);
+    expect(users1[0].handle).toEqual(USERS[1].handle);
+
+    // Test selecting via key tuple
+    const users2 = await userMapper.select([2]).getAll();
+    expect(users2.length).toEqual(1);
+    expect(users2[0].handle).toEqual(USERS[1].handle);
   });
 
   it('selects with a matching field filter', async () => {

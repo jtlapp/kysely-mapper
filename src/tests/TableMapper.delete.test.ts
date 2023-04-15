@@ -5,6 +5,7 @@ import { Database } from './utils/test-tables';
 import {
   UserTableMapperReturningAll,
   UserTableMapperReturningDefault,
+  UserTableMapperReturningNothing,
 } from './utils/test-mappers';
 import { USERS } from './utils/test-objects';
 import { ignore } from './utils/test-utils';
@@ -12,10 +13,12 @@ import { TableMapper } from '../mappers/table-mapper';
 
 let db: Kysely<Database>;
 let userMapper: UserTableMapperReturningAll;
+let userMapperReturningNothing: UserTableMapperReturningNothing;
 
 beforeAll(async () => {
   db = await createDB();
   userMapper = new UserTableMapperReturningAll(db);
+  userMapperReturningNothing = new UserTableMapperReturningNothing(db);
 });
 beforeEach(() => resetDB(db));
 afterAll(() => destroyDB(db));
@@ -196,8 +199,6 @@ describe('deleting rows via TableMapper', () => {
     userMapper.delete({ notThere: 'xyz' });
     // @ts-expect-error - table must have all filter fields
     userMapper.delete('notThere', '=', 'foo');
-    // @ts-expect-error - doesn't allow plain string expression filters
-    userMapper.delete("name = 'John Doe'");
     userMapper.delete(({ or, cmpr }) =>
       // @ts-expect-error - only table columns are accessible via anyOf()
       or([cmpr('notThere', '=', 'xyz'), cmpr('alsoNotThere', '=', 'Sue')])
@@ -206,5 +207,13 @@ describe('deleting rows via TableMapper', () => {
       // @ts-expect-error - only table columns are accessible via allOf()
       or([cmpr('notThere', '=', 'xyz'), cmpr('alsoNotThere', '=', 'Sue')])
     );
+    // @ts-expect-error - ID filter must have correct type
+    userMapper.delete('str');
+    // @ts-expect-error - ID filter must have correct type
+    userMapper.delete(['str']);
+    // @ts-expect-error - ID filter not allowed when when no ID column
+    userMapperReturningNothing.delete(1);
+    // @ts-expect-error - ID filter not allowed when when no ID column
+    userMapperReturningNothing.delete([1]);
   });
 });

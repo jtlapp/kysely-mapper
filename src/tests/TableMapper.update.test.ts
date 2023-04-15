@@ -335,10 +335,6 @@ describe('updating rows via TableMapper', () => {
       // @ts-expect-error - update must only have table columns
       { notThere: 'xyz@pdq.xyz' }
     );
-    // @ts-expect-error - doesn't allow plain string expression filters
-    userMapperReturningID.update("name = 'John Doe'", USERS[0]);
-    // @ts-expect-error - doesn't allow plain string expression filters
-    userMapperReturningID.update("name = 'John Doe'", USERS[0]);
     // @ts-expect-error - only requested columns are accessible
     // prettier-ignore
     (await userMapperReturningID.update({ id: 32 }).getAll(USERS[0]))[0].name;
@@ -357,6 +353,14 @@ describe('updating rows via TableMapper', () => {
         or([cmpr('notThere', '=', 'xyz'), cmpr('alsoNotThere', '=', 'Sue')])
       )
       .getAll(USERS[0]);
+    // @ts-expect-error - ID filter must have correct type
+    userMapperReturningID.update('str');
+    // @ts-expect-error - ID filter must have correct type
+    userMapperReturningID.update(['str']);
+    // @ts-expect-error - ID filter not allowed when when no ID column
+    userMapperReturningNothing.update(1);
+    // @ts-expect-error - ID filter not allowed when when no ID column
+    userMapperReturningNothing.update([1]);
   });
 });
 

@@ -25,7 +25,7 @@ export class UserTableMapperReturningNothing extends TableMapper<
   number
 > {
   constructor(readonly db: Kysely<Database>) {
-    super(db, 'users', { returnColumns: [], countTransform });
+    super(db, 'users', { keyColumns: [], countTransform });
   }
 }
 
@@ -40,7 +40,7 @@ export class UserTableMapperReturningID extends TableMapper<
   number
 > {
   constructor(readonly db: Kysely<Database>) {
-    super(db, 'users', { returnColumns: ['id'], countTransform });
+    super(db, 'users', { keyColumns: ['id'], countTransform });
   }
 }
 
@@ -57,6 +57,7 @@ export class UserTableMapperReturningIDAndHandleAsH extends TableMapper<
 > {
   constructor(readonly db: Kysely<Database>) {
     super(db, 'users', {
+      keyColumns: ['id'],
       returnColumns: ['id', 'handle as h'],
       countTransform,
     });

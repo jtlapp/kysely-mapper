@@ -11,11 +11,19 @@ import {
   OperandValueExpressionOrList,
   ReferenceExpression,
   SelectType,
+  Selectable,
   WhereExpressionFactory,
   WhereInterface,
 } from 'kysely';
+import { KeyTuple, SelectableColumnTuple } from './type-utils';
 
 type AnyWhereInterface = WhereInterface<any, any>;
+
+type KeyColumnType<
+  DB,
+  TB extends keyof DB,
+  K extends keyof Selectable<DB[TB]> & string
+> = NonNullable<Selectable<DB[TB]>[K]>;
 
 /**
  * Type of the query filter object, which can be passed as an argument
@@ -24,8 +32,11 @@ type AnyWhereInterface = WhereInterface<any, any>;
 export type QueryFilter<
   DB,
   TB extends keyof DB & string,
+  KeyColumns extends SelectableColumnTuple<DB[TB]> | [],
   RE extends ReferenceExpression<DB, TB>
 > =
+  | (KeyColumns extends [string] ? KeyColumnType<DB, TB, KeyColumns[0]> : never)
+  | (KeyColumns extends [] ? never : Readonly<KeyTuple<DB[TB], KeyColumns>>)
   | FieldMatchingFilter<DB, TB, RE>
   | WhereExpressionFactory<DB, TB>
   | Expression<any>;
@@ -55,12 +66,14 @@ export type FieldMatchingFilter<
 export function applyQueryFilter<
   DB,
   TB extends keyof DB & string,
+  KeyColumns extends SelectableColumnTuple<DB[TB]> | [],
   QB extends AnyWhereInterface,
   RE extends ReferenceExpression<DB, TB>
 >(
   db: Kysely<DB>,
   qb: QB,
-  filterOrLHS: QueryFilter<DB, TB, RE> | RE,
+  keyColumns: KeyColumns,
+  filterOrLHS: QueryFilter<DB, TB, KeyColumns, RE> | RE,
   op?: ComparisonOperatorExpression,
   rhs?: OperandValueExpressionOrList<DB, TB, RE>
 ): QB {
@@ -68,25 +81,40 @@ export function applyQueryFilter<
   if (op !== undefined) {
     return qb.where(filterOrLHS as RE, op, rhs!) as QB;
   }
-  const filter = filterOrLHS as QueryFilter<DB, TB, RE>;
+  const filter = filterOrLHS as QueryFilter<DB, TB, KeyColumns, RE>;
+
+  if (typeof filter === 'object') {
+    // Process a key tuple filter.
+    if (Array.isArray(filter)) {
+      keyColumns.forEach((column, i) => {
+        qb = qb.where(db.dynamic.ref(column), '=', filter[i]) as QB;
+      });
+      return qb;
+    }
+
+    // Process a query expression filter. Check for expressions
+    // first because they could potentially be plain objects.
+    if ('expressionType' in filter) {
+      return qb.where(filter) as QB;
+    }
+
+    // Process a field matching filter. `{}` matches all rows.
+    if (filter.constructor === Object) {
+      for (const [column, value] of Object.entries(filter)) {
+        qb = qb.where(db.dynamic.ref(column), '=', value) as QB;
+      }
+      return qb as unknown as QB;
+    }
+  }
 
   // Process a where expression factory.
   if (typeof filter === 'function') {
-    return qb.where(filter) as QB;
+    return qb.where(filter as any) as QB;
   }
 
-  // Process a query expression filter. Check for expressions
-  // first because they could potentially be plain objects.
-  if ('expressionType' in filter) {
-    return qb.where(filter) as QB;
-  }
-
-  // Process a field matching filter. `{}` matches all rows.
-  if (filter.constructor === Object) {
-    for (const [column, value] of Object.entries(filter)) {
-      qb = qb.where(db.dynamic.ref(column), '=', value) as QB;
-    }
-    return qb as unknown as QB;
+  // Process a single key filter, expressed as a primitive value.
+  if (keyColumns.length === 1) {
+    return qb.where(db.dynamic.ref(keyColumns[0]), '=', filter) as QB;
   }
 
   throw Error('Unrecognized query filter');
