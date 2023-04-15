@@ -188,7 +188,7 @@ describe('TableMapperOptions type checks', () => {
     (await testMapper
       .update({ id: 1 })
       // @ts-expect-error - ensure that return type is User
-      .getOne(new User(1, 'John', 'Doe', 'jdoe', 'jdoe@abc.def')))!.name;
+      .returnOne(new User(1, 'John', 'Doe', 'jdoe', 'jdoe@abc.def')))!.name;
   });
 
   it('dummy test', () => {

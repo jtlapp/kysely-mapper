@@ -131,7 +131,7 @@ describe('insert an array of objects without transformation', () => {
     const success = await userMapperReturningDefault.insert().run(USERS);
     expect(success).toBe(true);
 
-    const readUsers = await userMapperReturningAll.select().getAll();
+    const readUsers = await userMapperReturningAll.select().returnAll();
     expect(readUsers.length).toEqual(3);
     for (let i = 0; i < USERS.length; i++) {
       expect(readUsers[i].handle).toEqual(USERS[i].handle);
@@ -145,11 +145,11 @@ describe('insert an array of objects without transformation', () => {
     });
   });
 
-  it('inserts multiple via getAll() without returning columns', async () => {
-    const results = await userMapperReturningDefault.insert().getAll(USERS);
+  it('inserts multiple via returnAll() without returning columns', async () => {
+    const results = await userMapperReturningDefault.insert().returnAll(USERS);
     expect(results).toBeUndefined();
 
-    const readUsers = await userMapperReturningAll.select().getAll();
+    const readUsers = await userMapperReturningAll.select().returnAll();
     expect(readUsers.length).toEqual(3);
     for (let i = 0; i < USERS.length; i++) {
       expect(readUsers[i].handle).toEqual(USERS[i].handle);
@@ -163,11 +163,13 @@ describe('insert an array of objects without transformation', () => {
     });
   });
 
-  it('inserts multiple via getOne() without returning columns', async () => {
-    const results = await userMapperReturningDefault.insert().getOne(USERS[0]);
+  it('inserts multiple via returnOne() without returning columns', async () => {
+    const results = await userMapperReturningDefault
+      .insert()
+      .returnOne(USERS[0]);
     expect(results).toBeUndefined();
 
-    const readUsers = await userMapperReturningAll.select().getAll();
+    const readUsers = await userMapperReturningAll.select().returnAll();
     expect(readUsers.length).toEqual(1);
     expect(readUsers[0].handle).toEqual(USERS[0].handle);
 
@@ -180,14 +182,14 @@ describe('insert an array of objects without transformation', () => {
   });
 
   it('inserts multiple returning configured return columns', async () => {
-    const insertReturns = await userMapperReturningID.insert().getAll(USERS);
+    const insertReturns = await userMapperReturningID.insert().returnAll(USERS);
     expect(insertReturns.length).toEqual(3);
     for (let i = 0; i < USERS.length; i++) {
       expect(insertReturns[i].id).toBeGreaterThan(0);
       expect(Object.keys(insertReturns[i]).length).toEqual(1);
     }
 
-    const readUsers = await userMapperReturningAll.select().getAll();
+    const readUsers = await userMapperReturningAll.select().returnAll();
     expect(readUsers.length).toEqual(3);
     for (let i = 0; i < USERS.length; i++) {
       expect(readUsers[i].handle).toEqual(USERS[i].handle);
@@ -198,7 +200,7 @@ describe('insert an array of objects without transformation', () => {
     const post2 = Object.assign({}, POSTS[2], { userId: insertReturns[2].id });
     const updateReturns = await postTableMapperReturningIDAndTitleAsT
       .insert()
-      .getAll([post0, post1, post2]);
+      .returnAll([post0, post1, post2]);
     expect(updateReturns.length).toEqual(3);
     for (let i = 0; i < updateReturns.length; i++) {
       expect(updateReturns[i].id).toBeGreaterThan(0);
@@ -217,10 +219,10 @@ describe('insert an array of objects without transformation', () => {
   it('inserts multiple returning no columns by default', async () => {
     const insertReturns = await userMapperReturningDefault
       .insert()
-      .getAll(USERS);
+      .returnAll(USERS);
     expect(insertReturns).toBeUndefined();
 
-    const readUsers = await userMapperReturningAll.select().getAll();
+    const readUsers = await userMapperReturningAll.select().returnAll();
     expect(readUsers.length).toEqual(3);
     for (let i = 0; i < USERS.length; i++) {
       expect(readUsers[i].handle).toEqual(USERS[i].handle);
@@ -230,10 +232,10 @@ describe('insert an array of objects without transformation', () => {
   it('inserts multiple explicitly returning no columns', async () => {
     const insertReturns = await userMapperReturningNothing
       .insert()
-      .getAll(USERS);
+      .returnAll(USERS);
     expect(insertReturns).toBeUndefined();
 
-    const readUsers = await userMapperReturningAll.select().getAll();
+    const readUsers = await userMapperReturningAll.select().returnAll();
     expect(readUsers.length).toEqual(3);
     for (let i = 0; i < USERS.length; i++) {
       expect(readUsers[i].handle).toEqual(USERS[i].handle);
@@ -241,7 +243,9 @@ describe('insert an array of objects without transformation', () => {
   });
 
   it('inserts multiple configured to return all columns', async () => {
-    const insertReturns = await userMapperReturningAll.insert().getAll(USERS);
+    const insertReturns = await userMapperReturningAll
+      .insert()
+      .returnAll(USERS);
     for (let i = 0; i < USERS.length; i++) {
       expect(insertReturns[i].id).toBeGreaterThan(0);
     }
@@ -254,15 +258,15 @@ describe('insert an array of objects without transformation', () => {
 
   ignore('detects inserting an array of objects type errors', async () => {
     // @ts-expect-error - inserted object must have all required columns
-    userMapperReturningAll.insert().getAll([{}]);
+    userMapperReturningAll.insert().returnAll([{}]);
     // @ts-expect-error - inserted object must have all required columns
     userMapperReturningAll.insert().run([{}]);
     // @ts-expect-error - inserted object must have all required columns
-    userMapperReturningAll.insert().getAll([{ email: 'xyz@pdq.xyz' }]);
+    userMapperReturningAll.insert().returnAll([{ email: 'xyz@pdq.xyz' }]);
     // @ts-expect-error - inserted object must have all required columns
     userMapperReturningAll.insert().run([{ email: 'xyz@pdq.xyz' }]);
     // @ts-expect-error - only configured columns are returned
-    (await userMapperReturningID.insert().getAll([USERS[0]]))[0].handle;
+    (await userMapperReturningID.insert().returnAll([USERS[0]]))[0].handle;
     // @ts-expect-error - only configured columns are returned
     (await userMapperReturningID.insert().run([USERS[0]]))[0].handle;
   });
@@ -275,7 +279,7 @@ describe('inserting a single object without transformation', () => {
 
     const readUser0 = await userMapperReturningAll
       .select('email', '=', USERS[0].email)
-      .getOne();
+      .returnOne();
     expect(readUser0?.email).toEqual(USERS[0].email);
   });
 
@@ -285,24 +289,26 @@ describe('inserting a single object without transformation', () => {
 
     const readUser0 = await userMapperReturningAll
       .select('email', '=', USERS[0].email)
-      .getOne();
+      .returnOne();
     expect(readUser0?.email).toEqual(USERS[0].email);
   });
 
   it('inserts one returning configured return columns', async () => {
-    const insertReturn = await userMapperReturningID.insert().getOne(USERS[0]);
+    const insertReturn = await userMapperReturningID
+      .insert()
+      .returnOne(USERS[0]);
     expect(insertReturn.id).toBeGreaterThan(0);
     expect(Object.keys(insertReturn).length).toEqual(1);
 
     const readUser0 = await userMapperReturningAll
       .select('id', '=', insertReturn.id)
-      .getOne();
+      .returnOne();
     expect(readUser0?.email).toEqual(USERS[0].email);
 
     const post0 = Object.assign({}, POSTS[0], { userId: insertReturn.id });
     const updateReturn = await postTableMapperReturningIDAndTitleAsT
       .insert()
-      .getOne(post0);
+      .returnOne(post0);
     expect(updateReturn.id).toBeGreaterThan(0);
     expect(updateReturn.t).toEqual(POSTS[0].title);
     expect(Object.keys(updateReturn).length).toEqual(2);
@@ -314,7 +320,7 @@ describe('inserting a single object without transformation', () => {
           cmpr('title', '=', updateReturn.t),
         ])
       )
-      .getOne();
+      .returnOne();
     expect(readPost0?.likeCount).toEqual(post0.likeCount);
 
     ignore('check return types', () => {
@@ -326,7 +332,9 @@ describe('inserting a single object without transformation', () => {
   });
 
   it('inserts one configured to return all columns', async () => {
-    const insertReturn = await userMapperReturningAll.insert().getOne(USERS[0]);
+    const insertReturn = await userMapperReturningAll
+      .insert()
+      .returnOne(USERS[0]);
     expect(insertReturn.id).toBeGreaterThan(0);
     const expectedUser = Object.assign({}, USERS[0], { id: insertReturn.id });
     expect(insertReturn).toEqual(expectedUser);
@@ -334,15 +342,15 @@ describe('inserting a single object without transformation', () => {
 
   ignore('detects type errors inserting a single object', async () => {
     // @ts-expect-error - inserted object must have all required columns
-    userMapperReturningAll.insert().getOne({});
+    userMapperReturningAll.insert().returnOne({});
     // @ts-expect-error - inserted object must have all required columns
     userMapperReturningAll.insert().run({});
     // @ts-expect-error - inserted object must have all required columns
-    userMapperReturningAll.insert().getOne({ email: 'xyz@pdq.xyz' });
+    userMapperReturningAll.insert().returnOne({ email: 'xyz@pdq.xyz' });
     // @ts-expect-error - inserted object must have all required columns
     userMapperReturningAll.insert().run({ email: 'xyz@pdq.xyz' });
     // @ts-expect-error - only requested columns are returned
-    (await userMapperReturningID.insert().getOne(USERS[0])).name;
+    (await userMapperReturningID.insert().returnOne(USERS[0])).name;
     // @ts-expect-error - only requested columns are returned
     (await userMapperReturningDefault.insert().run(USERS[0])).name;
   });
@@ -377,20 +385,22 @@ describe('insertion transformation', () => {
 
     const insertReturn = await insertTransformMapper
       .insert()
-      .getOne(insertedUser1);
+      .returnOne(insertedUser1);
     const readUser1 = await insertTransformMapper
       .select({
         id: insertReturn.id,
       })
-      .getOne();
+      .returnOne();
     expect(readUser1?.name).toEqual(
       `${insertedUser1.firstName} ${insertedUser1.lastName}`
     );
 
-    await insertTransformMapper.insert().getAll([insertedUser2, insertedUser3]);
+    await insertTransformMapper
+      .insert()
+      .returnAll([insertedUser2, insertedUser3]);
     const readUsers = await insertTransformMapper
       .select('id', '>', insertReturn.id)
-      .getAll();
+      .returnAll();
     expect(readUsers.length).toEqual(2);
     expect(readUsers[0].name).toEqual(
       `${insertedUser2.firstName} ${insertedUser2.lastName}`
@@ -434,12 +444,12 @@ describe('insertion transformation', () => {
 
     const insertReturn = await insertReturnTransformMapper
       .insert()
-      .getOne(userRow1);
+      .returnOne(userRow1);
     expect(insertReturn).toEqual(insertReturnedUser1);
 
     const insertReturns = await insertReturnTransformMapper
       .insert()
-      .getAll([userRow2, userRow3]);
+      .returnAll([userRow2, userRow3]);
     expect(insertReturns).toEqual([insertReturnedUser2, insertReturnedUser3]);
   });
 
@@ -484,12 +494,12 @@ describe('insertion transformation', () => {
 
     const insertReturn = await insertAndReturnTransformMapper
       .insert()
-      .getOne(insertedUser1);
+      .returnOne(insertedUser1);
     expect(insertReturn).toEqual(insertReturnedUser1);
 
     const insertReturns = await insertAndReturnTransformMapper
       .insert()
-      .getAll([insertedUser2, insertedUser3]);
+      .returnAll([insertedUser2, insertedUser3]);
     expect(insertReturns).toEqual([insertReturnedUser2, insertReturnedUser3]);
   });
 
@@ -497,11 +507,11 @@ describe('insertion transformation', () => {
     const insertTransformMapper = new InsertTransformMapper(db);
 
     // @ts-expect-error - requires InsertedObject as input
-    await insertTransformMapper.insert().getOne(USERS[0]);
+    await insertTransformMapper.insert().returnOne(USERS[0]);
     // @ts-expect-error - requires InsertedObject as input
     await insertTransformMapper.insert().run(USERS[0]);
     // @ts-expect-error - requires InsertedObject as input
-    await insertTransformMapper.insert().getOne(selectedUser1);
+    await insertTransformMapper.insert().returnOne(selectedUser1);
     // @ts-expect-error - requires InsertedObject as input
     await insertTransformMapper.insert().run(selectedUser1);
   });

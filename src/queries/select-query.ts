@@ -35,7 +35,7 @@ export class MappingSelectQuery<
    * (if provided) to map the rows to objects of type `SelectedObject`.
    * @returns An array of objects for the selected rows, possibly empty.
    */
-  async getAll(): Promise<SelectedObject[]> {
+  async returnAll(): Promise<SelectedObject[]> {
     const results = await this.qb.execute();
     return this.selectTransform === undefined
       ? results
@@ -47,7 +47,7 @@ export class MappingSelectQuery<
    * (if provided) to map the row to an object of type `SelectedObject`.
    * @returns An object for the selected rows, or null if not found.
    */
-  async getOne(): Promise<SelectedObject | null> {
+  async returnOne(): Promise<SelectedObject | null> {
     const result = await this.qb.executeTakeFirst();
     if (!result) return null;
     return this.selectTransform === undefined

@@ -88,7 +88,7 @@ export class MappingUpdateQuery<
    * @returns If `returnColumns` is not empty, returns an array containing one
    *  object for each row updated; otherwise returns `undefined`.
    */
-  getAll(
+  returnAll(
     obj: SelectedObject
   ): Promise<
     ReturnColumns extends []
@@ -98,11 +98,11 @@ export class MappingUpdateQuery<
       : DefaultReturnObject[]
   >;
 
-  getAll(
+  returnAll(
     obj: UpdatingObject
   ): Promise<ReturnColumns extends [] ? void : DefaultReturnObject[]>;
 
-  async getAll(
+  async returnAll(
     obj: UpdatingObject | SelectedObject
   ): Promise<SelectedObject[] | DefaultReturnObject[] | void> {
     if (this.returnColumns.length === 0) {
@@ -135,7 +135,7 @@ export class MappingUpdateQuery<
    *  returns the first object if at least one row was updated, or `null` if
    * no rows were updated.
    */
-  getOne(
+  returnOne(
     obj: SelectedObject
   ): Promise<
     ReturnColumns extends []
@@ -147,11 +147,11 @@ export class MappingUpdateQuery<
           | null
   >;
 
-  getOne(
+  returnOne(
     obj: UpdatingObject
   ): Promise<ReturnColumns extends [] ? void : DefaultReturnObject | null>;
 
-  async getOne(
+  async returnOne(
     obj: UpdatingObject | SelectedObject
   ): Promise<SelectedObject | DefaultReturnObject | null | void> {
     if (this.returnColumns.length === 0) {

@@ -24,7 +24,7 @@ export class ParameterizedRowQuery<
    * @param params Object providing values for all parameters.
    * @returns Query result.
    */
-  async getAll<DB>(db: Kysely<DB>, params: P): Promise<SelectedObject[]> {
+  async returnAll<DB>(db: Kysely<DB>, params: P): Promise<SelectedObject[]> {
     const results = await this.#parameterizedQuery.execute(db, params);
     return this.converter.transformRows(results.rows);
   }
@@ -37,7 +37,10 @@ export class ParameterizedRowQuery<
    * @param params Object providing values for all parameters.
    * @returns First query result, or undefined if there are no results.
    */
-  async getOne<DB>(db: Kysely<DB>, params: P): Promise<SelectedObject | null> {
+  async returnOne<DB>(
+    db: Kysely<DB>,
+    params: P
+  ): Promise<SelectedObject | null> {
     const result = await this.#parameterizedQuery.executeTakeFirst(db, params);
     if (!result) return null;
     return this.converter.transformRow(result);

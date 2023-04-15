@@ -148,7 +148,7 @@ export class KeyedTableMapper<
       | SingleKeyValue<DB[TB], KeyColumns>
       | Readonly<KeyTuple<DB[TB], KeyColumns>>
   ): Promise<SelectedObject | null> {
-    return this.select(this.filterForKey(key)).getOne();
+    return this.select(this.filterForKey(key)).returnOne();
   }
 
   /**
@@ -179,7 +179,7 @@ export class KeyedTableMapper<
       | Readonly<KeyTuple<DB[TB], KeyColumns>>,
     obj: UpdatingObject
   ): Promise<ReturnObject | null | void> {
-    return await this.update(this.filterForKey(key)).getOne(obj);
+    return await this.update(this.filterForKey(key)).returnOne(obj);
   }
 
   /**

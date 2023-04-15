@@ -71,7 +71,7 @@ export class MappingInsertQuery<
    * @returns If `returnColumns` is not empty, returns an array containing one
    *  object for each inserted object; otherwise returns `undefined`.
    */
-  getAll(
+  returnAll(
     objs: InsertedObject[]
   ): Promise<
     ReturnColumns extends []
@@ -81,7 +81,7 @@ export class MappingInsertQuery<
       : DefaultReturnObject[]
   >;
 
-  async getAll(
+  async returnAll(
     objs: InsertedObject[]
   ): Promise<
     | (InsertReturnsSelectedObject extends true
@@ -117,7 +117,7 @@ export class MappingInsertQuery<
    * @returns If `returnColumns` is not empty, returns an object;
    *  otherwise returns `undefined`.
    */
-  getOne(
+  returnOne(
     obj: InsertedObject
   ): Promise<
     ReturnColumns extends []
@@ -127,7 +127,7 @@ export class MappingInsertQuery<
       : DefaultReturnObject
   >;
 
-  async getOne(
+  async returnOne(
     obj: InsertedObject
   ): Promise<
     | (InsertReturnsSelectedObject extends true
