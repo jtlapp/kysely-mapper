@@ -1,6 +1,6 @@
 import { Kysely, SelectQueryBuilder } from 'kysely';
 import { SelectedRow, SelectionColumn } from '../lib/type-utils';
-import { ParameterizableMappingSelectQuery } from './compilable-query';
+import { ParameterizableMappingQuery } from './paramable-query';
 import { ParametersObject } from 'kysely-params';
 import { CompilingMappingSelectQuery } from './compiling-select-query';
 
@@ -13,7 +13,7 @@ export class MappingSelectQuery<
   SelectedColumns extends SelectionColumn<DB, TB>[] | ['*'],
   SelectedObject extends object,
   QB extends SelectQueryBuilder<DB, TB, any>
-> implements ParameterizableMappingSelectQuery
+> implements ParameterizableMappingQuery
 {
   /**
    * @param db Kysely database instance.

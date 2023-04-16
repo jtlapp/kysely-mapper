@@ -8,7 +8,7 @@ import {
 
 import { SelectionColumn } from '../lib/type-utils';
 import { MappingInsertQuery } from './insert-query';
-import { ParameterizableMappingSelectQuery } from './compilable-query';
+import { ParameterizableMappingQuery } from './paramable-query';
 import { ParametersObject } from 'kysely-params';
 import { CompilingMappingInsertQuery } from './compiling-insert-query';
 
@@ -38,7 +38,7 @@ export class SubsettingMappingInsertQuery<
     InsertReturnsSelectedObject,
     DefaultReturnObject
   >
-  implements ParameterizableMappingSelectQuery
+  implements ParameterizableMappingQuery
 {
   constructor(
     db: Kysely<DB>,

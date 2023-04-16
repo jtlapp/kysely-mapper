@@ -1,5 +1,5 @@
 import { DeleteQueryBuilder, Kysely, QueryResult } from 'kysely';
-import { ParameterizableMappingSelectQuery } from './compilable-query';
+import { ParameterizableMappingQuery } from './paramable-query';
 import { ParameterizedQuery, ParametersObject } from 'kysely-params';
 
 /**
@@ -11,7 +11,7 @@ export class CompilingMappingDeleteQuery<
   QB extends DeleteQueryBuilder<DB, TB, any>,
   ReturnCount,
   P extends ParametersObject<P>
-> implements ParameterizableMappingSelectQuery
+> implements ParameterizableMappingQuery
 {
   #parameterizedQuery: ParameterizedQuery<P, QueryResult<any>>;
 

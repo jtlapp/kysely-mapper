@@ -1,7 +1,7 @@
 import { ParametersObject, QueryParameterMaker } from 'kysely-params';
 import { TableMapper } from '../mappers/table-mapper';
 import { SelectableColumnTuple, SelectionColumn } from './type-utils';
-import { ParameterizableMappingSelectQuery } from '../queries/compilable-query';
+import { ParameterizableMappingQuery } from '../queries/paramable-query';
 
 /**
  * Definition of the function that a caller provides to parameterize a
@@ -35,7 +35,7 @@ export interface ParameterizableMappingQueryFactory<
     DefaultReturnObject
   >,
   P extends ParametersObject<P>,
-  Q extends ParameterizableMappingSelectQuery
+  Q extends ParameterizableMappingQuery
 > {
   (factory: { mapper: M; param: QueryParameterMaker<P>['param'] }): Q;
 }
