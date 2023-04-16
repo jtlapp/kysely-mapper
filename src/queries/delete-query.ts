@@ -1,4 +1,5 @@
 import { DeleteQueryBuilder, DeleteResult, Kysely } from 'kysely';
+import { CompilableMappingQuery } from './compilable-query';
 
 /**
  * Mapping query for deleting rows from a database table.
@@ -8,7 +9,8 @@ export class MappingDeleteQuery<
   TB extends keyof DB & string,
   QB extends DeleteQueryBuilder<DB, TB, DeleteResult>,
   ReturnCount
-> {
+> implements CompilableMappingQuery
+{
   /**
    * @param db Kysely database instance.
    * @param qb Kysely delete query builder.

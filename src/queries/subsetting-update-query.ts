@@ -7,32 +7,36 @@ import {
 } from 'kysely';
 import { SelectionColumn } from '../lib/type-utils';
 import { MappingUpdateQuery } from './update-query';
+import { CompilableMappingQuery } from './compilable-query';
 
 /**
  * Mapping query for updating rows into a database table,
  * updating a specified subset of the updateable columns.
  */
 export class SubsettingMappingUpdateQuery<
-  DB,
-  TB extends keyof DB & string,
-  QB extends UpdateQueryBuilder<DB, TB, TB, UpdateResult>,
-  UpdatingObject extends object,
-  SelectedObject extends object,
-  ReturnColumns extends SelectionColumn<DB, TB>[] | ['*'],
-  ReturnCount,
-  UpdateReturnsSelectedObjectWhenProvided extends boolean,
-  DefaultReturnObject extends object
-> extends MappingUpdateQuery<
-  DB,
-  TB,
-  QB,
-  UpdatingObject,
-  SelectedObject,
-  ReturnColumns,
-  ReturnCount,
-  UpdateReturnsSelectedObjectWhenProvided,
-  DefaultReturnObject
-> {
+    DB,
+    TB extends keyof DB & string,
+    QB extends UpdateQueryBuilder<DB, TB, TB, UpdateResult>,
+    UpdatingObject extends object,
+    SelectedObject extends object,
+    ReturnColumns extends SelectionColumn<DB, TB>[] | ['*'],
+    ReturnCount,
+    UpdateReturnsSelectedObjectWhenProvided extends boolean,
+    DefaultReturnObject extends object
+  >
+  extends MappingUpdateQuery<
+    DB,
+    TB,
+    QB,
+    UpdatingObject,
+    SelectedObject,
+    ReturnColumns,
+    ReturnCount,
+    UpdateReturnsSelectedObjectWhenProvided,
+    DefaultReturnObject
+  >
+  implements CompilableMappingQuery
+{
   constructor(
     db: Kysely<DB>,
     qb: QB,

@@ -1,5 +1,8 @@
 import { Kysely, SelectQueryBuilder } from 'kysely';
 import { SelectedRow, SelectionColumn } from '../lib/type-utils';
+import { CompilableMappingQuery } from './compilable-query';
+import { ParametersObject } from 'kysely-params';
+import { CompilingMappingSelectQuery } from './compiling-select-query';
 
 /**
  * Mapping query for selecting rows from a database table.
@@ -10,7 +13,8 @@ export class MappingSelectQuery<
   SelectedColumns extends SelectionColumn<DB, TB>[] | ['*'],
   SelectedObject extends object,
   QB extends SelectQueryBuilder<DB, TB, any>
-> {
+> implements CompilableMappingQuery
+{
   /**
    * @param db Kysely database instance.
    * @param qb Kysely select query builder.
@@ -29,6 +33,47 @@ export class MappingSelectQuery<
       >
     ) => SelectedObject
   ) {}
+
+  /**
+   * Returns a compiling query that can be executed multiple times with
+   * different parameters (if any parameters were provided), but which only
+   * compiles the underlying Kysely query builder on the first execution.
+   * Frees the query builder on the first execution to reduce memory usage.
+   * @typeparam P Record characterizing the parameter names and types
+   *  that were previously embedded in the query, if any.
+   * @returns A compiling select query.
+   */
+  compile<P extends ParametersObject<P> = {}>(): CompilingMappingSelectQuery<
+    DB,
+    TB,
+    SelectedColumns,
+    SelectedObject,
+    SelectQueryBuilder<DB, TB, P>,
+    P
+  > {
+    return new CompilingMappingSelectQuery(
+      this.db,
+      this.qb,
+      this.selectTransform
+    );
+  }
+
+  /**
+   * Modifies the underlying Kysely query builder. All columns given in
+   * `SelectedColumns` are already selected, but you can select additional
+   * columns or add column aliases.
+   * @param factory A function that takes the current query builder and
+   *  returns a new query builder.
+   */
+  modify<NextQB extends SelectQueryBuilder<DB, TB, any>>(
+    factory: (qb: QB) => NextQB
+  ): MappingSelectQuery<DB, TB, SelectedColumns, SelectedObject, NextQB> {
+    return new MappingSelectQuery(
+      this.db,
+      factory(this.qb),
+      this.selectTransform
+    );
+  }
 
   /**
    * Retrieves zero or more rows from the table, using `selectTransform`
@@ -53,22 +98,5 @@ export class MappingSelectQuery<
     return this.selectTransform === undefined
       ? result
       : this.selectTransform(result);
-  }
-
-  /**
-   * Modifies the underlying Kysely query builder. All columns given in
-   * `SelectedColumns` are already selected, but you can select additional
-   * columns or add column aliases.
-   * @param factory A function that takes the current query builder and
-   *  returns a new query builder.
-   */
-  modify<NextQB extends SelectQueryBuilder<DB, TB, any>>(
-    factory: (qb: QB) => NextQB
-  ): MappingSelectQuery<DB, TB, SelectedColumns, SelectedObject, NextQB> {
-    return new MappingSelectQuery(
-      this.db,
-      factory(this.qb),
-      this.selectTransform
-    );
   }
 }

@@ -8,6 +8,7 @@ import {
 
 import { SelectionColumn } from '../lib/type-utils';
 import { MappingInsertQuery } from './insert-query';
+import { CompilableMappingQuery } from './compilable-query';
 
 // TODO: where else should I use Map or Set instead of objects?
 
@@ -16,24 +17,27 @@ import { MappingInsertQuery } from './insert-query';
  * inserting a specified subset of the insertable columns.
  */
 export class SubsettingMappingInsertQuery<
-  DB,
-  TB extends keyof DB & string,
-  QB extends InsertQueryBuilder<DB, TB, InsertResult>,
-  InsertedObject extends object,
-  SelectedObject extends object,
-  ReturnColumns extends SelectionColumn<DB, TB>[] | ['*'],
-  InsertReturnsSelectedObject extends boolean,
-  DefaultReturnObject extends object
-> extends MappingInsertQuery<
-  DB,
-  TB,
-  QB,
-  InsertedObject,
-  SelectedObject,
-  ReturnColumns,
-  InsertReturnsSelectedObject,
-  DefaultReturnObject
-> {
+    DB,
+    TB extends keyof DB & string,
+    QB extends InsertQueryBuilder<DB, TB, InsertResult>,
+    InsertedObject extends object,
+    SelectedObject extends object,
+    ReturnColumns extends SelectionColumn<DB, TB>[] | ['*'],
+    InsertReturnsSelectedObject extends boolean,
+    DefaultReturnObject extends object
+  >
+  extends MappingInsertQuery<
+    DB,
+    TB,
+    QB,
+    InsertedObject,
+    SelectedObject,
+    ReturnColumns,
+    InsertReturnsSelectedObject,
+    DefaultReturnObject
+  >
+  implements CompilableMappingQuery
+{
   constructor(
     db: Kysely<DB>,
     qb: QB,

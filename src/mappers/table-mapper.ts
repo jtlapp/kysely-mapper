@@ -29,6 +29,9 @@ import { AllSelection } from '../lib/kysely-types';
 import { MappingUpdateQuery } from '../queries/update-query';
 import { UnrestrictedMappingInsertQuery } from '../queries/unrestricted-insert-query';
 import { UnrestrictedMappingUpdateQuery } from '../queries/unrestricted-update-query';
+import { ParametersObject, QueryParameterMaker } from 'kysely-params';
+import { CompilableMappingQueryFactory } from '../lib/compilable-query-factory';
+import { CompilingMappingSelectQuery } from '../queries/compiling-select-query';
 
 /**
  * A mapper providing access to a single table.
@@ -136,44 +139,6 @@ export class TableMapper<
   }
 
   /**
-   * Creates and returns a parameterized mapping query, which can be repeatedly
-   * executed with different parameter values, but which only ever compiles
-   * the underlying Kysely query once (on the first execution).
-   * @paramtype P Record characterizing the available parameter names and types.
-   * @param factory Function that receives an object of the form `{ q, param }`,
-   *  where `q` is a mapping query and `param` is a function for creating
-   *  parameters. The argument to `param` is the name of the parameter, which
-   *  must occur as a property of `P`. You may parameterize inserted values,
-   *  updated values, and right-hand-side values of filters. Parameters may not
-   *  be arrays, but you can parameterize the individual elements of an array.
-   *  Returns a mapping query that containing the parameterized values.
-   * @returns a parameterized mapping query
-   */
-  // compile<P extends ParametersObject<P>>(
-  //   factory: ParamedSelectionQueryFactory<
-  //     P,
-  //     MappingSelectQuery<DB, TB, SelectedObject, QB>
-  //   >
-  // ): ParameterizedRowQuery<P, SelectedObject> {
-  //   const parameterMaker = new QueryParameterMaker<P>();
-  //   return new ParameterizedRowQuery(
-  //     factory({
-  //       q: this,
-  //       param: parameterMaker.param.bind(parameterMaker),
-  //     }).qb,
-  //   );
-  // }
-  /**
-   * Factory function for parameterizing MappingSelectQuery.
-   */
-  // interface ParamedSelectionQueryFactory<
-  //   P extends ParametersObject<P>,
-  //   Q extends MappingSelectQuery<any, any, any, any>
-  // > {
-  //   (args: { q: Q; param: QueryParameterMaker<P>['param'] }): Q;
-  // }
-
-  /**
    * Returns a mapping query for deleting the rows of the table that match
    * the provided filter or Kysely binary operation.
    * @param filter Optional filter to apply to the query or the left-hand-side
@@ -248,6 +213,59 @@ export class TableMapper<
       this.returnColumns as ReturnColumns,
       this.options.insertReturnTransform
     );
+  }
+
+  /**
+   * Creates and returns a parameterized mapping query, which can be repeatedly
+   * executed with different parameter values, but which only ever compiles
+   * the underlying Kysely query once (on the first execution).
+   * @paramtype P Record characterizing the available parameter names and types.
+   * @param factory Function that receives an object of the form `{ mapper,
+   *  param }`, where `mapper` is the present table mapper and `param` is a
+   *  function for creating parameters. The argument to `param` is the name of
+   *  the parameter, which must occur as a property of `P`. You may parameterize
+   *  inserted values, updated values, and right-hand-side values of filters.
+   *  Parameters may not be arrays, but you can parameterize the individual
+   *  elements of an array. Returns a parameterized mapping query.
+   * @returns A parameterized mapping query
+   */
+  parameterize<P extends ParametersObject<P>>(
+    factory: CompilableMappingQueryFactory<
+      DB,
+      TB,
+      KeyColumns,
+      SelectedColumns,
+      SelectedObject,
+      InsertedObject,
+      UpdatingObject,
+      ReturnCount,
+      ReturnColumns,
+      InsertReturnsSelectedObject,
+      UpdateReturnsSelectedObjectWhenProvided,
+      DefaultReturnObject,
+      this,
+      P,
+      MappingSelectQuery<
+        DB,
+        TB,
+        SelectedColumns,
+        SelectedObject,
+        SelectQueryBuilder<DB, TB, object>
+      >
+    >
+  ): CompilingMappingSelectQuery<
+    DB,
+    TB,
+    SelectedColumns,
+    SelectedObject,
+    SelectQueryBuilder<DB, TB, object>,
+    P
+  > {
+    const parameterMaker = new QueryParameterMaker<P>();
+    return factory({
+      mapper: this,
+      param: parameterMaker.param.bind(parameterMaker),
+    }).compile();
   }
 
   /**

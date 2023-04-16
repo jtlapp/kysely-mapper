@@ -29,44 +29,77 @@ beforeEach(() => resetDB(db));
 afterAll(() => destroyDB(db));
 
 describe('general selection', () => {
-  // TODO: test parameterized queries only returning SelectedColumns and aliases
+  it('compiles an unparameterized selection', async () => {
+    await userMapper.insert().run(USERS);
 
-  // it('parameterizes a selection', async () => {
-  //   await userMapper.insert().run(USERS);
+    const compilation = userMapper.select({ name: USERS[0].name }).compile();
 
-  //   const parameterization = userMapper
-  //     .select()
-  //     .parameterize<{ name: string }>(({ q, param }) =>
-  //       q.filter({
-  //         name: param('name'),
-  //       })
-  //     );
+    const users = await compilation.returnAll({});
+    expect(users.length).toEqual(2);
+    expect(users[0].handle).toEqual(USERS[0].handle);
+    expect(users[1].handle).toEqual(USERS[2].handle);
+    // Ensure that the provided columns are not optional
+    ((_: string) => {})(users[0].handle);
 
-  //   const users = await parameterization.returnAll(db, {
-  //     name: USERS[0].name,
-  //   });
-  //   expect(users.length).toEqual(2);
-  //   expect(users[0].handle).toEqual(USERS[0].handle);
-  //   expect(users[1].handle).toEqual(USERS[2].handle);
-  //   // Ensure that the provided columns are not optional
-  //   ((_: string) => {})(users[0].handle);
+    const user = await compilation.returnOne({});
+    expect(user?.handle).toEqual(USERS[0].handle);
+    // Ensure that the provided columns are not optional
+    ((_: string) => {})(user!.name);
 
-  //   const user = await parameterization.returnOne(db, {
-  //     name: USERS[0].name,
-  //   });
-  //   expect(user?.handle).toEqual(USERS[0].handle);
-  //   // Ensure that the provided columns are not optional
-  //   ((_: string) => {})(user!.name);
+    ignore('compilation type errors', () => {
+      // @ts-expect-error - errors on invalid column names
+      users[0].notThere;
+      // @ts-expect-error - errors on invalid column names
+      user!.notThere;
+    });
+  });
 
-  //   ignore('parameterization type errors', () => {
-  //     // @ts-expect-error - errors on invalid parameter names
-  //     parameterization.returnAll(db, { notThere: 'foo' });
-  //     // @ts-expect-error - errors on invalid column names
-  //     users[0].notThere;
-  //     // @ts-expect-error - errors on invalid column names
-  //     user!.notThere;
-  //   });
-  // });
+  it('parameterizes and compiles a selection', async () => {
+    await userMapper.insert().run(USERS);
+
+    const parameterization = userMapper.parameterize<{ name: string }>(
+      ({ mapper, param }) => mapper.select({ name: param('name') })
+    );
+
+    // test returnAll() returning multiple
+    const users = await parameterization.returnAll({ name: USERS[0].name });
+    expect(users.length).toEqual(2);
+    expect(users[0].handle).toEqual(USERS[0].handle);
+    expect(users[1].handle).toEqual(USERS[2].handle);
+    // Ensure that the provided columns are not optional
+    ((_: string) => {})(users[0].handle);
+
+    // test returnOne() returning one
+    const user = await parameterization.returnOne({ name: USERS[1].name });
+    expect(user?.handle).toEqual(USERS[1].handle);
+    // Ensure that the provided columns are not optional
+    ((_: string) => {})(user!.name);
+
+    // test returnOne() returning none
+    const user2 = await parameterization.returnOne({ name: 'not there' });
+    expect(user2).toBeNull();
+
+    ignore('parameterization type errors', () => {
+      // @ts-expect-error - errors on invalid parameter names
+      parameterization.returnAll({ notThere: 'foo' });
+      // @ts-expect-error - errors on invalid column names
+      users[0].notThere;
+      // @ts-expect-error - errors on invalid column names
+      user!.notThere;
+      userMapper.parameterize<{ name: string }>(
+        // @ts-expect-error - errors on invalid parameter name
+        ({ mapper, param }) => mapper.select({ name: param('notThere') })
+      );
+      userMapper.parameterize<{ name: number }>(
+        // @ts-expect-error - errors on invalid parameter type
+        ({ mapper, param }) => mapper.select({ name: param('name') })
+      );
+      // @ts-expect-error - errors on invalid parameter value name
+      parameterization.returnOne({ notThere: 'foo' });
+      // @ts-expect-error - errors on invalid parameter value type
+      parameterization.returnOne({ name: 123 });
+    });
+  });
 
   it('modifies the underlying query builder', async () => {
     await userMapper.insert().run(USERS);
