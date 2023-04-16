@@ -342,7 +342,6 @@ describe('inserting a single object without transformation', () => {
 
   it('compiles a non-returning insert query without transformation', async () => {
     const compilation = userMapperReturningNothing
-
       .insert()
       .columns(['name', 'handle'])
       .compile();
