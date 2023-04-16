@@ -13,7 +13,7 @@ import { SubsettingMappingUpdateQuery } from './subsetting-update-query';
  * Mapping query for updating rows from a database table, where the
  * columns to be updated have not been restricted.
  */
-export class UnrestrictedMappingUpdateQuery<
+export class AnyColumnsMappingUpdateQuery<
   DB,
   TB extends keyof DB & string,
   QB extends UpdateQueryBuilder<DB, TB, TB, UpdateResult>,

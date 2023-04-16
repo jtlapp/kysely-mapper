@@ -27,8 +27,8 @@ import { MappingDeleteQuery } from '../queries/delete-query';
 import { MappingSelectQuery } from '../queries/select-query';
 import { AllSelection } from '../lib/kysely-types';
 import { MappingUpdateQuery } from '../queries/update-query';
-import { UnrestrictedMappingInsertQuery } from '../queries/unrestricted-insert-query';
-import { UnrestrictedMappingUpdateQuery } from '../queries/unrestricted-update-query';
+import { AnyColumnsMappingInsertQuery } from '../queries/any-insert-query';
+import { AnyColumnsMappingUpdateQuery } from '../queries/any-update-query';
 import { ParametersObject, QueryParameterMaker } from 'kysely-params';
 import { ParameterizableMappingQueryFactory } from '../lib/paramable-query-factory';
 import { CompilingMappingSelectQuery } from '../queries/compiling-select-query';
@@ -197,7 +197,7 @@ export class TableMapper<
    * Returns a query for inserting rows into the table.
    * @returns A mapping query for inserting rows.
    */
-  insert(): UnrestrictedMappingInsertQuery<
+  insert(): AnyColumnsMappingInsertQuery<
     DB,
     TB,
     InsertQueryBuilder<DB, TB, InsertResult>,
@@ -207,7 +207,7 @@ export class TableMapper<
     InsertReturnsSelectedObject,
     DefaultReturnObject
   > {
-    return new UnrestrictedMappingInsertQuery(
+    return new AnyColumnsMappingInsertQuery(
       this.db,
       this.getInsertQB(),
       this.options.insertTransform,
@@ -398,7 +398,7 @@ export class TableMapper<
     lhs: RE,
     op: ComparisonOperatorExpression,
     rhs: OperandValueExpressionOrList<DB, TB, RE>
-  ): UnrestrictedMappingUpdateQuery<
+  ): AnyColumnsMappingUpdateQuery<
     DB,
     TB,
     UpdateQueryBuilder<DB, TB, TB, UpdateResult>,
@@ -412,7 +412,7 @@ export class TableMapper<
 
   update<RE extends ReferenceExpression<DB, TB>>(
     filter?: QueryFilter<DB, TB, KeyColumns, RE>
-  ): UnrestrictedMappingUpdateQuery<
+  ): AnyColumnsMappingUpdateQuery<
     DB,
     TB,
     UpdateQueryBuilder<DB, TB, TB, UpdateResult>,
@@ -439,7 +439,7 @@ export class TableMapper<
     UpdateReturnsSelectedObjectWhenProvided,
     DefaultReturnObject
   > {
-    return new UnrestrictedMappingUpdateQuery(
+    return new AnyColumnsMappingUpdateQuery(
       this.db,
       filterOrLHS === undefined
         ? this.getUpdateQB()
