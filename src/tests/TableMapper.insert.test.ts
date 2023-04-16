@@ -340,7 +340,30 @@ describe('inserting a single object without transformation', () => {
     expect(insertReturn).toEqual(expectedUser);
   });
 
-  it('compiles an insert query without transformation', async () => {
+  it('compiles a non-returning insert query without transformation', async () => {
+    const compilation = userMapperReturningNothing
+
+      .insert()
+      .columns(['name', 'handle'])
+      .compile();
+
+    // test run()
+    const success1 = await compilation.run(USERS[1]);
+    expect(success1).toBe(true);
+
+    // test returnOne()
+    const success2 = await compilation.returnOne(USERS[2]);
+    expect(success2).toBeUndefined();
+
+    const readUsers = await userMapperReturningAll.select().returnAll();
+    expect(readUsers.length).toEqual(2);
+    expect(readUsers[0].handle).toEqual(USERS[1].handle);
+    expect(readUsers[0].email).toEqual(null);
+    expect(readUsers[1].handle).toEqual(USERS[2].handle);
+    expect(readUsers[1].email).toEqual(null);
+  });
+
+  it('compiles a returning insert query without transformation', async () => {
     const compilation = userMapperReturningAll
       .insert()
       .columns(['name', 'handle', 'email'])
