@@ -1,13 +1,13 @@
 import { ParametersObject, QueryParameterMaker } from 'kysely-params';
 import { TableMapper } from '../mappers/table-mapper';
 import { SelectableColumnTuple, SelectionColumn } from './type-utils';
-import { CompilableMappingQuery } from '../queries/compilable-query';
+import { ParameterizableMappingSelectQuery } from '../queries/compilable-query';
 
 /**
  * Definition of the function that a caller provides to parameterize a
  * compilable query.
  */
-export interface CompilableMappingQueryFactory<
+export interface ParameterizableMappingQueryFactory<
   DB,
   TB extends keyof DB & string,
   KeyColumns extends SelectableColumnTuple<DB[TB]> | [],
@@ -35,7 +35,7 @@ export interface CompilableMappingQueryFactory<
     DefaultReturnObject
   >,
   P extends ParametersObject<P>,
-  Q extends CompilableMappingQuery
+  Q extends ParameterizableMappingSelectQuery
 > {
   (factory: { mapper: M; param: QueryParameterMaker<P>['param'] }): Q;
 }

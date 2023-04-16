@@ -7,7 +7,7 @@ import {
 } from 'kysely';
 import { SelectionColumn } from '../lib/type-utils';
 import { MappingUpdateQuery } from './update-query';
-import { CompilableMappingQuery } from './compilable-query';
+import { ParameterizableMappingSelectQuery } from './compilable-query';
 
 /**
  * Mapping query for updating rows into a database table,
@@ -35,7 +35,7 @@ export class SubsettingMappingUpdateQuery<
     UpdateReturnsSelectedObjectWhenProvided,
     DefaultReturnObject
   >
-  implements CompilableMappingQuery
+  implements ParameterizableMappingSelectQuery
 {
   constructor(
     db: Kysely<DB>,

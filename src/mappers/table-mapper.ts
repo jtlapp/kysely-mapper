@@ -30,7 +30,7 @@ import { MappingUpdateQuery } from '../queries/update-query';
 import { UnrestrictedMappingInsertQuery } from '../queries/unrestricted-insert-query';
 import { UnrestrictedMappingUpdateQuery } from '../queries/unrestricted-update-query';
 import { ParametersObject, QueryParameterMaker } from 'kysely-params';
-import { CompilableMappingQueryFactory } from '../lib/compilable-query-factory';
+import { ParameterizableMappingQueryFactory } from '../lib/paramable-query-factory';
 import { CompilingMappingSelectQuery } from '../queries/compiling-select-query';
 import { CompilingMappingDeleteQuery } from '../queries/compiling-delete-query';
 
@@ -231,7 +231,7 @@ export class TableMapper<
    * @returns A parameterized mapping query
    */
   parameterize<P extends ParametersObject<P>>(
-    factory: CompilableMappingQueryFactory<
+    factory: ParameterizableMappingQueryFactory<
       DB,
       TB,
       KeyColumns,
@@ -262,7 +262,7 @@ export class TableMapper<
   >;
 
   parameterize<P extends ParametersObject<P>>(
-    factory: CompilableMappingQueryFactory<
+    factory: ParameterizableMappingQueryFactory<
       DB,
       TB,
       KeyColumns,
@@ -295,7 +295,7 @@ export class TableMapper<
   >;
 
   parameterize<P extends ParametersObject<P>>(
-    factory: CompilableMappingQueryFactory<
+    factory: ParameterizableMappingQueryFactory<
       DB,
       TB,
       KeyColumns,
