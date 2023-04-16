@@ -29,7 +29,7 @@ beforeEach(() => resetDB(db));
 afterAll(() => destroyDB(db));
 
 describe('general selection', () => {
-  it('compiles an unparameterized selection', async () => {
+  it('compiles an unparameterized select query', async () => {
     await userMapper.insert().run(USERS);
 
     const compilation = userMapper.select({ name: USERS[0].name }).compile();
@@ -54,7 +54,7 @@ describe('general selection', () => {
     });
   });
 
-  it('parameterizes and compiles a selection', async () => {
+  it('parameterizes and compiles a select query', async () => {
     await userMapper.insert().run(USERS);
 
     const parameterization = userMapper.parameterize<{ name: string }>(
