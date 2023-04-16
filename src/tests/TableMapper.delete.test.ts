@@ -159,7 +159,26 @@ describe('deleting rows via TableMapper', () => {
     expect(users.length).toEqual(1);
   });
 
-  it('deletes via parameterized queries', async () => {
+  it('compiles an unparameterized delete query', async () => {
+    await userMapper.insert().run(USERS);
+
+    const compilation = userMapper.delete({ name: USERS[0].name }).compile();
+    const count1 = await compilation.getCount({});
+    expect(count1).toEqual(2);
+    const users = await userMapper.select().returnAll();
+    expect(users.length).toEqual(1);
+    expect(users[0].handle).toEqual(USERS[1].handle);
+
+    await userMapper.insert().run(USERS[2]);
+
+    const success = await compilation.run({});
+    expect(success).toBe(true);
+    const users2 = await userMapper.select().returnAll();
+    expect(users2.length).toEqual(1);
+    expect(users2[0].handle).toEqual(USERS[1].handle);
+  });
+
+  it('parameterizes and compiles a delete query', async () => {
     const parameterization = userMapper.parameterize<{ targetName: string }>(
       ({ mapper, param }) => mapper.delete({ name: param('targetName') })
     );
