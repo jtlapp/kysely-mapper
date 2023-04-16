@@ -69,6 +69,10 @@ describe('general selection', () => {
     // Ensure that the provided columns are not optional
     ((_: string) => {})(users[0].handle);
 
+    // test returnAll() returning none
+    const users2 = await parameterization.returnAll({ name: 'not there' });
+    expect(users2.length).toEqual(0);
+
     // test returnOne() returning one
     const user = await parameterization.returnOne({ name: USERS[1].name });
     expect(user?.handle).toEqual(USERS[1].handle);
