@@ -159,40 +159,50 @@ describe('deleting rows via TableMapper', () => {
     expect(users.length).toEqual(1);
   });
 
-  // it('deletes via parameterized queries', async () => {
-  //   const parameterization = userMapper
-  //     .delete()
-  //     .parameterize<{ targetName: string }>(({ q, param }) =>
-  //       q.filter({ name: param('targetName') })
-  //     );
+  it('deletes via parameterized queries', async () => {
+    const parameterization = userMapper.parameterize<{ targetName: string }>(
+      ({ mapper, param }) => mapper.delete({ name: param('targetName') })
+    );
 
-  //   const count1 = await parameterization.getCount(db, {
-  //     targetName: USERS[0].name,
-  //   });
-  //   expect(count1).toEqual(0);
+    const count1 = await parameterization.getCount({
+      targetName: USERS[0].name,
+    });
+    expect(count1).toEqual(0);
 
-  //   await userMapper.insert().run(USERS);
+    await userMapper.insert().run(USERS);
 
-  //   const count2 = await parameterization.getCount(db, {
-  //     targetName: USERS[0].name,
-  //   });
-  //   expect(count2).toEqual(2);
-  //   const users = await userMapper.select().returnAll();
-  //   expect(users.length).toEqual(1);
-  //   expect(users[0].handle).toEqual(USERS[1].handle);
+    const count2 = await parameterization.getCount({
+      targetName: USERS[0].name,
+    });
+    expect(count2).toEqual(2);
+    const users = await userMapper.select().returnAll();
+    expect(users.length).toEqual(1);
+    expect(users[0].handle).toEqual(USERS[1].handle);
 
-  //   const count3 = await parameterization.getCount(db, {
-  //     targetName: USERS[1].name,
-  //   });
-  //   expect(count3).toEqual(1);
-  //   const users2 = await userMapper.select().returnAll();
-  //   expect(users2.length).toEqual(0);
+    const count3 = await parameterization.getCount({
+      targetName: USERS[1].name,
+    });
+    expect(count3).toEqual(1);
+    const users2 = await userMapper.select().returnAll();
+    expect(users2.length).toEqual(0);
 
-  //   ignore('parameterization type errors', () => {
-  //     // @ts-expect-error - errors on invalid parameter names
-  //     parameterization.run(db, { notThere: 'foo' });
-  //   });
-  // });
+    ignore('parameterization type errors', () => {
+      // @ts-expect-error - errors on invalid parameter names
+      parameterization.run({ notThere: 'foo' });
+      userMapper.parameterize<{ name: string }>(
+        // @ts-expect-error - errors on invalid parameter name
+        ({ mapper, param }) => mapper.select({ name: param('notThere') })
+      );
+      userMapper.parameterize<{ name: number }>(
+        // @ts-expect-error - errors on invalid parameter type
+        ({ mapper, param }) => mapper.select({ name: param('name') })
+      );
+      // @ts-expect-error - errors on invalid parameter value name
+      parameterization.run({ notThere: 'foo' });
+      // @ts-expect-error - errors on invalid parameter value type
+      parameterization.run({ targetName: 123 });
+    });
+  });
 
   ignore('detects deletion type errors', async () => {
     // @ts-expect-error - table must have all filter fields

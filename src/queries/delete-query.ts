@@ -1,5 +1,7 @@
 import { DeleteQueryBuilder, DeleteResult, Kysely } from 'kysely';
 import { CompilableMappingQuery } from './compilable-query';
+import { ParametersObject } from 'kysely-params';
+import { CompilingMappingDeleteQuery } from './compiling-delete-query';
 
 /**
  * Mapping query for deleting rows from a database table.
@@ -21,6 +23,29 @@ export class MappingDeleteQuery<
     protected readonly qb: QB,
     protected readonly countTransform: (count: bigint) => ReturnCount
   ) {}
+
+  /**
+   * Returns a compiling query that can be executed multiple times with
+   * different parameters (if any parameters were provided), but which only
+   * compiles the underlying Kysely query builder on the first execution.
+   * Frees the query builder on the first execution to reduce memory usage.
+   * @typeparam P Record characterizing the parameter names and types
+   *  that were previously embedded in the query, if any.
+   * @returns A compiling delete query.
+   */
+  compile<P extends ParametersObject<P> = {}>(): CompilingMappingDeleteQuery<
+    DB,
+    TB,
+    QB,
+    ReturnCount,
+    P
+  > {
+    return new CompilingMappingDeleteQuery(
+      this.db,
+      this.qb,
+      this.countTransform
+    );
+  }
 
   /**
    * Runs the query, returning the number of rows deleted, converted to

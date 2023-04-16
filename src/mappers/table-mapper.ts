@@ -32,6 +32,7 @@ import { UnrestrictedMappingUpdateQuery } from '../queries/unrestricted-update-q
 import { ParametersObject, QueryParameterMaker } from 'kysely-params';
 import { CompilableMappingQueryFactory } from '../lib/compilable-query-factory';
 import { CompilingMappingSelectQuery } from '../queries/compiling-select-query';
+import { CompilingMappingDeleteQuery } from '../queries/compiling-delete-query';
 
 /**
  * A mapper providing access to a single table.
@@ -245,6 +246,37 @@ export class TableMapper<
       DefaultReturnObject,
       this,
       P,
+      MappingDeleteQuery<
+        DB,
+        TB,
+        DeleteQueryBuilder<DB, TB, DeleteResult>,
+        ReturnCount
+      >
+    >
+  ): CompilingMappingDeleteQuery<
+    DB,
+    TB,
+    DeleteQueryBuilder<DB, TB, DeleteResult>,
+    ReturnCount,
+    P
+  >;
+
+  parameterize<P extends ParametersObject<P>>(
+    factory: CompilableMappingQueryFactory<
+      DB,
+      TB,
+      KeyColumns,
+      SelectedColumns,
+      SelectedObject,
+      InsertedObject,
+      UpdatingObject,
+      ReturnCount,
+      ReturnColumns,
+      InsertReturnsSelectedObject,
+      UpdateReturnsSelectedObjectWhenProvided,
+      DefaultReturnObject,
+      this,
+      P,
       MappingSelectQuery<
         DB,
         TB,
@@ -260,7 +292,27 @@ export class TableMapper<
     SelectedObject,
     SelectQueryBuilder<DB, TB, object>,
     P
-  > {
+  >;
+
+  parameterize<P extends ParametersObject<P>>(
+    factory: CompilableMappingQueryFactory<
+      DB,
+      TB,
+      KeyColumns,
+      SelectedColumns,
+      SelectedObject,
+      InsertedObject,
+      UpdatingObject,
+      ReturnCount,
+      ReturnColumns,
+      InsertReturnsSelectedObject,
+      UpdateReturnsSelectedObjectWhenProvided,
+      DefaultReturnObject,
+      this,
+      P,
+      any
+    >
+  ): any {
     const parameterMaker = new QueryParameterMaker<P>();
     return factory({
       mapper: this,
