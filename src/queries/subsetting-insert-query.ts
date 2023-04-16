@@ -9,6 +9,8 @@ import {
 import { SelectionColumn } from '../lib/type-utils';
 import { MappingInsertQuery } from './insert-query';
 import { CompilableMappingQuery } from './compilable-query';
+import { ParametersObject } from 'kysely-params';
+import { CompilingMappingInsertQuery } from './compiling-insert-query';
 
 // TODO: where else should I use Map or Set instead of objects?
 
@@ -54,6 +56,35 @@ export class SubsettingMappingInsertQuery<
       : DefaultReturnObject
   ) {
     super(db, qb, insertTransform, returnColumns, insertReturnTransform);
+  }
+
+  /**
+   * Returns a compiling query that can be executed multiple times with
+   * different parameters (if any parameters were provided), but which only
+   * compiles the underlying Kysely query builder on the first execution.
+   * Frees the query builder on the first execution to reduce memory usage.
+   * @typeparam P Record characterizing the parameter names and types
+   *  that were previously embedded in the query, if any.
+   * @returns A compiling insert query.
+   */
+  compile<P extends ParametersObject<P> = {}>(): CompilingMappingInsertQuery<
+    DB,
+    TB,
+    QB,
+    InsertedObject,
+    SelectedObject,
+    ReturnColumns,
+    InsertReturnsSelectedObject,
+    DefaultReturnObject
+  > {
+    return new CompilingMappingInsertQuery(
+      this.db,
+      this.qb,
+      this.columnsToInsert,
+      this.insertTransform,
+      this.returnColumns,
+      this.insertReturnTransform
+    );
   }
 
   protected setColumnValues(

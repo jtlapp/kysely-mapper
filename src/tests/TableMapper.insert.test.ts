@@ -24,7 +24,7 @@ import {
   selectedUser1,
 } from './utils/test-objects';
 import { ignore } from './utils/test-utils';
-import { InsertedUser, ReturnedUser } from './utils/test-types';
+import { InsertedUser, ReturnedUser, User } from './utils/test-types';
 
 let db: Kysely<Database>;
 
@@ -340,6 +340,46 @@ describe('inserting a single object without transformation', () => {
     expect(insertReturn).toEqual(expectedUser);
   });
 
+  it('compiles an insert query without transformation', async () => {
+    const compilation = userMapperReturningAll
+      .insert()
+      .columns(['name', 'handle', 'email'])
+      .compile();
+
+    // test returnOne()
+    const insertReturn = await compilation.returnOne(USERS[0]);
+    expect(insertReturn).toEqual({ ...USERS[0], id: 1 });
+    // Ensure that the provided columns are accessible
+    ((_: string) => {})(insertReturn!.name);
+
+    // test run()
+    const success1 = await compilation.run(USERS[1]);
+    expect(success1).toBe(true);
+
+    // test that non-specified columns are not inserted
+    const success2 = await compilation.run({ ...USERS[2], id: 100 });
+    expect(success2).toBe(true);
+
+    const readUsers = await userMapperReturningAll.select().returnAll();
+    expect(readUsers.length).toEqual(3);
+    expect(readUsers[0].handle).toEqual(USERS[0].handle);
+    expect(readUsers[1].handle).toEqual(USERS[1].handle);
+    expect(readUsers[2].handle).toEqual(USERS[2].handle);
+    expect(readUsers[2].id).toEqual(3);
+
+    ignore('check compile-time types', () => {
+      compilation.returnOne({
+        name: 'xyz',
+        handle: 'pdq',
+        email: 'abc@def.hij',
+        // @ts-expect-error - only insertable columns are allowed
+        notThere: 32,
+      });
+      // @ts-expect-error - only expected columns are returned
+      insertReturn!.notThere;
+    });
+  });
+
   ignore('detects type errors inserting a single object', async () => {
     // @ts-expect-error - inserted object must have all required columns
     userMapperReturningAll.insert().returnOne({});
@@ -545,6 +585,82 @@ describe('insertion queries', () => {
     expect(() =>
       subsetQuery.returnOne({ name: 'John Doe', handle: 'johndoe' })
     ).rejects.toThrow(`column 'email' missing`);
+  });
+
+  it('compiles an insert query with transformation', async () => {
+    class UniformInsertTransformMapper extends TableMapper<
+      Database,
+      'users',
+      ['id'],
+      ['*'],
+      User,
+      User,
+      Updateable<Database['users']>,
+      number,
+      ['id'],
+      true
+    > {
+      constructor(db: Kysely<Database>) {
+        super(db, 'users', {
+          selectTransform: (row) => {
+            const names = row.name.split(' ');
+            return new User(row.id, names[0], names[1], row.handle, row.email);
+          },
+          insertTransform: (source) => ({
+            name: `${source.firstName} ${source.lastName}`,
+            handle: source.handle,
+            email: source.email,
+          }),
+          returnColumns: ['id'],
+          insertReturnTransform: (source, returns) =>
+            new User(
+              returns.id,
+              source.firstName,
+              source.lastName,
+              source.handle,
+              source.email
+            ),
+          countTransform: (count) => Number(count),
+        });
+      }
+    }
+    const transformMapper = new UniformInsertTransformMapper(db);
+    const user1 = new User(0, 'John', 'Doe', 'johndoe', 'jdoe@abc.def');
+    const user2 = new User(0, 'Sam', 'Gamgee', 'sg', 'sg@abc.def');
+    const user3 = new User(100, 'Sue', 'Rex', 'srex', 'srex@abc.def');
+
+    const compilation = transformMapper
+      .insert()
+      .columns(['name', 'handle', 'email'])
+      .compile();
+
+    // test returnOne()
+    const insertReturn = await compilation.returnOne(user1);
+    expect(insertReturn).toEqual(User.create(1, user1));
+    // Ensure that the provided columns are accessible
+    ((_: string) => {})(insertReturn!.firstName);
+
+    // test run()
+    const success1 = await compilation.run(user2);
+    expect(success1).toBe(true);
+
+    // test that non-specified columns are not inserted
+    const success2 = await compilation.run(user3);
+    expect(success2).toBe(true);
+
+    const readUsers = await transformMapper.select().returnAll();
+    expect(readUsers).toEqual([
+      User.create(1, user1),
+      User.create(2, user2),
+      User.create(3, user3),
+    ]);
+
+    ignore('check compile-time types', () => {
+      // @ts-expect-error - only insertable objecs are allowed
+      compilation.returnOne(USERS[0]);
+      // @ts-expect-error - only insertable objecs are allowed
+      compilation.run(USERS[0]);
+    });
   });
 
   ignore('detects insertion transformation type errors', async () => {

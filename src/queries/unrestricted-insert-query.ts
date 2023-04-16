@@ -10,6 +10,8 @@ import { SelectionColumn } from '../lib/type-utils';
 import { SubsettingMappingInsertQuery } from './subsetting-insert-query';
 import { MappingInsertQuery } from './insert-query';
 
+// TODO: rename class to something more helpful in this error:
+// "Property 'compile' does not exist on type 'UnrestrictedMappingInsertQuery<Database, "users", InsertQueryBuilder<Database, "users", InsertResult>, InsertedUser, Selectable<Users>, [...], false, Selection<...>>'"
 /**
  * Mapping query for inserting rows into a database table, where the
  * columns to be inserted have not been restricted.
