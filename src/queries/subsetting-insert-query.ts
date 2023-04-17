@@ -9,7 +9,6 @@ import {
 import { SelectionColumn } from '../lib/type-utils';
 import { MappingInsertQuery } from './insert-query';
 import { ParameterizableMappingQuery } from './paramable-query';
-import { ParametersObject } from 'kysely-params';
 import { CompilingMappingInsertQuery } from './compiling-insert-query';
 
 // TODO: where else should I use Map or Set instead of objects?
@@ -67,7 +66,7 @@ export class SubsettingMappingInsertQuery<
    *  that were previously embedded in the query, if any.
    * @returns A compiling insert query.
    */
-  compile<P extends ParametersObject<P> = {}>(): CompilingMappingInsertQuery<
+  compile(): CompilingMappingInsertQuery<
     DB,
     TB,
     QB,

@@ -123,9 +123,6 @@ export class MappingInsertQuery<
       this.getReturningQB(),
       objs
     ).execute();
-    if (returns === undefined) {
-      throw Error('No rows returned from insert expecting returned columns');
-    }
     return this.insertReturnTransform === undefined
       ? (returns as any)
       : returns.map((row, i) =>
@@ -170,9 +167,6 @@ export class MappingInsertQuery<
       this.getReturningQB(),
       obj
     ).executeTakeFirst();
-    if (result === undefined) {
-      throw Error('No row returned from insert expecting returned columns');
-    }
     return this.insertReturnTransform === undefined
       ? (result as any)
       : this.insertReturnTransform(obj, result as any);
