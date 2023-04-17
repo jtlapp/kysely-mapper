@@ -107,7 +107,7 @@ export class MappingUpdateQuery<
 
   /**
    * Updates rows with the values that result from transforming the object via
-   * `insertTransform` (if defined). For each row updated, retrieves the
+   * `updateTransform` (if defined). For each row updated, retrieves the
    * columns specified in `returnColumns` (if defined), returning them to the
    * caller as either `DefaultReturnObject` or `SelectedObject`, depending
    * on whether `UpdateReturnsSelectedObjectWhenProvided` is `true` and the
@@ -134,26 +134,23 @@ export class MappingUpdateQuery<
     obj: UpdatingObject | SelectedObject
   ): Promise<SelectedObject[] | DefaultReturnObject[] | void> {
     if (this.returnColumns.length === 0) {
-      await this.loadUpdatingObject(this.qb, obj as any).execute();
+      await this.loadUpdatingObject(this.qb, obj as UpdatingObject).execute();
       return;
     }
     const returns = await this.loadUpdatingObject(
       this.getReturningQB(),
-      obj as any
+      obj as UpdatingObject
     ).execute();
-    if (returns === undefined) {
-      throw Error('No rows returned from update expecting returned columns');
-    }
     return this.updateReturnTransform === undefined
       ? (returns as any)
       : returns.map((row) =>
-          this.updateReturnTransform!(obj as any, row as any)
+          this.updateReturnTransform!(obj as UpdatingObject, row as any)
         );
   }
 
   /**
    * Updates rows with the values that result from transforming the object via
-   * `insertTransform` (if defined). For the first row updated, retrieves the
+   * `updateTransform` (if defined). For the first row updated, retrieves the
    * columns specified in `returnColumns` (if defined), returning them to the
    * caller as either `DefaultReturnObject` or `SelectedObject`, depending
    * on whether `UpdateReturnsSelectedObjectWhenProvided` is `true` and the
@@ -161,7 +158,7 @@ export class MappingUpdateQuery<
    * `updateReturnTransform`. If `returnColumns` is empty, returns `undefined`.
    * @returns If `returnColumns` is empty, returns `undefined`. Otherwise,
    *  returns the first object if at least one row was updated, or `null` if
-   * no rows were updated.
+   *  no rows were updated.
    */
   returnOne(
     obj: SelectedObject
@@ -183,22 +180,19 @@ export class MappingUpdateQuery<
     obj: UpdatingObject | SelectedObject
   ): Promise<SelectedObject | DefaultReturnObject | null | void> {
     if (this.returnColumns.length === 0) {
-      await this.loadUpdatingObject(this.qb, obj as any).execute();
+      await this.loadUpdatingObject(this.qb, obj as UpdatingObject).execute();
       return;
     }
     const returns = await this.loadUpdatingObject(
       this.getReturningQB(),
-      obj as any
+      obj as UpdatingObject
     ).execute();
-    if (returns === undefined) {
-      throw Error('No rows returned from update expecting returned columns');
-    }
     if (returns.length === 0) {
       return null;
     }
     return this.updateReturnTransform === undefined
       ? (returns[0] as any)
-      : this.updateReturnTransform!(obj as any, returns[0] as any);
+      : this.updateReturnTransform!(obj as UpdatingObject, returns[0] as any);
   }
 
   /**
