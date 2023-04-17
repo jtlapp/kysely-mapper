@@ -52,7 +52,7 @@ export class MappingDeleteQuery<
    * the required client representation.
    * @returns Number of rows deleted, in client-requested representation.
    */
-  async getCount(): Promise<ReturnCount> {
+  async returnCount(): Promise<ReturnCount> {
     const result = await this.qb.executeTakeFirst();
     return this.countTransform(result.numDeletedRows);
   }

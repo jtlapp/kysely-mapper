@@ -50,7 +50,7 @@ describe('updating rows via TableMapper', () => {
 
     const updateCount = await userMapperReturningAll
       .update({ id: 1 })
-      .getCount(updateValues);
+      .returnCount(updateValues);
     expect(updateCount).toEqual(0);
 
     const updates = await userMapperReturningID
@@ -71,7 +71,7 @@ describe('updating rows via TableMapper', () => {
     const success2 = await compilation.run({}, updateValues);
     expect(success2).toBe(false);
 
-    const updateCount2 = await compilation.getCount({}, updateValues);
+    const updateCount2 = await compilation.returnCount({}, updateValues);
     expect(updateCount2).toEqual(0);
 
     const updates2 = await compilation.returnAll({}, updateValues);
@@ -91,7 +91,7 @@ describe('updating rows via TableMapper', () => {
 
     const updateCount1 = await userMapperReturningAll
       .update({ id: insertReturn0.id })
-      .getCount(updateValues);
+      .returnCount(updateValues);
     expect(updateCount1).toEqual(1);
 
     const readUser1 = await userMapperReturningID
@@ -101,7 +101,7 @@ describe('updating rows via TableMapper', () => {
 
     const updateCount2 = await userMapperReturningAll
       .update({ name: 'Sue' })
-      .getCount(updateValues);
+      .returnCount(updateValues);
     expect(updateCount2).toEqual(2);
 
     const readUsers = await userMapperReturningID
@@ -127,7 +127,7 @@ describe('updating rows via TableMapper', () => {
       .returnOne();
     expect(readUser2?.name).toEqual('Every User 2');
 
-    const updateCount = await userMapperReturningID.update().getCount({
+    const updateCount = await userMapperReturningID.update().returnCount({
       name: 'Every User 3',
     });
     expect(updateCount).toEqual(3);
@@ -270,7 +270,7 @@ describe('updating rows via TableMapper', () => {
     const updateValues = { email: 'new.email@xyz.pdq' };
     const updateCount = await userMapperReturningAll
       .update('id', '>', insertReturns[0].id)
-      .getCount(updateValues);
+      .returnCount(updateValues);
     expect(updateCount).toEqual(2);
 
     const readUsers = await userMapperReturningID
@@ -288,7 +288,7 @@ describe('updating rows via TableMapper', () => {
     const updateValues = { email: 'new.email@xyz.pdq' };
     const updateCount = await userMapperReturningDefault
       .update(sql`id > ${insertReturns[0].id}`)
-      .getCount(updateValues);
+      .returnCount(updateValues);
     expect(updateCount).toEqual(BigInt(2));
 
     const readUsers = await userMapperReturningID
@@ -311,7 +311,7 @@ describe('updating rows via TableMapper', () => {
           cmpr('id', '=', insertReturns[2].id),
         ])
       )
-      .getCount(updateValues1);
+      .returnCount(updateValues1);
     expect(updateCount).toEqual(2);
 
     const updateValues2 = { email: 'bar@xyz.pdq' };
@@ -415,8 +415,8 @@ describe('updating rows via TableMapper', () => {
     const updateReturns3 = await compilation.returnAll({}, updateValues1);
     expect(updateReturns3).toBeUndefined();
 
-    // test getCount()
-    const updateReturns4 = await compilation.getCount({}, updateValues2);
+    // test returnCount()
+    const updateReturns4 = await compilation.returnCount({}, updateValues2);
     expect(updateReturns4).toEqual(1);
   });
 
@@ -453,8 +453,8 @@ describe('updating rows via TableMapper', () => {
     expect(updateReturns3[0].id).toEqual(insertReturns[0].id);
     expect(updateReturns3[0].h).toEqual(USERS[0].handle);
 
-    // test getCount()
-    const updateReturns4 = await compilation.getCount({}, updateValues2);
+    // test returnCount()
+    const updateReturns4 = await compilation.returnCount({}, updateValues2);
     expect(updateReturns4).toEqual(1);
 
     ignore('check compile-time types', () => {
@@ -515,8 +515,8 @@ describe('updating rows via TableMapper', () => {
     expect(readUsers[1].name).toEqual(updateValues2.name);
     expect(readUsers[2].name).toEqual(updateValues1.name);
 
-    // test getCount()
-    const updateReturns4 = await parameterization.getCount(
+    // test returnCount()
+    const updateReturns4 = await parameterization.returnCount(
       { id: insertReturns[0].id },
       updateValues2
     );
@@ -566,7 +566,7 @@ describe('updating rows via TableMapper', () => {
         // @ts-expect-error - table must have all filter fields
         { notThere: 'xyz' }
       )
-      .getCount({ email: 'abc@def.ghi' });
+      .returnCount({ email: 'abc@def.ghi' });
     userMapperReturningID
       .update(
         // @ts-expect-error - table must have all filter fields
@@ -600,7 +600,7 @@ describe('updating rows via TableMapper', () => {
         // @ts-expect-error - only table columns are accessible via anyOf()
         or([cmpr('notThere', '=', 'xyz'), cmpr('alsoNotThere', '=', 'Sue')])
       )
-      .getCount(USERS[0]);
+      .returnCount(USERS[0]);
     await userMapperReturningID
       .update(({ or, cmpr }) =>
         // @ts-expect-error - only table columns are accessible via anyOf()
@@ -893,8 +893,8 @@ describe('update transformation', () => {
       .returnOne();
     expect(readUser3).toEqual(expectedUser1);
 
-    // test getCount()
-    const count = await compilation.getCount({}, user2);
+    // test returnCount()
+    const count = await compilation.returnCount({}, user2);
     expect(count).toEqual(1);
     const readUser4 = await transformMapper
       .select({ id: insertReturns[2].id })
@@ -907,7 +907,7 @@ describe('update transformation', () => {
       // @ts-expect-error - only update objects are allowed
       compilation.returnAll({}, USERS[0]);
       // @ts-expect-error - only update objects are allowed
-      compilation.getCount({}, USERS[0]);
+      compilation.returnCount({}, USERS[0]);
       // @ts-expect-error - only update objects are allowed
       compilation.run({}, USERS[0]);
       // @ts-expect-error - correct return is expected
@@ -1036,8 +1036,8 @@ describe('update transformation', () => {
       }),
     ]);
 
-    // test getCount()
-    const count = await parameterization.getCount(
+    // test returnCount()
+    const count = await parameterization.returnCount(
       { id: insertReturns[2].id },
       user2
     );

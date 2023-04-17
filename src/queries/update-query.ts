@@ -103,7 +103,7 @@ export class MappingUpdateQuery<
    * @param obj The object which which to update the rows.
    * @returns Number of rows updated, in client-requested representation.
    */
-  async getCount(obj: UpdatingObject): Promise<ReturnCount> {
+  async returnCount(obj: UpdatingObject): Promise<ReturnCount> {
     const result = await this.loadUpdatingObject(
       this.qb,
       obj

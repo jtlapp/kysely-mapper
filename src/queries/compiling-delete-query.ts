@@ -38,7 +38,7 @@ export class CompilingMappingDeleteQuery<
    *  Pass in `{}` if the query has no parameters.
    * @returns Number of rows deleted, in client-requested representation.
    */
-  async getCount(params: P): Promise<ReturnCount> {
+  async returnCount(params: P): Promise<ReturnCount> {
     const result = await this.#parameterizedQuery.execute(this.db, params);
     return this.countTransform(result.numAffectedRows!);
   }

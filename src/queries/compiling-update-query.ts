@@ -82,8 +82,7 @@ export class CompilingMappingUpdateQuery<
    * @param obj The object which which to update the rows.
    * @returns Number of rows updated, in client-requested representation.
    */
-  // TODO: rename all getCount()s to returnCount()s
-  async getCount(params: P, obj: UpdatingObject): Promise<ReturnCount> {
+  async returnCount(params: P, obj: UpdatingObject): Promise<ReturnCount> {
     const transformedObj = this.applyUpdateTransform(obj);
     const compiledQuery = this.instantiateNoReturns(params, transformedObj);
     const result = await this.db.executeQuery(compiledQuery);
@@ -198,7 +197,7 @@ export class CompilingMappingUpdateQuery<
    * @returns `true` if any rows were updated, `false` otherwise.
    */
   async run(params: P, obj: UpdatingObject): Promise<boolean> {
-    return (await this.getCount(params, obj)) !== 0;
+    return (await this.returnCount(params, obj)) !== 0;
   }
 
   protected applyUpdateTransform(obj: UpdatingObject): Updateable<DB[TB]> {

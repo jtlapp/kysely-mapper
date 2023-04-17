@@ -25,7 +25,9 @@ afterAll(() => destroyDB(db));
 
 describe('deleting rows via TableMapper', () => {
   it("doesn't delete anything if no rows match", async () => {
-    const count = await userMapper.delete({ name: USERS[0].name }).getCount();
+    const count = await userMapper
+      .delete({ name: USERS[0].name })
+      .returnCount();
     expect(count).toEqual(0);
 
     const success = await userMapper.delete({ name: USERS[0].name }).run();
@@ -51,14 +53,14 @@ describe('deleting rows via TableMapper', () => {
 
     const count1 = await defaultMapper
       .delete({ name: USERS[0].name })
-      .getCount();
+      .returnCount();
     expect(count1).toEqual(BigInt(0));
 
     await defaultMapper.insert().run(USERS);
 
     const count2 = await defaultMapper
       .delete({ name: USERS[0].name })
-      .getCount();
+      .returnCount();
     expect(count2).toEqual(BigInt(2));
     const users = await defaultMapper.select().returnAll();
     expect(users.length).toEqual(1);
@@ -71,17 +73,23 @@ describe('deleting rows via TableMapper', () => {
     });
     await testMapper.insert().run(USERS);
 
-    const count = await testMapper.delete({ name: USERS[0].name }).getCount();
+    const count = await testMapper
+      .delete({ name: USERS[0].name })
+      .returnCount();
     expect(count).toEqual(2);
   });
 
   it('deletes rows returning the deletion count as number', async () => {
-    const count1 = await userMapper.delete({ name: USERS[0].name }).getCount();
+    const count1 = await userMapper
+      .delete({ name: USERS[0].name })
+      .returnCount();
     expect(count1).toEqual(0);
 
     await userMapper.insert().run(USERS);
 
-    const count2 = await userMapper.delete({ name: USERS[0].name }).getCount();
+    const count2 = await userMapper
+      .delete({ name: USERS[0].name })
+      .returnCount();
     expect(count2).toEqual(2);
     const users = await userMapper.select().returnAll();
     expect(users.length).toEqual(1);
@@ -90,7 +98,7 @@ describe('deleting rows via TableMapper', () => {
 
   it('deletes all rows without a filter', async () => {
     await userMapper.insert().run(USERS);
-    const count1 = await userMapper.delete().getCount();
+    const count1 = await userMapper.delete().returnCount();
     expect(count1).toEqual(3);
     const users1 = await userMapper.select().returnAll();
     expect(users1.length).toEqual(0);
@@ -112,7 +120,7 @@ describe('deleting rows via TableMapper', () => {
           cmpr('handle', '=', USERS[0].handle),
         ])
       )
-      .getCount();
+      .returnCount();
     expect(count1).toEqual(1);
 
     const count2 = await userMapper
@@ -122,7 +130,7 @@ describe('deleting rows via TableMapper', () => {
           cmpr('handle', '=', USERS[0].handle),
         ])
       )
-      .getCount();
+      .returnCount();
     expect(count2).toEqual(1);
   });
 
@@ -131,7 +139,7 @@ describe('deleting rows via TableMapper', () => {
 
     const count1 = await userMapper
       .delete('name', '=', USERS[0].name)
-      .getCount();
+      .returnCount();
     expect(count1).toEqual(2);
 
     const users = await userMapper.select().returnAll();
@@ -146,13 +154,13 @@ describe('deleting rows via TableMapper', () => {
     const count1 = await userMapper
       .delete()
       .modify((qb) => qb.where('name', '=', USERS[0].name))
-      .getCount();
+      .returnCount();
     expect(count1).toEqual(2);
 
     const count2 = await userMapper
       .delete({ name: USERS[1].name })
       .modify((qb) => qb.where('handle', '=', 'user4'))
-      .getCount();
+      .returnCount();
     expect(count2).toEqual(1);
 
     const users = await userMapper.select().returnAll();
@@ -163,7 +171,7 @@ describe('deleting rows via TableMapper', () => {
     await userMapper.insert().run(USERS);
 
     const compilation = userMapper.delete({ name: USERS[0].name }).compile();
-    const count1 = await compilation.getCount({});
+    const count1 = await compilation.returnCount({});
     expect(count1).toEqual(2);
     const users = await userMapper.select().returnAll();
     expect(users.length).toEqual(1);
@@ -183,14 +191,14 @@ describe('deleting rows via TableMapper', () => {
       ({ mapper, param }) => mapper.delete({ name: param('targetName') })
     );
 
-    const count1 = await parameterization.getCount({
+    const count1 = await parameterization.returnCount({
       targetName: USERS[0].name,
     });
     expect(count1).toEqual(0);
 
     await userMapper.insert().run(USERS);
 
-    const count2 = await parameterization.getCount({
+    const count2 = await parameterization.returnCount({
       targetName: USERS[0].name,
     });
     expect(count2).toEqual(2);
@@ -198,7 +206,7 @@ describe('deleting rows via TableMapper', () => {
     expect(users.length).toEqual(1);
     expect(users[0].handle).toEqual(USERS[1].handle);
 
-    const count3 = await parameterization.getCount({
+    const count3 = await parameterization.returnCount({
       targetName: USERS[1].name,
     });
     expect(count3).toEqual(1);
