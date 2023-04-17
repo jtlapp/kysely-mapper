@@ -1,14 +1,7 @@
-import {
-  Kysely,
-  InsertQueryBuilder,
-  Selectable,
-  Selection,
-  Insertable,
-  QueryResult,
-} from 'kysely';
+import { Kysely, InsertQueryBuilder, Insertable } from 'kysely';
 
-import { SelectionColumn } from '../lib/type-utils';
-import { ParameterizedQuery, QueryParameterMaker } from 'kysely-params';
+import { SelectedRow, SelectionColumn } from '../lib/type-utils';
+import { CompilingValuesQuery } from './compiling-values-query';
 
 /**
  * Compiling mapping query for inserting rows into a database table.
@@ -22,19 +15,14 @@ export class CompilingMappingInsertQuery<
   ReturnColumns extends SelectionColumn<DB, TB>[] | ['*'],
   InsertReturnsSelectedObject extends boolean,
   DefaultReturnObject extends object
+> extends CompilingValuesQuery<
+  DB,
+  TB,
+  QB,
+  ReturnColumns,
+  {},
+  Insertable<DB[TB]>
 > {
-  #parameterizedQuery: ParameterizedQuery<
-    Record<string, any>,
-    QueryResult<any>
-  > | null = null;
-  #parameterizedQueryWithReturns: ParameterizedQuery<
-    Record<string, any>,
-    QueryResult<any>
-  > | null = null;
-  protected readonly returnColumns: ReturnColumns;
-  protected qb: QB | null = null;
-  protected remainingCompilations: number;
-
   /**
    * @param db Kysely database instance.
    * @param qb Kysely update query builder.
@@ -62,20 +50,19 @@ export class CompilingMappingInsertQuery<
       source: InsertedObject,
       returns: ReturnColumns extends []
         ? never
-        : Selection<DB, TB, ReturnColumns[number]>
+        : SelectedRow<
+            DB,
+            TB,
+            ReturnColumns extends ['*'] ? never : ReturnColumns[number],
+            ReturnColumns
+          >
     ) => InsertReturnsSelectedObject extends true
       ? SelectedObject
       : DefaultReturnObject
   ) {
-    // TODO: can I just receive the final returnColumns?
-    this.returnColumns = returnColumns ?? ([] as any);
-    this.remainingCompilations = this.returnColumns.length === 0 ? 1 : 2;
-
-    const parameterMaker = new QueryParameterMaker<any>();
-    const paramedObj = Object.fromEntries(
-      columnsToInsert.map((col) => [col, parameterMaker.param(col)])
-    );
-    this.qb = qb.values(paramedObj as any) as QB;
+    super(db, returnColumns);
+    const parameterizedValues = this.getParameterizedObject(columnsToInsert);
+    this.qb = qb.values(parameterizedValues) as QB;
   }
 
   /**
@@ -108,31 +95,23 @@ export class CompilingMappingInsertQuery<
     | (InsertReturnsSelectedObject extends true
         ? SelectedObject
         : DefaultReturnObject)
-    | null
     | void
   > {
     if (this.returnColumns.length === 0) {
       await this.run(obj);
       return;
     }
-    if (this.#parameterizedQueryWithReturns === null) {
-      this.#parameterizedQueryWithReturns = new ParameterizedQuery(
-        this.getReturningQB()
+    const transformedObj = this.applyInsertTransform(obj);
+    const compiledQuery = this.instantiateWithReturns({}, transformedObj);
+    const result = await this.db.executeQuery(compiledQuery);
+    if (result.rows.length === 0) {
+      throw Error(
+        'No row returned from compiled insert expecting returned columns'
       );
-      if (--this.remainingCompilations === 0) {
-        this.qb = null;
-      }
-    }
-    const result = await this.#parameterizedQueryWithReturns.executeTakeFirst(
-      this.db,
-      this.applyInsertTransform(obj)
-    );
-    if (result === undefined) {
-      throw Error('No row returned from insert expecting returned columns');
     }
     return this.insertReturnTransform === undefined
-      ? (result as any)
-      : this.insertReturnTransform(obj, result as any);
+      ? (result.rows[0] as any)
+      : this.insertReturnTransform(obj, result.rows[0] as any);
   }
 
   /**
@@ -144,14 +123,9 @@ export class CompilingMappingInsertQuery<
    * @returns Returns `true`; throws an exception on error.
    */
   async run(obj: InsertedObject): Promise<boolean> {
-    if (this.#parameterizedQuery === null) {
-      this.#parameterizedQuery = new ParameterizedQuery(this.qb!);
-      if (--this.remainingCompilations === 0) {
-        this.qb = null;
-      }
-    }
     const transformedObj = this.applyInsertTransform(obj);
-    await this.#parameterizedQuery.execute(this.db, transformedObj);
+    const compiledQuery = this.instantiateNoReturns({}, transformedObj);
+    await this.db.executeQuery(compiledQuery);
     return true;
   }
 
@@ -159,14 +133,5 @@ export class CompilingMappingInsertQuery<
     return this.insertTransform === undefined
       ? (obj as Insertable<DB[TB]>)
       : this.insertTransform(obj);
-  }
-
-  // TODO: might be able to make this shared; otherwise maybe embed it
-  protected getReturningQB(): InsertQueryBuilder<DB, TB, any> {
-    return this.returnColumns[0] == '*'
-      ? this.qb!.returningAll()
-      : this.qb!.returning(
-          this.returnColumns as (keyof Selectable<DB[TB]> & string)[]
-        );
   }
 }

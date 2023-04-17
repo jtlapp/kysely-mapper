@@ -33,6 +33,8 @@ import { ParametersObject, QueryParameterMaker } from 'kysely-params';
 import { ParameterizableMappingQueryFactory } from '../lib/paramable-query-factory';
 import { CompilingMappingSelectQuery } from '../queries/compiling-select-query';
 import { CompilingMappingDeleteQuery } from '../queries/compiling-delete-query';
+import { SubsettingMappingUpdateQuery } from '../queries/subsetting-update-query';
+import { CompilingMappingUpdateQuery } from '../queries/compiling-update-query';
 
 /**
  * A mapper providing access to a single table.
@@ -291,6 +293,47 @@ export class TableMapper<
     SelectedColumns,
     SelectedObject,
     SelectQueryBuilder<DB, TB, object>,
+    P
+  >;
+
+  parameterize<P extends ParametersObject<P>>(
+    factory: ParameterizableMappingQueryFactory<
+      DB,
+      TB,
+      KeyColumns,
+      SelectedColumns,
+      SelectedObject,
+      InsertedObject,
+      UpdatingObject,
+      ReturnCount,
+      ReturnColumns,
+      InsertReturnsSelectedObject,
+      UpdateReturnsSelectedObjectWhenProvided,
+      DefaultReturnObject,
+      this,
+      P,
+      SubsettingMappingUpdateQuery<
+        DB,
+        TB,
+        UpdateQueryBuilder<DB, TB, TB, UpdateResult>,
+        UpdatingObject,
+        SelectedObject,
+        ReturnColumns,
+        ReturnCount,
+        UpdateReturnsSelectedObjectWhenProvided,
+        DefaultReturnObject
+      >
+    >
+  ): CompilingMappingUpdateQuery<
+    DB,
+    TB,
+    UpdateQueryBuilder<DB, TB, TB, UpdateResult>,
+    UpdatingObject,
+    SelectedObject,
+    ReturnColumns,
+    ReturnCount,
+    UpdateReturnsSelectedObjectWhenProvided,
+    DefaultReturnObject,
     P
   >;
 

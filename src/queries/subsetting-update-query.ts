@@ -1,13 +1,9 @@
-import {
-  Kysely,
-  Selection,
-  UpdateQueryBuilder,
-  UpdateResult,
-  Updateable,
-} from 'kysely';
-import { SelectionColumn } from '../lib/type-utils';
+import { Kysely, UpdateQueryBuilder, UpdateResult, Updateable } from 'kysely';
+import { SelectedRow, SelectionColumn } from '../lib/type-utils';
 import { MappingUpdateQuery } from './update-query';
 import { ParameterizableMappingQuery } from './paramable-query';
+import { ParametersObject } from 'kysely-params';
+import { CompilingMappingUpdateQuery } from './compiling-update-query';
 
 /**
  * Mapping query for updating rows into a database table,
@@ -46,7 +42,14 @@ export class SubsettingMappingUpdateQuery<
     returnColumns?: ReturnColumns,
     updateReturnTransform?: (
       source: UpdatingObject,
-      returns: Selection<DB, TB, ReturnColumns[number]>
+      returns: ReturnColumns extends []
+        ? never
+        : SelectedRow<
+            DB,
+            TB,
+            ReturnColumns extends ['*'] ? never : ReturnColumns[number],
+            ReturnColumns
+          >
     ) => UpdateReturnsSelectedObjectWhenProvided extends true
       ? UpdatingObject extends SelectedObject
         ? SelectedObject
@@ -60,6 +63,38 @@ export class SubsettingMappingUpdateQuery<
       updateTransform,
       returnColumns,
       updateReturnTransform
+    );
+  }
+
+  /**
+   * Returns a compiling query that can be executed multiple times with
+   * different parameters (if any parameters were provided), but which only
+   * compiles the underlying Kysely query builder on the first execution.
+   * Frees the query builder on the first execution to reduce memory usage.
+   * @typeparam P Record characterizing the parameter names and types
+   *  that were previously embedded in the query, if any.
+   * @returns A compiling update query.
+   */
+  compile<P extends ParametersObject<P> = {}>(): CompilingMappingUpdateQuery<
+    DB,
+    TB,
+    QB,
+    UpdatingObject,
+    SelectedObject,
+    ReturnColumns,
+    ReturnCount,
+    UpdateReturnsSelectedObjectWhenProvided,
+    DefaultReturnObject,
+    P
+  > {
+    return new CompilingMappingUpdateQuery(
+      this.db,
+      this.qb,
+      this.columnsToUpdate,
+      this.countTransform,
+      this.updateTransform,
+      this.returnColumns,
+      this.updateReturnTransform
     );
   }
 
