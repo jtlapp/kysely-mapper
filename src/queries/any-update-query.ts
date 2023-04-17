@@ -1,11 +1,5 @@
-import {
-  Kysely,
-  Selection,
-  UpdateQueryBuilder,
-  UpdateResult,
-  Updateable,
-} from 'kysely';
-import { SelectionColumn } from '../lib/type-utils';
+import { Kysely, UpdateQueryBuilder, UpdateResult, Updateable } from 'kysely';
+import { SelectedRow, SelectionColumn } from '../lib/type-utils';
 import { MappingUpdateQuery } from './update-query';
 import { SubsettingMappingUpdateQuery } from './subsetting-update-query';
 
@@ -42,7 +36,14 @@ export class AnyColumnsMappingUpdateQuery<
     returnColumns?: ReturnColumns,
     updateReturnTransform?: (
       source: UpdatingObject,
-      returns: Selection<DB, TB, ReturnColumns[number]>
+      returns: ReturnColumns extends []
+        ? never
+        : SelectedRow<
+            DB,
+            TB,
+            ReturnColumns extends ['*'] ? never : ReturnColumns[number],
+            ReturnColumns
+          >
     ) => UpdateReturnsSelectedObjectWhenProvided extends true
       ? UpdatingObject extends SelectedObject
         ? SelectedObject

@@ -1,12 +1,11 @@
 import {
   Kysely,
   Selectable,
-  Selection,
   UpdateQueryBuilder,
   UpdateResult,
   Updateable,
 } from 'kysely';
-import { SelectionColumn } from '../lib/type-utils';
+import { SelectedRow, SelectionColumn } from '../lib/type-utils';
 
 // TODO: look into factoring out methods into base classes
 
@@ -53,7 +52,14 @@ export class MappingUpdateQuery<
     returnColumns?: ReturnColumns,
     protected readonly updateReturnTransform?: (
       source: UpdatingObject,
-      returns: Selection<DB, TB, ReturnColumns[number]>
+      returns: ReturnColumns extends []
+        ? never
+        : SelectedRow<
+            DB,
+            TB,
+            ReturnColumns extends ['*'] ? never : ReturnColumns[number],
+            ReturnColumns
+          >
     ) => UpdateReturnsSelectedObjectWhenProvided extends true
       ? UpdatingObject extends SelectedObject
         ? SelectedObject

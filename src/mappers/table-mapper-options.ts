@@ -98,7 +98,12 @@ export interface TableMapperOptions<
     source: InsertedObject,
     returns: ReturnColumns extends []
       ? never
-      : Selection<DB, TB, ReturnColumns[number]>
+      : SelectedRow<
+          DB,
+          TB,
+          ReturnColumns extends ['*'] ? never : ReturnColumns[number],
+          ReturnColumns
+        >
   ) => InsertReturnsSelectedObject extends true
     ? SelectedObject
     : DefaultReturnObject;
@@ -106,7 +111,14 @@ export interface TableMapperOptions<
   /** Transformation to apply to column values returned from updates. */
   readonly updateReturnTransform?: (
     source: UpdatingObject,
-    returns: Selection<DB, TB, ReturnColumns[number]>
+    returns: ReturnColumns extends []
+      ? never
+      : SelectedRow<
+          DB,
+          TB,
+          ReturnColumns extends ['*'] ? never : ReturnColumns[number],
+          ReturnColumns
+        >
   ) => UpdateReturnsSelectedObjectWhenProvided extends true
     ? UpdatingObject extends SelectedObject
       ? SelectedObject

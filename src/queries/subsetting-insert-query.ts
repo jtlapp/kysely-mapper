@@ -1,12 +1,6 @@
-import {
-  Kysely,
-  InsertQueryBuilder,
-  InsertResult,
-  Selection,
-  Insertable,
-} from 'kysely';
+import { Kysely, InsertQueryBuilder, InsertResult, Insertable } from 'kysely';
 
-import { SelectionColumn } from '../lib/type-utils';
+import { SelectedRow, SelectionColumn } from '../lib/type-utils';
 import { MappingInsertQuery } from './insert-query';
 import { ParameterizableMappingQuery } from './paramable-query';
 import { CompilingMappingInsertQuery } from './compiling-insert-query';
@@ -49,7 +43,12 @@ export class SubsettingMappingInsertQuery<
       source: InsertedObject,
       returns: ReturnColumns extends []
         ? never
-        : Selection<DB, TB, ReturnColumns[number]>
+        : SelectedRow<
+            DB,
+            TB,
+            ReturnColumns extends ['*'] ? never : ReturnColumns[number],
+            ReturnColumns
+          >
     ) => InsertReturnsSelectedObject extends true
       ? SelectedObject
       : DefaultReturnObject

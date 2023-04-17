@@ -1,9 +1,10 @@
-import { Kysely, Selection, Updateable } from 'kysely';
+import { Kysely, Updateable } from 'kysely';
 
 import { TableMapper } from './table-mapper';
 import {
   SelectableColumn,
   SelectableColumnTuple,
+  SelectedRow,
   SelectionColumn,
 } from '../lib/type-utils';
 import { UniformTableMapperOptions } from './uniform-table-mapper-options';
@@ -117,7 +118,14 @@ function _prepareOptions<
   // Add returned values to inserted object, by default
   const insertReturnTransform = (
     obj: MappedObject,
-    returns: Selection<DB, TB, ReturnColumns[number]>
+    returns: ReturnColumns extends []
+      ? never
+      : SelectedRow<
+          DB,
+          TB,
+          ReturnColumns extends ['*'] ? never : ReturnColumns[number],
+          ReturnColumns
+        >
   ) => ({ ...obj, ...returns });
 
   // Use insert transform by default; or if none is provided, remove falsy
@@ -133,7 +141,14 @@ function _prepareOptions<
   // If the object is not a `MappedObject`, return the raw return values.
   const updateReturnTransform = (
     obj: MappedObject | Updateable<DB[TB]>,
-    returns: Selection<DB, TB, ReturnColumns[number]>
+    returns: ReturnColumns extends []
+      ? never
+      : SelectedRow<
+          DB,
+          TB,
+          ReturnColumns extends ['*'] ? never : ReturnColumns[number],
+          ReturnColumns
+        >
   ) =>
     !options.isMappedObject(obj)
       ? returns
