@@ -29,7 +29,7 @@ import {
  * @typeparam DefaultReturnObject Type of objects returned from inserts and
  *  updates, unless configured to return `SelectedObject`.
  */
-export interface TableMapperOptions<
+export interface TableMapperTransforms<
   DB,
   TB extends keyof DB & string,
   KeyColumns extends SelectableColumnTuple<DB[TB]> | [] = [],
@@ -49,49 +49,43 @@ export interface TableMapperOptions<
   DefaultReturnObject extends object = ReturnColumns extends ['*']
     ? Selectable<DB[TB]>
     : Selection<DB, TB, ReturnColumns[number]>
-> {
-  /** Tuple of the columns that make up the table's key. May be `[]`. */
-  readonly keyColumns?: KeyColumns;
-
-  /**
-   * Columns to return from selection queries. `[*]` selects all columns.
-   * May contain aliases.
-   */
-  readonly selectedColumns?: SelectedColumns;
-
-  /** Transformation to apply to inserted objects before insertion. */
-  readonly insertTransform?: (obj: InsertedObject) => Insertable<DB[TB]>;
-
-  /** Whether insert queries return `SelectedObject` or `DefaultReturnObject`. */
-  // TODO: do I need this? can it be properly inferred?
-  readonly insertReturnsSelectedObject?: InsertReturnsSelectedObject;
-
-  /** Transformation to apply to objects provided for updating values. */
-  readonly updateTransform?: (update: UpdatingObject) => Updateable<DB[TB]>;
-
-  /**
-   * Whether update queries return `SelectedObject` when the updating object
-   * is a `SelectedObject`; update queries otherwise return `DefaultReturnObject`.
-   */
-  // TODO: do I need this? can it be properly inferred?
-  readonly updateReturnsSelectedObjectWhenProvided?: UpdateReturnsSelectedObjectWhenProvided;
-
-  /** Transformation to apply to selected objects. */
-  readonly selectTransform?: (
-    row: SelectedRow<
+> extends CountTransform<ReturnCount>,
+    InsertTransforms<
       DB,
       TB,
-      SelectedColumns extends ['*'] ? never : SelectedColumns[number],
-      SelectedColumns
-    >
-  ) => SelectedObject;
+      SelectedObject,
+      InsertedObject,
+      ReturnColumns,
+      InsertReturnsSelectedObject,
+      DefaultReturnObject
+    >,
+    SelectTransform<DB, TB, SelectedColumns, SelectedObject>,
+    UpdateTransforms<
+      DB,
+      TB,
+      SelectedObject,
+      UpdatingObject,
+      ReturnColumns,
+      UpdateReturnsSelectedObjectWhenProvided,
+      DefaultReturnObject
+    > {}
 
-  /**
-   * Columns to return from the table on insert or update, unless explicitly
-   * requesting no columns. `['*']` returns all columns; `[]` returns none.
-   * May contain aliases.
-   */
-  readonly returnColumns?: ReturnColumns;
+export interface CountTransform<ReturnCount> {
+  /** Transformation to apply to bigint count results. */
+  readonly countTransform?: (count: bigint) => ReturnCount;
+}
+
+export interface InsertTransforms<
+  DB,
+  TB extends keyof DB & string,
+  SelectedObject extends object,
+  InsertedObject extends object,
+  ReturnColumns extends SelectionColumn<DB, TB>[] | ['*'],
+  InsertReturnsSelectedObject extends boolean,
+  DefaultReturnObject extends object
+> {
+  /** Transformation to apply to inserted objects before insertion. */
+  readonly insertTransform?: (obj: InsertedObject) => Insertable<DB[TB]>;
 
   /** Transformation to apply to column values returned from inserts. */
   readonly insertReturnTransform?: (
@@ -107,6 +101,36 @@ export interface TableMapperOptions<
   ) => InsertReturnsSelectedObject extends true
     ? SelectedObject
     : DefaultReturnObject;
+}
+
+export interface SelectTransform<
+  DB,
+  TB extends keyof DB & string,
+  SelectedColumns extends SelectionColumn<DB, TB>[] | ['*'],
+  SelectedObject extends object
+> {
+  /** Transformation to apply to selected objects. */
+  readonly selectTransform?: (
+    row: SelectedRow<
+      DB,
+      TB,
+      SelectedColumns extends ['*'] ? never : SelectedColumns[number],
+      SelectedColumns
+    >
+  ) => SelectedObject;
+}
+
+export interface UpdateTransforms<
+  DB,
+  TB extends keyof DB & string,
+  SelectedObject extends object,
+  UpdatingObject extends object,
+  ReturnColumns extends SelectionColumn<DB, TB>[] | ['*'],
+  UpdateReturnsSelectedObjectWhenProvided extends boolean,
+  DefaultReturnObject extends object
+> {
+  /** Transformation to apply to objects provided for updating values. */
+  readonly updateTransform?: (update: UpdatingObject) => Updateable<DB[TB]>;
 
   /** Transformation to apply to column values returned from updates. */
   readonly updateReturnTransform?: (
@@ -124,7 +148,4 @@ export interface TableMapperOptions<
       ? SelectedObject
       : DefaultReturnObject
     : DefaultReturnObject;
-
-  /** Transformation to apply to bigint count results. */
-  readonly countTransform?: (count: bigint) => ReturnCount;
 }

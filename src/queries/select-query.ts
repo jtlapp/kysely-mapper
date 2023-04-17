@@ -1,8 +1,9 @@
 import { Kysely, SelectQueryBuilder } from 'kysely';
-import { SelectedRow, SelectionColumn } from '../lib/type-utils';
+import { SelectionColumn } from '../lib/type-utils';
 import { ParameterizableMappingQuery } from './paramable-query';
 import { ParametersObject } from 'kysely-params';
 import { CompilingMappingSelectQuery } from './compiling-select-query';
+import { SelectTransform } from '../mappers/table-mapper-transforms';
 
 /**
  * Mapping query for selecting rows from a database table.
@@ -24,14 +25,12 @@ export class MappingSelectQuery<
   constructor(
     readonly db: Kysely<DB>,
     readonly qb: QB,
-    protected readonly selectTransform?: (
-      row: SelectedRow<
-        DB,
-        TB,
-        SelectedColumns extends ['*'] ? never : SelectedColumns[number],
-        SelectedColumns
-      >
-    ) => SelectedObject
+    protected readonly transforms: SelectTransform<
+      DB,
+      TB,
+      SelectedColumns,
+      SelectedObject
+    >
   ) {}
 
   /**
@@ -51,11 +50,7 @@ export class MappingSelectQuery<
     SelectQueryBuilder<DB, TB, P>,
     P
   > {
-    return new CompilingMappingSelectQuery(
-      this.db,
-      this.qb,
-      this.selectTransform
-    );
+    return new CompilingMappingSelectQuery(this.db, this.qb, this.transforms);
   }
 
   /**
@@ -68,11 +63,7 @@ export class MappingSelectQuery<
   modify<NextQB extends SelectQueryBuilder<DB, TB, any>>(
     factory: (qb: QB) => NextQB
   ): MappingSelectQuery<DB, TB, SelectedColumns, SelectedObject, NextQB> {
-    return new MappingSelectQuery(
-      this.db,
-      factory(this.qb),
-      this.selectTransform
-    );
+    return new MappingSelectQuery(this.db, factory(this.qb), this.transforms);
   }
 
   /**
@@ -82,9 +73,9 @@ export class MappingSelectQuery<
    */
   async returnAll(): Promise<SelectedObject[]> {
     const results = await this.qb.execute();
-    return this.selectTransform === undefined
+    return this.transforms.selectTransform === undefined
       ? results
-      : (results as any[]).map(this.selectTransform);
+      : (results as any[]).map(this.transforms.selectTransform);
   }
 
   /**
@@ -95,8 +86,8 @@ export class MappingSelectQuery<
   async returnOne(): Promise<SelectedObject | null> {
     const result = await this.qb.executeTakeFirst();
     if (!result) return null;
-    return this.selectTransform === undefined
+    return this.transforms.selectTransform === undefined
       ? result
-      : this.selectTransform(result);
+      : this.transforms.selectTransform(result);
   }
 }

@@ -1,6 +1,8 @@
 import { DeleteQueryBuilder, Kysely, QueryResult } from 'kysely';
-import { ParameterizableMappingQuery } from './paramable-query';
 import { ParameterizedQuery, ParametersObject } from 'kysely-params';
+
+import { CountTransform } from '../mappers/table-mapper-transforms';
+import { ParameterizableMappingQuery } from './paramable-query';
 
 /**
  * Compiling mapping query for deleting rows from a database table.
@@ -23,7 +25,7 @@ export class CompilingMappingDeleteQuery<
   constructor(
     protected readonly db: Kysely<DB>,
     protected readonly qb: QB,
-    protected readonly countTransform: (count: bigint) => ReturnCount
+    protected readonly transforms: CountTransform<ReturnCount>
   ) {
     this.#parameterizedQuery = new ParameterizedQuery(qb);
   }
@@ -40,7 +42,9 @@ export class CompilingMappingDeleteQuery<
    */
   async returnCount(params: P): Promise<ReturnCount> {
     const result = await this.#parameterizedQuery.execute(this.db, params);
-    return this.countTransform(result.numAffectedRows!);
+    return this.transforms.countTransform === undefined
+      ? (result.numAffectedRows! as ReturnCount)
+      : this.transforms.countTransform(result.numAffectedRows!);
   }
 
   /**

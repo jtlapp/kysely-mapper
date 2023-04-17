@@ -1,6 +1,5 @@
-import { Updateable } from 'kysely';
 import { SelectableColumnTuple, SelectionColumn } from '../lib/type-utils';
-import { TableMapperOptions } from './table-mapper-options';
+import { TableMapperSettings } from './table-mapper-settings';
 
 /**
  * Options governing UniformTableMapper behavior.
@@ -19,23 +18,17 @@ import { TableMapperOptions } from './table-mapper-options';
  *  Defaults to `KeyColumns`.
  * @typeparam ReturnCount Type of count query results.
  */
-export interface UniformTableMapperOptions<
+export interface UniformTableMapperSettings<
   DB,
   TB extends keyof DB & string,
-  MappedObject extends object,
   KeyColumns extends SelectableColumnTuple<DB[TB]> | [],
   SelectedColumns extends SelectionColumn<DB, TB>[] | ['*'],
-  ReturnColumns extends SelectionColumn<DB, TB>[] | ['*'],
-  ReturnCount
-> extends TableMapperOptions<
+  ReturnColumns extends SelectionColumn<DB, TB>[] | ['*']
+> extends TableMapperSettings<
     DB,
     TB,
     KeyColumns,
     SelectedColumns,
-    MappedObject,
-    MappedObject,
-    MappedObject | Updateable<DB[TB]>,
-    ReturnCount,
     ReturnColumns,
     true,
     true

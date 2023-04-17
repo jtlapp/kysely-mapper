@@ -1,8 +1,9 @@
 import { Kysely, InsertQueryBuilder, InsertResult, Insertable } from 'kysely';
 
-import { SelectedRow, SelectionColumn } from '../lib/type-utils';
+import { SelectionColumn } from '../lib/type-utils';
 import { SubsettingMappingInsertQuery } from './subsetting-insert-query';
 import { MappingInsertQuery } from './insert-query';
+import { InsertTransforms } from '../mappers/table-mapper-transforms';
 
 /**
  * Mapping query for inserting rows into a database table, where the
@@ -30,23 +31,18 @@ export class AnyColumnsMappingInsertQuery<
   constructor(
     db: Kysely<DB>,
     qb: QB,
-    insertTransform?: (obj: InsertedObject) => Insertable<DB[TB]>,
-    returnColumns?: ReturnColumns,
-    insertReturnTransform?: (
-      source: InsertedObject,
-      returns: ReturnColumns extends []
-        ? never
-        : SelectedRow<
-            DB,
-            TB,
-            ReturnColumns extends ['*'] ? never : ReturnColumns[number],
-            ReturnColumns
-          >
-    ) => InsertReturnsSelectedObject extends true
-      ? SelectedObject
-      : DefaultReturnObject
+    transforms: InsertTransforms<
+      DB,
+      TB,
+      SelectedObject,
+      InsertedObject,
+      ReturnColumns,
+      InsertReturnsSelectedObject,
+      DefaultReturnObject
+    >,
+    returnColumns?: ReturnColumns
   ) {
-    super(db, qb, insertTransform, returnColumns, insertReturnTransform);
+    super(db, qb, transforms, returnColumns);
   }
 
   /**
@@ -71,9 +67,8 @@ export class AnyColumnsMappingInsertQuery<
       this.db,
       this.qb,
       columnsToInsert,
-      this.insertTransform,
-      this.returnColumns,
-      this.insertReturnTransform
+      this.transforms,
+      this.returnColumns
     );
   }
 }

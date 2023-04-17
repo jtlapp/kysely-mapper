@@ -1,9 +1,13 @@
 import { Kysely, UpdateQueryBuilder, UpdateResult, Updateable } from 'kysely';
-import { SelectedRow, SelectionColumn } from '../lib/type-utils';
+import { SelectionColumn } from '../lib/type-utils';
 import { MappingUpdateQuery } from './update-query';
 import { ParameterizableMappingQuery } from './paramable-query';
 import { ParametersObject } from 'kysely-params';
 import { CompilingMappingUpdateQuery } from './compiling-update-query';
+import {
+  CountTransform,
+  UpdateTransforms,
+} from '../mappers/table-mapper-transforms';
 
 /**
  * Mapping query for updating rows into a database table,
@@ -37,33 +41,19 @@ export class SubsettingMappingUpdateQuery<
     db: Kysely<DB>,
     qb: QB,
     protected readonly columnsToUpdate: (keyof Updateable<DB[TB]> & string)[],
-    countTransform: (count: bigint) => ReturnCount,
-    updateTransform?: (update: UpdatingObject) => Updateable<DB[TB]>,
-    returnColumns?: ReturnColumns,
-    updateReturnTransform?: (
-      source: UpdatingObject,
-      returns: ReturnColumns extends []
-        ? never
-        : SelectedRow<
-            DB,
-            TB,
-            ReturnColumns extends ['*'] ? never : ReturnColumns[number],
-            ReturnColumns
-          >
-    ) => UpdateReturnsSelectedObjectWhenProvided extends true
-      ? UpdatingObject extends SelectedObject
-        ? SelectedObject
-        : DefaultReturnObject
-      : DefaultReturnObject
+    transforms: CountTransform<ReturnCount> &
+      UpdateTransforms<
+        DB,
+        TB,
+        SelectedObject,
+        UpdatingObject,
+        ReturnColumns,
+        UpdateReturnsSelectedObjectWhenProvided,
+        DefaultReturnObject
+      >,
+    returnColumns?: ReturnColumns
   ) {
-    super(
-      db,
-      qb,
-      countTransform,
-      updateTransform,
-      returnColumns,
-      updateReturnTransform
-    );
+    super(db, qb, transforms, returnColumns);
   }
 
   /**
@@ -91,10 +81,8 @@ export class SubsettingMappingUpdateQuery<
       this.db,
       this.qb,
       this.columnsToUpdate,
-      this.countTransform,
-      this.updateTransform,
-      this.returnColumns,
-      this.updateReturnTransform
+      this.transforms,
+      this.returnColumns
     );
   }
 

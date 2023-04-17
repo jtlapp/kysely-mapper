@@ -1,8 +1,12 @@
 import { Kysely, UpdateQueryBuilder, UpdateResult, Updateable } from 'kysely';
 
-import { SelectedRow, SelectionColumn } from '../lib/type-utils';
+import { SelectionColumn } from '../lib/type-utils';
 import { CompilingValuesQuery } from './compiling-values-query';
 import { ParametersObject } from 'kysely-params';
+import {
+  CountTransform,
+  UpdateTransforms,
+} from '../mappers/table-mapper-transforms';
 
 // TODO: revise jsdoc "on first execution" to refer to the correct
 // first thing, because it's not just a call to the method
@@ -50,26 +54,17 @@ export class CompilingMappingUpdateQuery<
     protected readonly db: Kysely<DB>,
     qb: QB,
     columnsToUpdate: (keyof Updateable<DB[TB]> & string)[],
-    protected readonly countTransform: (count: bigint) => ReturnCount,
-    protected readonly updateTransform?: (
-      update: UpdatingObject
-    ) => Updateable<DB[TB]>,
-    returnColumns?: ReturnColumns,
-    protected readonly updateReturnTransform?: (
-      source: UpdatingObject,
-      returns: ReturnColumns extends []
-        ? never
-        : SelectedRow<
-            DB,
-            TB,
-            ReturnColumns extends ['*'] ? never : ReturnColumns[number],
-            ReturnColumns
-          >
-    ) => UpdateReturnsSelectedObjectWhenProvided extends true
-      ? UpdatingObject extends SelectedObject
-        ? SelectedObject
-        : DefaultReturnObject
-      : DefaultReturnObject
+    protected readonly transforms: CountTransform<ReturnCount> &
+      UpdateTransforms<
+        DB,
+        TB,
+        SelectedObject,
+        UpdatingObject,
+        ReturnColumns,
+        UpdateReturnsSelectedObjectWhenProvided,
+        DefaultReturnObject
+      >,
+    returnColumns?: ReturnColumns
   ) {
     super(db, returnColumns);
     const parameterizedValues = this.getParameterizedObject(columnsToUpdate);
@@ -86,7 +81,9 @@ export class CompilingMappingUpdateQuery<
     const transformedObj = this.applyUpdateTransform(obj);
     const compiledQuery = this.instantiateNoReturns(params, transformedObj);
     const result = await this.db.executeQuery(compiledQuery);
-    return this.countTransform(result.numAffectedRows!);
+    return this.transforms.countTransform === undefined
+      ? (result.numAffectedRows as ReturnCount)
+      : this.transforms.countTransform(result.numAffectedRows!);
   }
 
   /**
@@ -127,7 +124,7 @@ export class CompilingMappingUpdateQuery<
     const transformedObj = this.applyUpdateTransform(obj as UpdatingObject);
     const compiledQuery = this.instantiateWithReturns(params, transformedObj);
     const result = await this.db.executeQuery(compiledQuery);
-    return this.updateReturnTransform === undefined
+    return this.transforms.updateReturnTransform === undefined
       ? (result.rows as any)
       : result.rows.map((row) =>
           this.applyUpdateReturnTransform(obj as UpdatingObject, row as any)
@@ -201,14 +198,14 @@ export class CompilingMappingUpdateQuery<
   }
 
   protected applyUpdateTransform(obj: UpdatingObject): Updateable<DB[TB]> {
-    return this.updateTransform === undefined
+    return this.transforms.updateTransform === undefined
       ? (obj as Updateable<DB[TB]>)
-      : this.updateTransform(obj);
+      : this.transforms.updateTransform(obj);
   }
 
   protected applyUpdateReturnTransform(source: UpdatingObject, returns: any) {
-    return this.updateReturnTransform === undefined
+    return this.transforms.updateReturnTransform === undefined
       ? (returns as any)
-      : this.updateReturnTransform(source, returns);
+      : this.transforms.updateReturnTransform(source, returns);
   }
 }

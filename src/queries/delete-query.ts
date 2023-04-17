@@ -2,6 +2,7 @@ import { DeleteQueryBuilder, DeleteResult, Kysely } from 'kysely';
 import { ParameterizableMappingQuery } from './paramable-query';
 import { ParametersObject } from 'kysely-params';
 import { CompilingMappingDeleteQuery } from './compiling-delete-query';
+import { CountTransform } from '../mappers/table-mapper-transforms';
 
 /**
  * Mapping query for deleting rows from a database table.
@@ -21,7 +22,7 @@ export class MappingDeleteQuery<
   constructor(
     protected readonly db: Kysely<DB>,
     protected readonly qb: QB,
-    protected readonly countTransform: (count: bigint) => ReturnCount
+    protected readonly transforms: CountTransform<ReturnCount>
   ) {}
 
   /**
@@ -40,11 +41,7 @@ export class MappingDeleteQuery<
     ReturnCount,
     P
   > {
-    return new CompilingMappingDeleteQuery(
-      this.db,
-      this.qb,
-      this.countTransform
-    );
+    return new CompilingMappingDeleteQuery(this.db, this.qb, this.transforms);
   }
 
   /**
@@ -54,7 +51,9 @@ export class MappingDeleteQuery<
    */
   async returnCount(): Promise<ReturnCount> {
     const result = await this.qb.executeTakeFirst();
-    return this.countTransform(result.numDeletedRows);
+    return this.transforms.countTransform === undefined
+      ? (result.numDeletedRows as ReturnCount)
+      : this.transforms.countTransform(result.numDeletedRows);
   }
 
   /**
@@ -65,11 +64,7 @@ export class MappingDeleteQuery<
   modify<NextQB extends DeleteQueryBuilder<DB, any, DeleteResult>>(
     factory: (qb: QB) => NextQB
   ): MappingDeleteQuery<DB, TB, NextQB, ReturnCount> {
-    return new MappingDeleteQuery(
-      this.db,
-      factory(this.qb),
-      this.countTransform
-    );
+    return new MappingDeleteQuery(this.db, factory(this.qb), this.transforms);
   }
 
   /**

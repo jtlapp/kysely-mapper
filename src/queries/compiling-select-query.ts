@@ -1,7 +1,8 @@
 import { Kysely, SelectQueryBuilder } from 'kysely';
-import { SelectedRow, SelectionColumn } from '../lib/type-utils';
+import { SelectionColumn } from '../lib/type-utils';
 import { ParameterizableMappingQuery } from './paramable-query';
 import { ParameterizedQuery, ParametersObject } from 'kysely-params';
+import { SelectTransform } from '../mappers/table-mapper-transforms';
 
 /**
  * Compiling mapping query for selecting rows from a database table.
@@ -26,14 +27,12 @@ export class CompilingMappingSelectQuery<
   constructor(
     readonly db: Kysely<DB>,
     qb: QB,
-    protected readonly selectTransform?: (
-      row: SelectedRow<
-        DB,
-        TB,
-        SelectedColumns extends ['*'] ? never : SelectedColumns[number],
-        SelectedColumns
-      >
-    ) => SelectedObject
+    protected readonly transforms: SelectTransform<
+      DB,
+      TB,
+      SelectedColumns,
+      SelectedObject
+    >
   ) {
     this.#parameterizedQuery = new ParameterizedQuery(qb);
   }
@@ -50,9 +49,9 @@ export class CompilingMappingSelectQuery<
    */
   async returnAll(params: P): Promise<SelectedObject[]> {
     const results = await this.#parameterizedQuery.execute(this.db, params);
-    return this.selectTransform === undefined
+    return this.transforms.selectTransform === undefined
       ? (results.rows as SelectedObject[])
-      : (results.rows as any[]).map(this.selectTransform);
+      : (results.rows as any[]).map(this.transforms.selectTransform);
   }
 
   /**
@@ -73,8 +72,8 @@ export class CompilingMappingSelectQuery<
     if (!result) return null;
     return result === undefined
       ? null
-      : this.selectTransform === undefined
+      : this.transforms.selectTransform === undefined
       ? (result as SelectedObject)
-      : this.selectTransform(result as any);
+      : this.transforms.selectTransform(result as any);
   }
 }

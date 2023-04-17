@@ -1,7 +1,11 @@
 import { Kysely, UpdateQueryBuilder, UpdateResult, Updateable } from 'kysely';
-import { SelectedRow, SelectionColumn } from '../lib/type-utils';
+import { SelectionColumn } from '../lib/type-utils';
 import { MappingUpdateQuery } from './update-query';
 import { SubsettingMappingUpdateQuery } from './subsetting-update-query';
+import {
+  CountTransform,
+  UpdateTransforms,
+} from '../mappers/table-mapper-transforms';
 
 /**
  * Mapping query for updating rows from a database table, where the
@@ -31,33 +35,19 @@ export class AnyColumnsMappingUpdateQuery<
   constructor(
     db: Kysely<DB>,
     qb: QB,
-    countTransform: (count: bigint) => ReturnCount,
-    updateTransform?: (update: UpdatingObject) => Updateable<DB[TB]>,
-    returnColumns?: ReturnColumns,
-    updateReturnTransform?: (
-      source: UpdatingObject,
-      returns: ReturnColumns extends []
-        ? never
-        : SelectedRow<
-            DB,
-            TB,
-            ReturnColumns extends ['*'] ? never : ReturnColumns[number],
-            ReturnColumns
-          >
-    ) => UpdateReturnsSelectedObjectWhenProvided extends true
-      ? UpdatingObject extends SelectedObject
-        ? SelectedObject
-        : DefaultReturnObject
-      : DefaultReturnObject
+    transforms: CountTransform<ReturnCount> &
+      UpdateTransforms<
+        DB,
+        TB,
+        SelectedObject,
+        UpdatingObject,
+        ReturnColumns,
+        UpdateReturnsSelectedObjectWhenProvided,
+        DefaultReturnObject
+      >,
+    returnColumns?: ReturnColumns
   ) {
-    super(
-      db,
-      qb,
-      countTransform,
-      updateTransform,
-      returnColumns,
-      updateReturnTransform
-    );
+    super(db, qb, transforms, returnColumns);
   }
 
   /**
@@ -83,10 +73,8 @@ export class AnyColumnsMappingUpdateQuery<
       this.db,
       this.qb,
       columnsToUpdate,
-      this.countTransform,
-      this.updateTransform,
-      this.returnColumns,
-      this.updateReturnTransform
+      this.transforms,
+      this.returnColumns
     );
   }
 }

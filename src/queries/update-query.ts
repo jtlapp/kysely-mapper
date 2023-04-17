@@ -5,7 +5,11 @@ import {
   UpdateResult,
   Updateable,
 } from 'kysely';
-import { SelectedRow, SelectionColumn } from '../lib/type-utils';
+import { SelectionColumn } from '../lib/type-utils';
+import {
+  CountTransform,
+  UpdateTransforms,
+} from '../mappers/table-mapper-transforms';
 
 // TODO: look into factoring out methods into base classes
 
@@ -45,26 +49,17 @@ export class MappingUpdateQuery<
   constructor(
     readonly db: Kysely<DB>,
     readonly qb: QB,
-    protected readonly countTransform: (count: bigint) => ReturnCount,
-    protected readonly updateTransform?: (
-      update: UpdatingObject
-    ) => Updateable<DB[TB]>,
-    returnColumns?: ReturnColumns,
-    protected readonly updateReturnTransform?: (
-      source: UpdatingObject,
-      returns: ReturnColumns extends []
-        ? never
-        : SelectedRow<
-            DB,
-            TB,
-            ReturnColumns extends ['*'] ? never : ReturnColumns[number],
-            ReturnColumns
-          >
-    ) => UpdateReturnsSelectedObjectWhenProvided extends true
-      ? UpdatingObject extends SelectedObject
-        ? SelectedObject
-        : DefaultReturnObject
-      : DefaultReturnObject
+    protected readonly transforms: CountTransform<ReturnCount> &
+      UpdateTransforms<
+        DB,
+        TB,
+        SelectedObject,
+        UpdatingObject,
+        ReturnColumns,
+        UpdateReturnsSelectedObjectWhenProvided,
+        DefaultReturnObject
+      >,
+    returnColumns?: ReturnColumns
   ) {
     this.returnColumns = returnColumns ?? ([] as any);
   }
@@ -90,10 +85,8 @@ export class MappingUpdateQuery<
     return new MappingUpdateQuery(
       this.db,
       factory(this.qb),
-      this.countTransform,
-      this.updateTransform,
-      this.returnColumns,
-      this.updateReturnTransform
+      this.transforms,
+      this.returnColumns
     );
   }
 
@@ -108,7 +101,9 @@ export class MappingUpdateQuery<
       this.qb,
       obj
     ).executeTakeFirst();
-    return this.countTransform(result.numUpdatedRows);
+    return this.transforms.countTransform === undefined
+      ? (result.numUpdatedRows as ReturnCount)
+      : this.transforms.countTransform(result.numUpdatedRows);
   }
 
   /**
@@ -147,10 +142,13 @@ export class MappingUpdateQuery<
       this.getReturningQB(),
       obj as UpdatingObject
     ).execute();
-    return this.updateReturnTransform === undefined
+    return this.transforms.updateReturnTransform === undefined
       ? (returns as any)
       : returns.map((row) =>
-          this.updateReturnTransform!(obj as UpdatingObject, row as any)
+          this.transforms.updateReturnTransform!(
+            obj as UpdatingObject,
+            row as any
+          )
         );
   }
 
@@ -196,9 +194,12 @@ export class MappingUpdateQuery<
     if (returns.length === 0) {
       return null;
     }
-    return this.updateReturnTransform === undefined
+    return this.transforms.updateReturnTransform === undefined
       ? (returns[0] as any)
-      : this.updateReturnTransform!(obj as UpdatingObject, returns[0] as any);
+      : this.transforms.updateReturnTransform!(
+          obj as UpdatingObject,
+          returns[0] as any
+        );
   }
 
   /**
@@ -243,7 +244,9 @@ export class MappingUpdateQuery<
     obj: UpdatingObject
   ): UpdateQueryBuilder<DB, TB, TB, UpdateResult> {
     const transformedObj =
-      this.updateTransform === undefined ? obj : this.updateTransform(obj);
+      this.transforms.updateTransform === undefined
+        ? obj
+        : this.transforms.updateTransform(obj);
     return this.setColumnValues(qb, transformedObj);
   }
 

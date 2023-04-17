@@ -7,7 +7,8 @@ import {
   SelectedRow,
   SelectionColumn,
 } from '../lib/type-utils';
-import { UniformTableMapperOptions } from './uniform-table-mapper-options';
+import { UniformTableMapperSettings } from './uniform-table-mapper-settings';
+import { TableMapperTransforms } from './table-mapper-transforms';
 
 // TODO: look into having this class add tuple keys to method filters
 //  (or should it be based on a class that does this?)
@@ -66,15 +67,26 @@ export class UniformTableMapper<
   constructor(
     db: Kysely<DB>,
     tableName: TB,
-    options: UniformTableMapperOptions<
+    options: UniformTableMapperSettings<
       DB,
       TB,
-      MappedObject,
       KeyColumns,
       SelectedColumns,
-      ReturnColumns,
-      ReturnCount
-    >
+      ReturnColumns
+    > &
+      TableMapperTransforms<
+        DB,
+        TB,
+        KeyColumns,
+        SelectedColumns,
+        MappedObject,
+        MappedObject,
+        MappedObject | Updateable<DB[TB]>,
+        ReturnCount,
+        ReturnColumns,
+        true,
+        true
+      >
   ) {
     super(db, tableName, _prepareOptions(options) as any);
   }
@@ -92,15 +104,26 @@ function _prepareOptions<
   ReturnCount,
   ReturnColumns extends SelectionColumn<DB, TB>[] | ['*']
 >(
-  options: UniformTableMapperOptions<
+  options: UniformTableMapperSettings<
     DB,
     TB,
-    MappedObject,
     KeyColumns,
     SelectedColumns,
-    ReturnColumns,
-    ReturnCount
-  >
+    ReturnColumns
+  > &
+    TableMapperTransforms<
+      DB,
+      TB,
+      KeyColumns,
+      SelectedColumns,
+      MappedObject,
+      MappedObject,
+      MappedObject | Updateable<DB[TB]>,
+      ReturnCount,
+      ReturnColumns,
+      true,
+      true
+    >
 ) {
   const keyColumns = options.keyColumns ?? DEFAULT_KEY;
 

@@ -1,9 +1,10 @@
 import { Kysely, InsertQueryBuilder, InsertResult, Insertable } from 'kysely';
 
-import { SelectedRow, SelectionColumn } from '../lib/type-utils';
+import { SelectionColumn } from '../lib/type-utils';
 import { MappingInsertQuery } from './insert-query';
 import { ParameterizableMappingQuery } from './paramable-query';
 import { CompilingMappingInsertQuery } from './compiling-insert-query';
+import { InsertTransforms } from '../mappers/table-mapper-transforms';
 
 // TODO: where else should I use Map or Set instead of objects?
 
@@ -37,23 +38,18 @@ export class SubsettingMappingInsertQuery<
     db: Kysely<DB>,
     qb: QB,
     protected readonly columnsToInsert: (keyof Insertable<DB[TB]> & string)[],
-    insertTransform?: (obj: InsertedObject) => Insertable<DB[TB]>,
-    returnColumns?: ReturnColumns,
-    insertReturnTransform?: (
-      source: InsertedObject,
-      returns: ReturnColumns extends []
-        ? never
-        : SelectedRow<
-            DB,
-            TB,
-            ReturnColumns extends ['*'] ? never : ReturnColumns[number],
-            ReturnColumns
-          >
-    ) => InsertReturnsSelectedObject extends true
-      ? SelectedObject
-      : DefaultReturnObject
+    transforms: InsertTransforms<
+      DB,
+      TB,
+      SelectedObject,
+      InsertedObject,
+      ReturnColumns,
+      InsertReturnsSelectedObject,
+      DefaultReturnObject
+    >,
+    returnColumns?: ReturnColumns
   ) {
-    super(db, qb, insertTransform, returnColumns, insertReturnTransform);
+    super(db, qb, transforms, returnColumns);
   }
 
   /**
@@ -79,9 +75,8 @@ export class SubsettingMappingInsertQuery<
       this.db,
       this.qb,
       this.columnsToInsert,
-      this.insertTransform,
-      this.returnColumns,
-      this.insertReturnTransform
+      this.transforms,
+      this.returnColumns
     );
   }
 

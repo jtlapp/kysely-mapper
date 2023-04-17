@@ -1,7 +1,8 @@
 import { Kysely, InsertQueryBuilder, Insertable } from 'kysely';
 
-import { SelectedRow, SelectionColumn } from '../lib/type-utils';
+import { SelectionColumn } from '../lib/type-utils';
 import { CompilingValuesQuery } from './compiling-values-query';
+import { InsertTransforms } from '../mappers/table-mapper-transforms';
 
 /**
  * Compiling mapping query for inserting rows into a database table.
@@ -42,23 +43,16 @@ export class CompilingMappingInsertQuery<
     protected readonly db: Kysely<DB>,
     qb: QB,
     columnsToInsert: (keyof Insertable<DB[TB]> & string)[],
-    protected readonly insertTransform?: (
-      obj: InsertedObject
-    ) => Insertable<DB[TB]>,
-    returnColumns?: ReturnColumns,
-    protected readonly insertReturnTransform?: (
-      source: InsertedObject,
-      returns: ReturnColumns extends []
-        ? never
-        : SelectedRow<
-            DB,
-            TB,
-            ReturnColumns extends ['*'] ? never : ReturnColumns[number],
-            ReturnColumns
-          >
-    ) => InsertReturnsSelectedObject extends true
-      ? SelectedObject
-      : DefaultReturnObject
+    protected readonly transforms: InsertTransforms<
+      DB,
+      TB,
+      SelectedObject,
+      InsertedObject,
+      ReturnColumns,
+      InsertReturnsSelectedObject,
+      DefaultReturnObject
+    >,
+    returnColumns?: ReturnColumns
   ) {
     super(db, returnColumns);
     const parameterizedValues = this.getParameterizedObject(columnsToInsert);
@@ -109,9 +103,9 @@ export class CompilingMappingInsertQuery<
         'No row returned from compiled insert expecting returned columns'
       );
     }
-    return this.insertReturnTransform === undefined
+    return this.transforms.insertReturnTransform === undefined
       ? (result.rows[0] as any)
-      : this.insertReturnTransform(obj, result.rows[0] as any);
+      : this.transforms.insertReturnTransform(obj, result.rows[0] as any);
   }
 
   /**
@@ -130,8 +124,8 @@ export class CompilingMappingInsertQuery<
   }
 
   protected applyInsertTransform(obj: InsertedObject): Insertable<DB[TB]> {
-    return this.insertTransform === undefined
+    return this.transforms.insertTransform === undefined
       ? (obj as Insertable<DB[TB]>)
-      : this.insertTransform(obj);
+      : this.transforms.insertTransform(obj);
   }
 }

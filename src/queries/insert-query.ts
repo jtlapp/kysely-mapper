@@ -6,7 +6,8 @@ import {
   Insertable,
 } from 'kysely';
 
-import { SelectedRow, SelectionColumn } from '../lib/type-utils';
+import { SelectionColumn } from '../lib/type-utils';
+import { InsertTransforms } from '../mappers/table-mapper-transforms';
 
 // TODO: see what else should be made readonly
 // TODO: freeze objects
@@ -44,23 +45,16 @@ export class MappingInsertQuery<
   constructor(
     protected readonly db: Kysely<DB>,
     protected readonly qb: QB,
-    protected readonly insertTransform?: (
-      obj: InsertedObject
-    ) => Insertable<DB[TB]>,
-    returnColumns?: ReturnColumns,
-    protected readonly insertReturnTransform?: (
-      source: InsertedObject,
-      returns: ReturnColumns extends []
-        ? never
-        : SelectedRow<
-            DB,
-            TB,
-            ReturnColumns extends ['*'] ? never : ReturnColumns[number],
-            ReturnColumns
-          >
-    ) => InsertReturnsSelectedObject extends true
-      ? SelectedObject
-      : DefaultReturnObject
+    protected readonly transforms: InsertTransforms<
+      DB,
+      TB,
+      SelectedObject,
+      InsertedObject,
+      ReturnColumns,
+      InsertReturnsSelectedObject,
+      DefaultReturnObject
+    >,
+    returnColumns?: ReturnColumns
   ) {
     this.returnColumns = returnColumns ?? ([] as any);
   }
@@ -85,9 +79,8 @@ export class MappingInsertQuery<
     return new MappingInsertQuery(
       this.db,
       factory(this.qb),
-      this.insertTransform,
-      this.returnColumns,
-      this.insertReturnTransform
+      this.transforms,
+      this.returnColumns
     );
   }
 
@@ -127,10 +120,10 @@ export class MappingInsertQuery<
       this.getReturningQB(),
       objs
     ).execute();
-    return this.insertReturnTransform === undefined
+    return this.transforms.insertReturnTransform === undefined
       ? (returns as any)
       : returns.map((row, i) =>
-          this.insertReturnTransform!(objs[i], row as any)
+          this.transforms.insertReturnTransform!(objs[i], row as any)
         );
   }
 
@@ -171,9 +164,9 @@ export class MappingInsertQuery<
       this.getReturningQB(),
       obj
     ).executeTakeFirst();
-    return this.insertReturnTransform === undefined
+    return this.transforms.insertReturnTransform === undefined
       ? (result as any)
-      : this.insertReturnTransform(obj, result as any);
+      : this.transforms.insertReturnTransform(obj, result as any);
   }
 
   /**
@@ -216,16 +209,16 @@ export class MappingInsertQuery<
   ): InsertQueryBuilder<DB, TB, InsertResult> {
     if (Array.isArray(objOrObjs)) {
       const transformedObjs =
-        this.insertTransform === undefined
+        this.transforms.insertTransform === undefined
           ? (objOrObjs as Insertable<DB[TB]>[])
-          : objOrObjs.map(this.insertTransform);
+          : objOrObjs.map(this.transforms.insertTransform);
       // TS requires separate calls to values() for different arg types.
       return this.setColumnValues(qb, transformedObjs);
     }
     const transformedObj =
-      this.insertTransform === undefined
+      this.transforms.insertTransform === undefined
         ? (objOrObjs as Insertable<DB[TB]>)
-        : this.insertTransform(objOrObjs);
+        : this.transforms.insertTransform(objOrObjs);
     // TS requires separate calls to values() for different arg types.
     return this.setColumnValues(qb, transformedObj);
   }

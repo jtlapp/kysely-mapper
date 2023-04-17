@@ -22,7 +22,6 @@ import {
   SelectedRow,
   SelectionColumn,
 } from '../lib/type-utils';
-import { TableMapperOptions } from './table-mapper-options';
 import { MappingDeleteQuery } from '../queries/delete-query';
 import { MappingSelectQuery } from '../queries/select-query';
 import { AllSelection } from '../lib/kysely-types';
@@ -35,6 +34,8 @@ import { CompilingMappingSelectQuery } from '../queries/compiling-select-query';
 import { CompilingMappingDeleteQuery } from '../queries/compiling-delete-query';
 import { SubsettingMappingUpdateQuery } from '../queries/subsetting-update-query';
 import { CompilingMappingUpdateQuery } from '../queries/compiling-update-query';
+import { TableMapperSettings } from './table-mapper-settings';
+import { TableMapperTransforms } from './table-mapper-transforms';
 
 /**
  * A mapper providing access to a single table.
@@ -111,20 +112,29 @@ export class TableMapper<
   constructor(
     readonly db: Kysely<DB>,
     readonly tableName: TB,
-    readonly options: TableMapperOptions<
+    readonly options: TableMapperSettings<
       DB,
       TB,
       KeyColumns,
       SelectedColumns,
-      SelectedObject,
-      InsertedObject,
-      UpdatingObject,
-      ReturnCount,
       ReturnColumns,
       InsertReturnsSelectedObject,
-      UpdateReturnsSelectedObjectWhenProvided,
-      DefaultReturnObject
-    > = {}
+      UpdateReturnsSelectedObjectWhenProvided
+    > &
+      TableMapperTransforms<
+        DB,
+        TB,
+        KeyColumns,
+        SelectedColumns,
+        SelectedObject,
+        InsertedObject,
+        UpdatingObject,
+        ReturnCount,
+        ReturnColumns,
+        InsertReturnsSelectedObject,
+        UpdateReturnsSelectedObjectWhenProvided,
+        DefaultReturnObject
+      > = {}
   ) {
     this.keyColumns = options.keyColumns ?? ([] as any);
     this.returnColumns = options.returnColumns ?? this.keyColumns;
@@ -190,7 +200,7 @@ export class TableMapper<
             op,
             rhs
           ),
-      this.countTransform
+      this.options
     );
   }
 
@@ -212,9 +222,8 @@ export class TableMapper<
     return new AnyColumnsMappingInsertQuery(
       this.db,
       this.getInsertQB(),
-      this.options.insertTransform,
-      this.returnColumns as ReturnColumns,
-      this.options.insertReturnTransform
+      this.options,
+      this.returnColumns as ReturnColumns
     );
   }
 
@@ -425,7 +434,7 @@ export class TableMapper<
             op,
             rhs
           ),
-      this.options.selectTransform
+      this.options
     );
   }
 
@@ -494,10 +503,8 @@ export class TableMapper<
             op,
             rhs
           ),
-      this.countTransform,
-      this.options.updateTransform,
-      this.returnColumns as ReturnColumns,
-      this.options.updateReturnTransform
+      this.options,
+      this.returnColumns as ReturnColumns
     );
   }
 
