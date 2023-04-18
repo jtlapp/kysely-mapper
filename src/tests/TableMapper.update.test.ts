@@ -4,11 +4,11 @@ import { TableMapper } from '../mappers/table-mapper';
 import { createDB, resetDB, destroyDB } from './utils/test-setup';
 import { Database } from './utils/test-tables';
 import {
-  UserTableMapperReturningDefault,
-  UserTableMapperReturningID,
-  UserTableMapperReturningIDAndHandleAsH,
-  UserTableMapperReturningAll,
-  UserTableMapperReturningNothing,
+  createUserMapperReturningDefault,
+  createUserMapperReturningID,
+  createUserMapperReturningIDAndHandleAsH,
+  createUserMapperReturningAll,
+  createUserMapperReturningNothing,
 } from './utils/test-mappers';
 import {
   userObject1,
@@ -21,20 +21,26 @@ import { ignore } from './utils/test-utils';
 import { ReturnedUser, UpdatingUser, User } from './utils/test-types';
 
 let db: Kysely<Database>;
-let userMapperReturningDefault: UserTableMapperReturningDefault;
-let userMapperReturningNothing: UserTableMapperReturningNothing;
-let userMapperReturningID: UserTableMapperReturningID;
-let userMapperReturningIDAndHandleAsH: UserTableMapperReturningIDAndHandleAsH;
-let userMapperReturningAll: UserTableMapperReturningAll;
+let userMapperReturningDefault: ReturnType<
+  typeof createUserMapperReturningDefault
+>;
+let userMapperReturningNothing: ReturnType<
+  typeof createUserMapperReturningNothing
+>;
+let userMapperReturningID: ReturnType<typeof createUserMapperReturningID>;
+let userMapperReturningIDAndHandleAsH: ReturnType<
+  typeof createUserMapperReturningIDAndHandleAsH
+>;
+let userMapperReturningAll: ReturnType<typeof createUserMapperReturningAll>;
 
 beforeAll(async () => {
   db = await createDB();
-  userMapperReturningDefault = new UserTableMapperReturningDefault(db);
-  userMapperReturningNothing = new UserTableMapperReturningNothing(db);
-  userMapperReturningID = new UserTableMapperReturningID(db);
+  userMapperReturningDefault = createUserMapperReturningDefault(db);
+  userMapperReturningNothing = createUserMapperReturningNothing(db);
+  userMapperReturningID = createUserMapperReturningID(db);
   userMapperReturningIDAndHandleAsH =
-    new UserTableMapperReturningIDAndHandleAsH(db);
-  userMapperReturningAll = new UserTableMapperReturningAll(db);
+    createUserMapperReturningIDAndHandleAsH(db);
+  userMapperReturningAll = createUserMapperReturningAll(db);
 });
 beforeEach(() => resetDB(db));
 afterAll(() => destroyDB(db));
@@ -631,13 +637,15 @@ describe('update transformation', () => {
   > {
     constructor(db: Kysely<Database>) {
       super(db, 'users', {
+        returnColumns: ['id'],
+      });
+      this.transforms = {
         updateTransform: (source) => ({
           name: `${source.firstName} ${source.lastName}`,
           handle: source.handle,
           email: source.email,
         }),
-        returnColumns: ['id'],
-      });
+      };
     }
   }
 
@@ -700,6 +708,8 @@ describe('update transformation', () => {
       constructor(db: Kysely<Database>) {
         super(db, 'users', {
           returnColumns: ['id'],
+        });
+        this.transforms = {
           updateReturnTransform: (source, returns) =>
             new ReturnedUser(
               returns.id,
@@ -708,7 +718,7 @@ describe('update transformation', () => {
               source.handle ? source.handle : '(handle)',
               source.email ? source.email : '(email)'
             ),
-        });
+        };
       }
     }
     const updateReturnTransformMapper = new UpdateReturnTransformMapper(db);
@@ -747,12 +757,14 @@ describe('update transformation', () => {
     > {
       constructor(db: Kysely<Database>) {
         super(db, 'users', {
+          returnColumns: ['id'],
+        });
+        this.transforms = {
           updateTransform: (source) => ({
             name: `${source.firstName} ${source.lastName}`,
             handle: source.handle,
             email: source.email,
           }),
-          returnColumns: ['id'],
           updateReturnTransform: (source, returns) =>
             new ReturnedUser(
               returns.id,
@@ -761,7 +773,7 @@ describe('update transformation', () => {
               source.handle,
               source.email
             ),
-        });
+        };
       }
     }
     const updateAndReturnTransformMapper = new UpdateAndReturnTransformMapper(
@@ -801,6 +813,9 @@ describe('update transformation', () => {
     > {
       constructor(db: Kysely<Database>) {
         super(db, 'users', {
+          returnColumns: ['*'],
+        });
+        this.transforms = {
           selectTransform: (row) => {
             const names = row.name.split(' ');
             return new User(row.id, names[0], names[1], row.handle, row.email);
@@ -835,9 +850,8 @@ describe('update transformation', () => {
               returns.email
             );
           },
-          returnColumns: ['*'],
           countTransform: (count) => Number(count),
-        });
+        };
       }
     }
     const transformMapper = new UniformInsertTransformMapper(db);
@@ -934,6 +948,9 @@ describe('update transformation', () => {
     > {
       constructor(db: Kysely<Database>) {
         super(db, 'users', {
+          returnColumns: ['id'],
+        });
+        this.transforms = {
           selectTransform: (row) => {
             const names = row.name.split(' ');
             return new User(row.id, names[0], names[1], row.handle, row.email);
@@ -958,9 +975,8 @@ describe('update transformation', () => {
             firstName: source.firstName,
             lastName: source.lastName,
           }),
-          returnColumns: ['id'],
           countTransform: (count) => Number(count),
-        });
+        };
       }
     }
     const transformMapper = new UniformInsertTransformMapper(db);

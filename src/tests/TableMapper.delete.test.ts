@@ -3,22 +3,24 @@ import { Kysely } from 'kysely';
 import { createDB, resetDB, destroyDB } from './utils/test-setup';
 import { Database } from './utils/test-tables';
 import {
-  UserTableMapperReturningAll,
-  UserTableMapperReturningDefault,
-  UserTableMapperReturningNothing,
+  createUserMapperReturningAll,
+  createUserMapperReturningDefault,
+  createUserMapperReturningNothing,
 } from './utils/test-mappers';
 import { USERS } from './utils/test-objects';
 import { ignore } from './utils/test-utils';
 import { TableMapper } from '../mappers/table-mapper';
 
 let db: Kysely<Database>;
-let userMapper: UserTableMapperReturningAll;
-let userMapperReturningNothing: UserTableMapperReturningNothing;
+let userMapper: ReturnType<typeof createUserMapperReturningAll>;
+let userMapperReturningNothing: ReturnType<
+  typeof createUserMapperReturningNothing
+>;
 
 beforeAll(async () => {
   db = await createDB();
-  userMapper = new UserTableMapperReturningAll(db);
-  userMapperReturningNothing = new UserTableMapperReturningNothing(db);
+  userMapper = createUserMapperReturningAll(db);
+  userMapperReturningNothing = createUserMapperReturningNothing(db);
 });
 beforeEach(() => resetDB(db));
 afterAll(() => destroyDB(db));
@@ -35,7 +37,7 @@ describe('deleting rows via TableMapper', () => {
   });
 
   it('deletes rows without returning a count', async () => {
-    const testMapper = new TableMapper(db, 'users', {
+    const testMapper = new TableMapper(db, 'users').withTransforms({
       countTransform: (count) => Number(count),
     });
     await testMapper.insert().run(USERS);
@@ -49,7 +51,7 @@ describe('deleting rows via TableMapper', () => {
   });
 
   it('deletes rows returning the deletion count as bigint default', async () => {
-    const defaultMapper = new UserTableMapperReturningDefault(db);
+    const defaultMapper = createUserMapperReturningDefault(db);
 
     const count1 = await defaultMapper
       .delete({ name: USERS[0].name })
@@ -68,7 +70,7 @@ describe('deleting rows via TableMapper', () => {
   });
 
   it('deletes rows returning the deletion count inferred as a number', async () => {
-    const testMapper = new TableMapper(db, 'users', {
+    const testMapper = new TableMapper(db, 'users').withTransforms({
       countTransform: (count) => Number(count),
     });
     await testMapper.insert().run(USERS);

@@ -1,5 +1,5 @@
 import { ParametersObject, QueryParameterMaker } from 'kysely-params';
-import { TableMapper } from '../mappers/table-mapper';
+import { AbstractTableMapper } from '../mappers/abstract-table-mapper';
 import { SelectableColumnTuple, SelectionColumn } from './type-utils';
 import { ParameterizableMappingQuery } from '../queries/paramable-query';
 
@@ -20,7 +20,7 @@ export interface ParameterizableMappingQueryFactory<
   InsertReturnsSelectedObject extends boolean,
   UpdateReturnsSelectedObjectWhenProvided extends boolean,
   DefaultReturnObject extends object,
-  M extends TableMapper<
+  M extends AbstractTableMapper<
     DB,
     TB,
     KeyColumns,

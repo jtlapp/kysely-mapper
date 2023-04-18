@@ -1,81 +1,35 @@
-import { Insertable, Kysely, Selectable, Updateable } from 'kysely';
+import { Kysely } from 'kysely';
 
 import { TableMapper } from '../../mappers/table-mapper';
-import { Database, Users } from './test-tables';
+import { Database } from './test-tables';
 
 const countTransform = (count: bigint) => Number(count);
 
-export class UserTableMapperReturningDefault extends TableMapper<
-  Database,
-  'users'
-> {
-  constructor(readonly db: Kysely<Database>) {
-    super(db, 'users');
-  }
+export function createUserMapperReturningDefault(db: Kysely<Database>) {
+  return new TableMapper(db, 'users');
 }
 
-export class UserTableMapperReturningNothing extends TableMapper<
-  Database,
-  'users',
-  [],
-  ['*'],
-  Selectable<Users>,
-  Insertable<Users>,
-  Updateable<Users>,
-  number
-> {
-  constructor(readonly db: Kysely<Database>) {
-    super(db, 'users', { keyColumns: [], countTransform });
-  }
+export function createUserMapperReturningNothing(db: Kysely<Database>) {
+  return new TableMapper(db, 'users', { keyColumns: [] }).withTransforms({
+    countTransform,
+  });
 }
 
-export class UserTableMapperReturningID extends TableMapper<
-  Database,
-  'users',
-  ['id'],
-  ['*'],
-  Selectable<Users>,
-  Insertable<Users>,
-  Updateable<Users>,
-  number
-> {
-  constructor(readonly db: Kysely<Database>) {
-    super(db, 'users', { keyColumns: ['id'], countTransform });
-  }
+export function createUserMapperReturningID(db: Kysely<Database>) {
+  return new TableMapper(db, 'users', { keyColumns: ['id'] }).withTransforms({
+    countTransform,
+  });
 }
 
-export class UserTableMapperReturningIDAndHandleAsH extends TableMapper<
-  Database,
-  'users',
-  ['id'],
-  ['*'],
-  Selectable<Users>,
-  Insertable<Users>,
-  Updateable<Users>,
-  number,
-  ['id', 'handle as h']
-> {
-  constructor(readonly db: Kysely<Database>) {
-    super(db, 'users', {
-      keyColumns: ['id'],
-      returnColumns: ['id', 'handle as h'],
-      countTransform,
-    });
-  }
+export function createUserMapperReturningIDAndHandleAsH(db: Kysely<Database>) {
+  return new TableMapper(db, 'users', {
+    keyColumns: ['id'],
+    returnColumns: ['id', 'handle as h'],
+  }).withTransforms({ countTransform });
 }
 
-export class UserTableMapperReturningAll extends TableMapper<
-  Database,
-  'users',
-  [],
-  ['*'],
-  Selectable<Users>,
-  Insertable<Users>,
-  Updateable<Users>,
-  number,
-  ['*']
-> {
-  constructor(readonly db: Kysely<Database>) {
-    super(db, 'users', { returnColumns: ['*'], countTransform });
-  }
+export function createUserMapperReturningAll(db: Kysely<Database>) {
+  return new TableMapper(db, 'users', { returnColumns: ['*'] }).withTransforms({
+    countTransform,
+  });
 }

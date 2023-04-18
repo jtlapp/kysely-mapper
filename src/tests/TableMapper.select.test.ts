@@ -8,8 +8,8 @@ import { TableMapper } from '../mappers/table-mapper';
 import { createDB, resetDB, destroyDB } from './utils/test-setup';
 import { Database } from './utils/test-tables';
 import {
-  UserTableMapperReturningID,
-  UserTableMapperReturningNothing,
+  createUserMapperReturningID,
+  createUserMapperReturningNothing,
 } from './utils/test-mappers';
 import { USERS } from './utils/test-objects';
 import { ignore } from './utils/test-utils';
@@ -17,13 +17,15 @@ import { ignore } from './utils/test-utils';
 // TODO: what tests can I drop for now being redundant?
 
 let db: Kysely<Database>;
-let userMapper: UserTableMapperReturningID;
-let userMapperReturningNothing: UserTableMapperReturningNothing;
+let userMapper: ReturnType<typeof createUserMapperReturningID>;
+let userMapperReturningNothing: ReturnType<
+  typeof createUserMapperReturningNothing
+>;
 
 beforeAll(async () => {
   db = await createDB();
-  userMapper = new UserTableMapperReturningID(db);
-  userMapperReturningNothing = new UserTableMapperReturningNothing(db);
+  userMapper = createUserMapperReturningID(db);
+  userMapperReturningNothing = createUserMapperReturningNothing(db);
 });
 beforeEach(() => resetDB(db));
 afterAll(() => destroyDB(db));
