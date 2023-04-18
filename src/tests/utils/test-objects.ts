@@ -1,12 +1,7 @@
-import { Insertable, Selectable } from 'kysely';
+import { Insertable } from 'kysely';
 
 import { Users, Posts } from './test-tables';
-import {
-  InsertedUser,
-  ReturnedUser,
-  SelectedUser,
-  UpdatingUser,
-} from './test-types';
+import { InsertedUser, ReturnedUser, SelectedUser } from './test-types';
 
 export const USERS: Insertable<Users>[] = [
   {
@@ -92,47 +87,3 @@ export const insertedUser3 = InsertedUser.create(0, userObject3);
 export const insertReturnedUser1 = ReturnedUser.create(1, userObject1);
 export const insertReturnedUser2 = ReturnedUser.create(2, userObject2);
 export const insertReturnedUser3 = ReturnedUser.create(3, userObject3);
-
-export const STANDARD_OPTIONS = {
-  selectTransform: (source: Selectable<Users>) =>
-    new SelectedUser(
-      source.id,
-      source.name.split(' ')[0],
-      source.name.split(' ')[1],
-      source.handle,
-      source.email || null
-    ),
-  insertTransform: (source: InsertedUser) => ({
-    name: `${source.firstName} ${source.lastName}`,
-    handle: source.handle,
-    email: source.email,
-  }),
-  updateTransform: (source: UpdatingUser) => ({
-    name: `${source.firstName} ${source.lastName}`,
-    handle: source.handle,
-    email: source.email,
-  }),
-  insertReturnTransform: (
-    source: InsertedUser,
-    returns: Partial<Selectable<Users>>
-  ) =>
-    new ReturnedUser(
-      returns.id!,
-      source.firstName,
-      source.lastName,
-      source.handle,
-      source.email
-    ),
-  updateReturnTransform: (
-    source: UpdatingUser,
-    returns: Partial<Selectable<Users>>
-  ) =>
-    new ReturnedUser(
-      returns.id!,
-      source.firstName,
-      source.lastName,
-      source.handle,
-      source.email
-    ),
-  returnColumns: ['id'] as ['id'],
-};
