@@ -144,9 +144,8 @@ export class MappingInsertQuery<
       : DefaultReturnObject
   >;
 
-  async returnOne(
-    obj: InsertedObject
-  ): Promise<
+  async returnOne(obj: InsertedObject): Promise<
+    // TODO: simplify and remove null (look elsewhere too)
     | (InsertReturnsSelectedObject extends true
         ? SelectedObject
         : DefaultReturnObject)
