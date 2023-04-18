@@ -27,11 +27,8 @@ export class CompilingMappingSelectQuery<
   constructor(
     readonly db: Kysely<DB>,
     qb: QB,
-    protected readonly transforms: SelectTransform<
-      DB,
-      TB,
-      SelectedColumns,
-      SelectedObject
+    protected readonly transforms: Readonly<
+      SelectTransform<DB, TB, SelectedColumns, SelectedObject>
     >
   ) {
     this.#parameterizedQuery = new ParameterizedQuery(qb);

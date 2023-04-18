@@ -25,7 +25,7 @@ export class CompilingMappingDeleteQuery<
   constructor(
     protected readonly db: Kysely<DB>,
     protected readonly qb: QB,
-    protected readonly transforms: CountTransform<ReturnCount>
+    protected readonly transforms: Readonly<CountTransform<ReturnCount>>
   ) {
     this.#parameterizedQuery = new ParameterizedQuery(qb);
   }

@@ -85,19 +85,21 @@ export class TableMapper<
       ? Selectable<DB[TB]>
       : Selection<DB, TB, ReturnColumns[number]>
   >(
-    transforms: TableMapperTransforms<
-      DB,
-      TB,
-      KeyColumns,
-      SelectedColumns,
-      SelectedObject,
-      InsertedObject,
-      UpdatingObject,
-      ReturnCount,
-      ReturnColumns,
-      InsertReturnsSelectedObject,
-      UpdateReturnsSelectedObjectWhenProvided,
-      DefaultReturnObject
+    transforms: Readonly<
+      TableMapperTransforms<
+        DB,
+        TB,
+        KeyColumns,
+        SelectedColumns,
+        SelectedObject,
+        InsertedObject,
+        UpdatingObject,
+        ReturnCount,
+        ReturnColumns,
+        InsertReturnsSelectedObject,
+        UpdateReturnsSelectedObjectWhenProvided,
+        DefaultReturnObject
+      >
     >
   ) {
     const transformingTableMapper = new TableMapper<

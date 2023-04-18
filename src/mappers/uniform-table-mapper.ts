@@ -113,19 +113,21 @@ export class UniformTableMapper<
       ? Selectable<DB[TB]>
       : Selection<DB, TB, ReturnColumns[number]>
   >(
-    transforms: TableMapperTransforms<
-      DB,
-      TB,
-      KeyColumns,
-      SelectedColumns,
-      MappedObject,
-      MappedObject,
-      MappedObject | Updateable<DB[TB]>,
-      ReturnCount,
-      ReturnColumns,
-      true,
-      true,
-      DefaultReturnObject
+    transforms: Readonly<
+      TableMapperTransforms<
+        DB,
+        TB,
+        KeyColumns,
+        SelectedColumns,
+        MappedObject,
+        MappedObject,
+        MappedObject | Updateable<DB[TB]>,
+        ReturnCount,
+        ReturnColumns,
+        true,
+        true,
+        DefaultReturnObject
+      >
     >
   ) {
     const transformingTableMapper = new UniformTableMapper<

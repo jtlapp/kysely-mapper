@@ -25,11 +25,8 @@ export class MappingSelectQuery<
   constructor(
     readonly db: Kysely<DB>,
     readonly qb: QB,
-    protected readonly transforms: SelectTransform<
-      DB,
-      TB,
-      SelectedColumns,
-      SelectedObject
+    protected readonly transforms: Readonly<
+      SelectTransform<DB, TB, SelectedColumns, SelectedObject>
     >
   ) {}
 

@@ -35,16 +35,18 @@ export class AnyColumnsMappingUpdateQuery<
   constructor(
     db: Kysely<DB>,
     qb: QB,
-    transforms: CountTransform<ReturnCount> &
-      UpdateTransforms<
-        DB,
-        TB,
-        SelectedObject,
-        UpdatingObject,
-        ReturnColumns,
-        UpdateReturnsSelectedObjectWhenProvided,
-        DefaultReturnObject
-      >,
+    transforms: Readonly<
+      CountTransform<ReturnCount> &
+        UpdateTransforms<
+          DB,
+          TB,
+          SelectedObject,
+          UpdatingObject,
+          ReturnColumns,
+          UpdateReturnsSelectedObjectWhenProvided,
+          DefaultReturnObject
+        >
+    >,
     returnColumns: ReturnColumns
   ) {
     super(db, qb, transforms, returnColumns);

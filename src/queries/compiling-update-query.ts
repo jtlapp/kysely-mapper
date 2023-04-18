@@ -51,16 +51,18 @@ export class CompilingMappingUpdateQuery<
     db: Kysely<DB>,
     qb: QB,
     columnsToUpdate: (keyof Updateable<DB[TB]> & string)[],
-    protected readonly transforms: CountTransform<ReturnCount> &
-      UpdateTransforms<
-        DB,
-        TB,
-        SelectedObject,
-        UpdatingObject,
-        ReturnColumns,
-        UpdateReturnsSelectedObjectWhenProvided,
-        DefaultReturnObject
-      >,
+    protected readonly transforms: Readonly<
+      CountTransform<ReturnCount> &
+        UpdateTransforms<
+          DB,
+          TB,
+          SelectedObject,
+          UpdatingObject,
+          ReturnColumns,
+          UpdateReturnsSelectedObjectWhenProvided,
+          DefaultReturnObject
+        >
+    >,
     returnColumns: ReturnColumns
   ) {
     super(db, returnColumns);

@@ -122,14 +122,16 @@ export abstract class AbstractTableMapper<
   constructor(
     readonly db: Kysely<DB>,
     readonly tableName: TB,
-    readonly settings: TableMapperSettings<
-      DB,
-      TB,
-      KeyColumns,
-      SelectedColumns,
-      ReturnColumns,
-      InsertReturnsSelectedObject,
-      UpdateReturnsSelectedObjectWhenProvided
+    readonly settings: Readonly<
+      TableMapperSettings<
+        DB,
+        TB,
+        KeyColumns,
+        SelectedColumns,
+        ReturnColumns,
+        InsertReturnsSelectedObject,
+        UpdateReturnsSelectedObjectWhenProvided
+      >
     > = {}
   ) {
     this.keyColumns = settings.keyColumns ?? ([] as any);

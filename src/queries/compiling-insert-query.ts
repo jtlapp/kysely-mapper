@@ -43,14 +43,16 @@ export class CompilingMappingInsertQuery<
     db: Kysely<DB>,
     qb: QB,
     columnsToInsert: (keyof Insertable<DB[TB]> & string)[],
-    protected readonly transforms: InsertTransforms<
-      DB,
-      TB,
-      SelectedObject,
-      InsertedObject,
-      ReturnColumns,
-      InsertReturnsSelectedObject,
-      DefaultReturnObject
+    protected readonly transforms: Readonly<
+      InsertTransforms<
+        DB,
+        TB,
+        SelectedObject,
+        InsertedObject,
+        ReturnColumns,
+        InsertReturnsSelectedObject,
+        DefaultReturnObject
+      >
     >,
     returnColumns: ReturnColumns
   ) {

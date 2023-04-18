@@ -72,7 +72,7 @@ export interface TableMapperTransforms<
 
 export interface CountTransform<ReturnCount> {
   /** Transformation to apply to bigint count results. */
-  readonly countTransform?: (count: bigint) => ReturnCount;
+  countTransform?: (count: bigint) => ReturnCount;
 }
 
 export interface InsertTransforms<
@@ -85,10 +85,10 @@ export interface InsertTransforms<
   DefaultReturnObject extends object
 > {
   /** Transformation to apply to inserted objects before insertion. */
-  readonly insertTransform?: (obj: InsertedObject) => Insertable<DB[TB]>;
+  insertTransform?: (obj: InsertedObject) => Insertable<DB[TB]>;
 
   /** Transformation to apply to column values returned from inserts. */
-  readonly insertReturnTransform?: (
+  insertReturnTransform?: (
     source: InsertedObject,
     returns: ReturnColumns extends []
       ? never
@@ -110,7 +110,7 @@ export interface SelectTransform<
   SelectedObject extends object
 > {
   /** Transformation to apply to selected objects. */
-  readonly selectTransform?: (
+  selectTransform?: (
     row: SelectedRow<
       DB,
       TB,
@@ -130,10 +130,10 @@ export interface UpdateTransforms<
   DefaultReturnObject extends object
 > {
   /** Transformation to apply to objects provided for updating values. */
-  readonly updateTransform?: (update: UpdatingObject) => Updateable<DB[TB]>;
+  updateTransform?: (update: UpdatingObject) => Updateable<DB[TB]>;
 
   /** Transformation to apply to column values returned from updates. */
-  readonly updateReturnTransform?: (
+  updateReturnTransform?: (
     source: UpdatingObject,
     returns: ReturnColumns extends []
       ? never

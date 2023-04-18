@@ -28,29 +28,29 @@ export interface TableMapperSettings<
   UpdateReturnsSelectedObjectWhenProvided extends boolean = false
 > {
   /** Tuple of the columns that make up the table's key. May be `[]`. */
-  readonly keyColumns?: KeyColumns;
+  keyColumns?: KeyColumns;
 
   /**
    * Columns to return from selection queries. `[*]` selects all columns.
    * May contain aliases.
    */
-  readonly selectedColumns?: SelectedColumns;
+  selectedColumns?: SelectedColumns;
 
   /**
    * Whether insert queries return `SelectedObject` or `DefaultReturnObject`.
    */
-  readonly insertReturnsSelectedObject?: InsertReturnsSelectedObject;
+  insertReturnsSelectedObject?: InsertReturnsSelectedObject;
 
   /**
    * Whether update queries return `SelectedObject` when the updating object
    * is a `SelectedObject`; update queries otherwise return `DefaultReturnObject`.
    */
-  readonly updateReturnsSelectedObjectWhenProvided?: UpdateReturnsSelectedObjectWhenProvided;
+  updateReturnsSelectedObjectWhenProvided?: UpdateReturnsSelectedObjectWhenProvided;
 
   /**
    * Columns to return from the table on insert or update, unless explicitly
    * requesting no columns. `['*']` returns all columns; `[]` returns none.
    * May contain aliases.
    */
-  readonly returnColumns?: ReturnColumns;
+  returnColumns?: ReturnColumns;
 }

@@ -31,14 +31,16 @@ export class AnyColumnsMappingInsertQuery<
   constructor(
     db: Kysely<DB>,
     qb: QB,
-    transforms: InsertTransforms<
-      DB,
-      TB,
-      SelectedObject,
-      InsertedObject,
-      ReturnColumns,
-      InsertReturnsSelectedObject,
-      DefaultReturnObject
+    transforms: Readonly<
+      InsertTransforms<
+        DB,
+        TB,
+        SelectedObject,
+        InsertedObject,
+        ReturnColumns,
+        InsertReturnsSelectedObject,
+        DefaultReturnObject
+      >
     >,
     returnColumns: ReturnColumns
   ) {

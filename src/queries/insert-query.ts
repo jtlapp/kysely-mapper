@@ -44,14 +44,16 @@ export class MappingInsertQuery<
   constructor(
     protected readonly db: Kysely<DB>,
     protected readonly qb: QB,
-    protected readonly transforms: InsertTransforms<
-      DB,
-      TB,
-      SelectedObject,
-      InsertedObject,
-      ReturnColumns,
-      InsertReturnsSelectedObject,
-      DefaultReturnObject
+    protected readonly transforms: Readonly<
+      InsertTransforms<
+        DB,
+        TB,
+        SelectedObject,
+        InsertedObject,
+        ReturnColumns,
+        InsertReturnsSelectedObject,
+        DefaultReturnObject
+      >
     >,
     protected readonly returnColumns: ReturnColumns
   ) {}

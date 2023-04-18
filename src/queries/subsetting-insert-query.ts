@@ -36,14 +36,16 @@ export class SubsettingMappingInsertQuery<
     db: Kysely<DB>,
     qb: QB,
     protected readonly columnsToInsert: (keyof Insertable<DB[TB]> & string)[],
-    transforms: InsertTransforms<
-      DB,
-      TB,
-      SelectedObject,
-      InsertedObject,
-      ReturnColumns,
-      InsertReturnsSelectedObject,
-      DefaultReturnObject
+    transforms: Readonly<
+      InsertTransforms<
+        DB,
+        TB,
+        SelectedObject,
+        InsertedObject,
+        ReturnColumns,
+        InsertReturnsSelectedObject,
+        DefaultReturnObject
+      >
     >,
     returnColumns: ReturnColumns
   ) {

@@ -48,16 +48,18 @@ export class MappingUpdateQuery<
   constructor(
     readonly db: Kysely<DB>,
     readonly qb: QB,
-    protected readonly transforms: CountTransform<ReturnCount> &
-      UpdateTransforms<
-        DB,
-        TB,
-        SelectedObject,
-        UpdatingObject,
-        ReturnColumns,
-        UpdateReturnsSelectedObjectWhenProvided,
-        DefaultReturnObject
-      >,
+    protected readonly transforms: Readonly<
+      CountTransform<ReturnCount> &
+        UpdateTransforms<
+          DB,
+          TB,
+          SelectedObject,
+          UpdatingObject,
+          ReturnColumns,
+          UpdateReturnsSelectedObjectWhenProvided,
+          DefaultReturnObject
+        >
+    >,
     protected readonly returnColumns: ReturnColumns
   ) {}
 

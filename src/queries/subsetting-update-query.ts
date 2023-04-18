@@ -41,16 +41,18 @@ export class SubsettingMappingUpdateQuery<
     db: Kysely<DB>,
     qb: QB,
     protected readonly columnsToUpdate: (keyof Updateable<DB[TB]> & string)[],
-    transforms: CountTransform<ReturnCount> &
-      UpdateTransforms<
-        DB,
-        TB,
-        SelectedObject,
-        UpdatingObject,
-        ReturnColumns,
-        UpdateReturnsSelectedObjectWhenProvided,
-        DefaultReturnObject
-      >,
+    transforms: Readonly<
+      CountTransform<ReturnCount> &
+        UpdateTransforms<
+          DB,
+          TB,
+          SelectedObject,
+          UpdatingObject,
+          ReturnColumns,
+          UpdateReturnsSelectedObjectWhenProvided,
+          DefaultReturnObject
+        >
+    >,
     returnColumns: ReturnColumns
   ) {
     super(db, qb, transforms, returnColumns);

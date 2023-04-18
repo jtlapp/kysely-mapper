@@ -31,5 +31,5 @@ export interface UniformTableMapperSettings<
   > {
   /** Indicates whether the provided object is an instance of `MappedObject`. */
   // Not using a type guard because it complicates assignment of the option.
-  readonly isMappedObject: (obj: any) => boolean;
+  isMappedObject: (obj: any) => boolean;
 }
