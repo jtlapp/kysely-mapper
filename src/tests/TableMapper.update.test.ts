@@ -1,4 +1,4 @@
-import { Insertable, Kysely, Selectable, Updateable, sql } from 'kysely';
+import { Kysely, sql } from 'kysely';
 
 import { TableMapper } from '../mappers/table-mapper';
 import { createDB, resetDB, destroyDB } from './utils/test-setup';
@@ -625,32 +625,16 @@ describe('updating rows via TableMapper', () => {
 });
 
 describe('update transformation', () => {
-  class UpdateTransformMapper extends TableMapper<
-    Database,
-    'users',
-    ['id'],
-    ['*'],
-    Selectable<Database['users']>,
-    Insertable<Database['users']>,
-    UpdatingUser,
-    ['id']
-  > {
-    constructor(db: Kysely<Database>) {
-      super(db, 'users', {
-        returnColumns: ['id'],
-      });
-      this.transforms = {
-        updateTransform: (source) => ({
-          name: `${source.firstName} ${source.lastName}`,
-          handle: source.handle,
-          email: source.email,
-        }),
-      };
-    }
-  }
-
   it('transforms users for update without transforming return', async () => {
-    const mapper = new UpdateTransformMapper(db);
+    const mapper = new TableMapper(db, 'users', {
+      returnColumns: ['id'],
+    }).withTransforms({
+      updateTransform: (source: UpdatingUser) => ({
+        name: `${source.firstName} ${source.lastName}`,
+        handle: source.handle,
+        email: source.email,
+      }),
+    });
 
     const insertReturns = await mapper
       .insert()
@@ -691,37 +675,18 @@ describe('update transformation', () => {
   });
 
   it('transforms update return without transforming update', async () => {
-    class UpdateReturnTransformMapper extends TableMapper<
-      Database,
-      'users',
-      ['id'],
-      ['*'],
-      Selectable<Database['users']>,
-      Insertable<Database['users']>,
-      Updateable<Database['users']>,
-      bigint,
-      ['id'],
-      false,
-      false,
-      ReturnedUser
-    > {
-      constructor(db: Kysely<Database>) {
-        super(db, 'users', {
-          returnColumns: ['id'],
-        });
-        this.transforms = {
-          updateReturnTransform: (source, returns) =>
-            new ReturnedUser(
-              returns.id,
-              source.name ? source.name.split(' ')[0] : '(first)',
-              source.name ? source.name.split(' ')[1] : '(last)',
-              source.handle ? source.handle : '(handle)',
-              source.email ? source.email : '(email)'
-            ),
-        };
-      }
-    }
-    const updateReturnTransformMapper = new UpdateReturnTransformMapper(db);
+    const updateReturnTransformMapper = new TableMapper(db, 'users', {
+      returnColumns: ['id'],
+    }).withTransforms({
+      updateReturnTransform: (source, returns) =>
+        new ReturnedUser(
+          returns.id,
+          source.name ? source.name.split(' ')[0] : '(first)',
+          source.name ? source.name.split(' ')[1] : '(last)',
+          source.handle ? source.handle : '(handle)',
+          source.email ? source.email : '(email)'
+        ),
+    });
 
     const insertReturn = await updateReturnTransformMapper
       .insert()
@@ -741,44 +706,23 @@ describe('update transformation', () => {
   });
 
   it('transforms update and update return', async () => {
-    class UpdateAndReturnTransformMapper extends TableMapper<
-      Database,
-      'users',
-      ['id'],
-      ['*'],
-      Selectable<Database['users']>,
-      Insertable<Database['users']>,
-      UpdatingUser,
-      bigint,
-      ['id'],
-      false,
-      false,
-      ReturnedUser
-    > {
-      constructor(db: Kysely<Database>) {
-        super(db, 'users', {
-          returnColumns: ['id'],
-        });
-        this.transforms = {
-          updateTransform: (source) => ({
-            name: `${source.firstName} ${source.lastName}`,
-            handle: source.handle,
-            email: source.email,
-          }),
-          updateReturnTransform: (source, returns) =>
-            new ReturnedUser(
-              returns.id,
-              source.firstName,
-              source.lastName,
-              source.handle,
-              source.email
-            ),
-        };
-      }
-    }
-    const updateAndReturnTransformMapper = new UpdateAndReturnTransformMapper(
-      db
-    );
+    const updateAndReturnTransformMapper = new TableMapper(db, 'users', {
+      returnColumns: ['id'],
+    }).withTransforms({
+      updateTransform: (source: UpdatingUser) => ({
+        name: `${source.firstName} ${source.lastName}`,
+        handle: source.handle,
+        email: source.email,
+      }),
+      updateReturnTransform: (source: UpdatingUser, returns) =>
+        new ReturnedUser(
+          returns.id,
+          source.firstName,
+          source.lastName,
+          source.handle,
+          source.email
+        ),
+    });
 
     const insertReturn = await updateAndReturnTransformMapper
       .insert()
@@ -798,63 +742,46 @@ describe('update transformation', () => {
   });
 
   it('compiles an update query with transformation', async () => {
-    class UniformInsertTransformMapper extends TableMapper<
-      Database,
-      'users',
-      ['id'],
-      ['*'],
-      User,
-      User,
-      User,
-      number,
-      ['*'],
-      true,
-      true
-    > {
-      constructor(db: Kysely<Database>) {
-        super(db, 'users', {
-          returnColumns: ['*'],
-        });
-        this.transforms = {
-          selectTransform: (row) => {
-            const names = row.name.split(' ');
-            return new User(row.id, names[0], names[1], row.handle, row.email);
-          },
-          insertTransform: (source) => ({
-            name: `${source.firstName} ${source.lastName}`,
-            handle: source.handle,
-            email: source.email,
-          }),
-          insertReturnTransform: (_source, returns) => {
-            const names = returns.name.split(' ');
-            return new User(
-              returns.id,
-              names[0],
-              names[1],
-              returns.handle,
-              returns.email
-            );
-          },
-          updateTransform: (source) => ({
-            name: `${source.firstName} ${source.lastName}`,
-            handle: source.handle,
-            email: source.email,
-          }),
-          updateReturnTransform: (_source, returns) => {
-            const names = returns.name.split(' ');
-            return new User(
-              returns.id,
-              names[0],
-              names[1],
-              returns.handle,
-              returns.email
-            );
-          },
-          countTransform: (count) => Number(count),
-        };
-      }
-    }
-    const transformMapper = new UniformInsertTransformMapper(db);
+    const transformMapper = new TableMapper(db, 'users', {
+      returnColumns: ['*'],
+    }).withTransforms({
+      selectTransform: (row) => {
+        const names = row.name.split(' ');
+        return new User(row.id, names[0], names[1], row.handle, row.email);
+      },
+      insertTransform: (source: User) => ({
+        name: `${source.firstName} ${source.lastName}`,
+        handle: source.handle,
+        email: source.email,
+      }),
+      insertReturnTransform: (_source, returns) => {
+        const names = returns.name.split(' ');
+        return new User(
+          returns.id,
+          names[0],
+          names[1],
+          returns.handle,
+          returns.email
+        );
+      },
+      updateTransform: (source: User) => ({
+        name: `${source.firstName} ${source.lastName}`,
+        handle: source.handle,
+        email: source.email,
+      }),
+      updateReturnTransform: (_source, returns) => {
+        const names = returns.name.split(' ');
+        return new User(
+          returns.id,
+          names[0],
+          names[1],
+          returns.handle,
+          returns.email
+        );
+      },
+      countTransform: (count) => Number(count),
+    });
+
     const user1 = new User(0, 'John', 'Doe', 'johndoe', 'jdoe@abc.def');
     const user2 = new User(0, 'Sam', 'Gamgee', 'sg', 'sg@abc.def');
     const user3 = new User(0, 'Sue', 'Rex', 'srex', 'srex@abc.def');
@@ -932,54 +859,36 @@ describe('update transformation', () => {
   });
 
   it('parameterizes an update query with transformation', async () => {
-    class UniformInsertTransformMapper extends TableMapper<
-      Database,
-      'users',
-      ['id'],
-      ['*'],
-      User,
-      User,
-      User,
-      number,
-      ['id'],
-      false,
-      false,
-      { id: number; firstName: string; lastName: string }
-    > {
-      constructor(db: Kysely<Database>) {
-        super(db, 'users', {
-          returnColumns: ['id'],
-        });
-        this.transforms = {
-          selectTransform: (row) => {
-            const names = row.name.split(' ');
-            return new User(row.id, names[0], names[1], row.handle, row.email);
-          },
-          insertTransform: (source) => ({
-            name: `${source.firstName} ${source.lastName}`,
-            handle: source.handle,
-            email: source.email,
-          }),
-          insertReturnTransform: (source, returns) => ({
-            id: returns.id,
-            firstName: source.firstName,
-            lastName: source.lastName,
-          }),
-          updateTransform: (source) => ({
-            name: `${source.firstName} ${source.lastName}`,
-            handle: source.handle,
-            email: source.email,
-          }),
-          updateReturnTransform: (source, returns) => ({
-            id: returns.id,
-            firstName: source.firstName,
-            lastName: source.lastName,
-          }),
-          countTransform: (count) => Number(count),
-        };
-      }
-    }
-    const transformMapper = new UniformInsertTransformMapper(db);
+    const transformMapper = new TableMapper(db, 'users', {
+      returnColumns: ['id'],
+    }).withTransforms({
+      selectTransform: (row) => {
+        const names = row.name.split(' ');
+        return new User(row.id, names[0], names[1], row.handle, row.email);
+      },
+      insertTransform: (source: User) => ({
+        name: `${source.firstName} ${source.lastName}`,
+        handle: source.handle,
+        email: source.email,
+      }),
+      insertReturnTransform: (source: User, returns) => ({
+        id: returns.id,
+        firstName: source.firstName,
+        lastName: source.lastName,
+      }),
+      updateTransform: (source: User) => ({
+        name: `${source.firstName} ${source.lastName}`,
+        handle: source.handle,
+        email: source.email,
+      }),
+      updateReturnTransform: (source: User, returns) => ({
+        id: returns.id,
+        firstName: source.firstName,
+        lastName: source.lastName,
+      }),
+      countTransform: (count) => Number(count),
+    });
+
     const user1 = new User(0, 'John', 'Doe', 'johndoe', 'jdoe@abc.def');
     const user2 = new User(0, 'Sam', 'Gamgee', 'sg', 'sg@abc.def');
     const user3 = new User(0, 'Sue', 'Rex', 'srex', 'srex@abc.def');

@@ -426,33 +426,21 @@ describe('inserting a single object without transformation', () => {
 });
 
 describe('insertion queries', () => {
-  class InsertTransformMapper extends TableMapper<
-    Database,
-    'users',
-    ['id'],
-    ['*'],
-    Selectable<Database['users']>,
-    InsertedUser,
-    Partial<InsertedUser>,
-    number
-  > {
-    constructor(db: Kysely<Database>) {
-      super(db, 'users', {
-        returnColumns: ['id'],
-      });
-      this.transforms = {
-        insertTransform: (source) => ({
-          name: `${source.firstName} ${source.lastName}`,
-          handle: source.handle,
-          email: source.email,
-        }),
-        countTransform: (count) => Number(count),
-      };
-    }
+  function createInsertTransformMapper(db: Kysely<Database>) {
+    return new TableMapper(db, 'users', {
+      returnColumns: ['id'],
+    }).withTransforms({
+      insertTransform: (source: InsertedUser) => ({
+        name: `${source.firstName} ${source.lastName}`,
+        handle: source.handle,
+        email: source.email,
+      }),
+      countTransform: (count) => Number(count),
+    });
   }
 
   it('transforms users for insertion without transforming return', async () => {
-    const insertTransformMapper = new InsertTransformMapper(db);
+    const insertTransformMapper = createInsertTransformMapper(db);
 
     const insertReturn = await insertTransformMapper
       .insert()
@@ -482,38 +470,19 @@ describe('insertion queries', () => {
   });
 
   it('transforms insertion return without transforming insertion', async () => {
-    class InsertReturnTransformMapper extends TableMapper<
-      Database,
-      'users',
-      ['id'],
-      ['*'],
-      Selectable<Database['users']>,
-      Insertable<Database['users']>,
-      Updateable<Database['users']>,
-      number,
-      ['id'],
-      false,
-      false,
-      ReturnedUser
-    > {
-      constructor(db: Kysely<Database>) {
-        super(db, 'users', {
-          returnColumns: ['id'],
-        });
-        this.transforms = {
-          insertReturnTransform: (source, returns) =>
-            new ReturnedUser(
-              returns.id,
-              source.name.split(' ')[0],
-              source.name.split(' ')[1],
-              source.handle,
-              source.email || null
-            ),
-          countTransform: (count) => Number(count),
-        };
-      }
-    }
-    const insertReturnTransformMapper = new InsertReturnTransformMapper(db);
+    const insertReturnTransformMapper = new TableMapper(db, 'users', {
+      returnColumns: ['id'],
+    }).withTransforms({
+      insertReturnTransform: (source, returns) =>
+        new ReturnedUser(
+          returns.id,
+          source.name.split(' ')[0],
+          source.name.split(' ')[1],
+          source.handle,
+          source.email || null
+        ),
+      countTransform: (count) => Number(count),
+    });
 
     const insertReturn = await insertReturnTransformMapper
       .insert()
@@ -527,45 +496,24 @@ describe('insertion queries', () => {
   });
 
   it('transforms insertion and insertion return', async () => {
-    class InsertAndReturnTransformMapper extends TableMapper<
-      Database,
-      'users',
-      ['id'],
-      ['*'],
-      Selectable<Database['users']>,
-      InsertedUser,
-      Updateable<Database['users']>,
-      number,
-      ['id'],
-      false,
-      false,
-      ReturnedUser
-    > {
-      constructor(db: Kysely<Database>) {
-        super(db, 'users', {
-          returnColumns: ['id'],
-        });
-        this.transforms = {
-          insertTransform: (source) => ({
-            name: `${source.firstName} ${source.lastName}`,
-            handle: source.handle,
-            email: source.email,
-          }),
-          insertReturnTransform: (source, returns) =>
-            new ReturnedUser(
-              returns.id,
-              source.firstName,
-              source.lastName,
-              source.handle,
-              source.email
-            ),
-          countTransform: (count) => Number(count),
-        };
-      }
-    }
-    const insertAndReturnTransformMapper = new InsertAndReturnTransformMapper(
-      db
-    );
+    const insertAndReturnTransformMapper = new TableMapper(db, 'users', {
+      returnColumns: ['id'],
+    }).withTransforms({
+      insertTransform: (source: InsertedUser) => ({
+        name: `${source.firstName} ${source.lastName}`,
+        handle: source.handle,
+        email: source.email,
+      }),
+      insertReturnTransform: (source: InsertedUser, returns) =>
+        new ReturnedUser(
+          returns.id,
+          source.firstName,
+          source.lastName,
+          source.handle,
+          source.email
+        ),
+      countTransform: (count) => Number(count),
+    });
 
     const insertReturn = await insertAndReturnTransformMapper
       .insert()
@@ -623,45 +571,28 @@ describe('insertion queries', () => {
   });
 
   it('compiles an insert query with transformation', async () => {
-    class UniformInsertTransformMapper extends TableMapper<
-      Database,
-      'users',
-      ['id'],
-      ['*'],
-      User,
-      User,
-      Updateable<Database['users']>,
-      number,
-      ['id'],
-      true
-    > {
-      constructor(db: Kysely<Database>) {
-        super(db, 'users', {
-          returnColumns: ['id'],
-        });
-        this.transforms = {
-          selectTransform: (row) => {
-            const names = row.name.split(' ');
-            return new User(row.id, names[0], names[1], row.handle, row.email);
-          },
-          insertTransform: (source) => ({
-            name: `${source.firstName} ${source.lastName}`,
-            handle: source.handle,
-            email: source.email,
-          }),
-          insertReturnTransform: (source, returns) =>
-            new User(
-              returns.id,
-              source.firstName,
-              source.lastName,
-              source.handle,
-              source.email
-            ),
-          countTransform: (count) => Number(count),
-        };
-      }
-    }
-    const transformMapper = new UniformInsertTransformMapper(db);
+    const transformMapper = new TableMapper(db, 'users', {
+      returnColumns: ['id'],
+    }).withTransforms({
+      selectTransform: (row) => {
+        const names = row.name.split(' ');
+        return new User(row.id, names[0], names[1], row.handle, row.email);
+      },
+      insertTransform: (source: User) => ({
+        name: `${source.firstName} ${source.lastName}`,
+        handle: source.handle,
+        email: source.email,
+      }),
+      insertReturnTransform: (source: User, returns) =>
+        new User(
+          returns.id,
+          source.firstName,
+          source.lastName,
+          source.handle,
+          source.email
+        ),
+      countTransform: (count) => Number(count),
+    });
     const user1 = new User(0, 'John', 'Doe', 'johndoe', 'jdoe@abc.def');
     const user2 = new User(0, 'Sam', 'Gamgee', 'sg', 'sg@abc.def');
     const user3 = new User(100, 'Sue', 'Rex', 'srex', 'srex@abc.def');
@@ -701,7 +632,7 @@ describe('insertion queries', () => {
   });
 
   ignore('detects insertion transformation type errors', async () => {
-    const insertTransformMapper = new InsertTransformMapper(db);
+    const insertTransformMapper = createInsertTransformMapper(db);
 
     // @ts-expect-error - requires InsertedObject as input
     await insertTransformMapper.insert().returnOne(USERS[0]);
