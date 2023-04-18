@@ -68,8 +68,7 @@ export class CompilingMappingInsertQuery<
    * `insertReturnTransform`. If `returnColumns` is empty, returns `undefined`.
    *
    * On the first execution, compiles and discards the underlying Kysely
-   * query builder to reduce memory usage. Subsequent executions reuse the
-   * compiled query.
+   * query builder. Subsequent executions reuse the compiled query.
    * @returns If `returnColumns` is not empty, returns an object;
    *  otherwise returns `undefined`.
    */
@@ -110,9 +109,10 @@ export class CompilingMappingInsertQuery<
 
   /**
    * Runs the query, inserting rows into the table without returning any
-   * columns. On the first execution, compiles and discards the underlying
-   * Kysely query builder to reduce memory usage. Subsequent executions reuse
-   * the compiled query.
+   * columns.
+   *
+   * On the first execution, compiles and discards the underlying Kysely
+   * query builder. Subsequent executions reuse the compiled query.
    * @param objOrObjs The object or objects to be inserted.
    * @returns Returns `true`; throws an exception on error.
    */

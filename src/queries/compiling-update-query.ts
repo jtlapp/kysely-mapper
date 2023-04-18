@@ -8,9 +8,6 @@ import {
   UpdateTransforms,
 } from '../mappers/table-mapper-transforms';
 
-// TODO: revise jsdoc "on first execution" to refer to the correct
-// first thing, because it's not just a call to the method
-
 /**
  * Compiling mapping query for updating rows in a database table.
  */
@@ -72,8 +69,12 @@ export class CompilingMappingUpdateQuery<
   }
 
   /**
-   * Runs the query, returning the number of rows updated, in
-   * the required client representation.
+   * Runs the query, returning the number of rows updated, in the required
+   * client representation. Accepts values for any parameters embedded in
+   * the query.
+   *
+   * On the first execution, compiles and discards the underlying Kysely
+   * query builder. Subsequent executions reuse the compiled query.
    * @param obj The object which which to update the rows.
    * @returns Number of rows updated, in client-requested representation.
    */
@@ -94,6 +95,10 @@ export class CompilingMappingUpdateQuery<
    * on whether `UpdateReturnsSelectedObjectWhenProvided` is `true` and the
    * provided object is a `SelectedObject`, after transformation by
    * `updateReturnTransform`. If `returnColumns` is empty, returns `undefined`.
+   * Accepts values for any parameters embedded in the query.
+   *
+   * On the first execution, compiles and discards the underlying Kysely
+   * query builder. Subsequent executions reuse the compiled query.
    * @returns If `returnColumns` is not empty, returns an array containing one
    *  object for each row updated; otherwise returns `undefined`.
    */
@@ -139,10 +144,10 @@ export class CompilingMappingUpdateQuery<
    * on whether `UpdateReturnsSelectedObjectWhenProvided` is `true` and the
    * provided object is a `SelectedObject`, after transformation by
    * `updateReturnTransform`. If `returnColumns` is empty, returns `undefined`.
+   * Accepts values for any parameters embedded in the query.
    *
    * On the first execution, compiles and discards the underlying Kysely
-   * query builder to reduce memory usage. Subsequent executions reuse the
-   * compiled query.
+   * query builder. Subsequent executions reuse the compiled query.
    * @returns If `returnColumns` is empty, returns `undefined`. Otherwise,
    *  returns the first object if at least one row was updated, or `null` if
    *  no rows were updated.
@@ -186,10 +191,11 @@ export class CompilingMappingUpdateQuery<
   }
 
   /**
-   * Runs the query, updating rows, without returning any columns. On the
-   * first execution, compiles and discards the underlying Kysely query
-   * builder to reduce memory usage. Subsequent executions reuse the
-   * compiled query.
+   * Runs the query, updating rows, without returning any columns. Accepts
+   * values for any parameters embedded in the query.
+   *
+   * On the first execution, compiles and discards the underlying Kysely
+   * query builder. Subsequent executions reuse the compiled query.
    * @param obj The object which which to update the rows.
    * @returns `true` if any rows were updated, `false` otherwise.
    */

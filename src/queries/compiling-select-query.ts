@@ -39,10 +39,11 @@ export class CompilingMappingSelectQuery<
 
   /**
    * Retrieves zero or more rows from the table, using `selectTransform`
-   * (if provided) to map the rows to objects of type `SelectedObject`. On
-   * the first execution, compiles and discards the underlying Kysely query
-   * builder to reduce memory usage. Subsequent executions reuse the compiled
-   * query. Accepts values for any parameters embedded in the query.
+   * (if provided) to map the rows to objects of type `SelectedObject`.
+   * Accepts values for any parameters embedded in the query.
+   *
+   * On the first execution, compiles and discards the underlying Kysely
+   * query builder. Subsequent executions reuse the compiled query.
    * @param params Record characterizing the parameter names and types.
    *  Pass in `{}` if the query has no parameters.
    * @returns An array of objects for the selected rows, possibly empty.
@@ -56,10 +57,11 @@ export class CompilingMappingSelectQuery<
 
   /**
    * Retrieves a single row from the table, using `selectTransform` (if
-   * provided) to map the row to an object of type `SelectedObject`. On the
-   * first execution, compiles and discards the underlying Kysely query
-   * builder to reduce memory usage. Subsequent executions reuse the compiled
-   * query. Accepts values for any parameters embedded in the query.
+   * provided) to map the row to an object of type `SelectedObject`.
+   * Accepts values for any parameters embedded in the query.
+   *
+   * On the first execution, compiles and discards the underlying Kysely
+   * query builder. Subsequent executions reuse the compiled query.
    * @param params Record characterizing the parameter names and types.
    *  Pass in `{}` if the query has no parameters.
    * @returns An object for the selected rows, or null if not found.

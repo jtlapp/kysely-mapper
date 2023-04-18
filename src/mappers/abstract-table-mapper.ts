@@ -198,7 +198,6 @@ export abstract class AbstractTableMapper<
     );
   }
 
-  // TODO: support listing inserted columns as a parameter (?)
   /**
    * Returns a query for inserting rows into the table.
    * @returns A mapping query for inserting rows.
@@ -368,10 +367,10 @@ export abstract class AbstractTableMapper<
 
   /**
    * Returns a reference to a column, which can be a generated string.
+   * (Shorthand for `db.dynamic.ref(column)`.)
    * @param column The column name being referenced.
    * @returns A reference to the given column.
    */
-  // TODO: do I need this?
   ref(column: string) {
     return this.db.dynamic.ref(column);
   }

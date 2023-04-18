@@ -32,10 +32,11 @@ export class CompilingMappingDeleteQuery<
 
   /**
    * Runs the query, returning the number of rows deleted, converted to
-   * the required client representation. On the first execution, compiles
-   * and discards the underlying Kysely query builder to reduce memory
-   * usage. Subsequent executions reuse the compiled query. Accepts values
-   * for any parameters embedded in the query.
+   * the required client representation. Accepts values for any parameters
+   * embedded in the query.
+   *
+   * On the first execution, compiles and discards the underlying Kysely
+   * query builder. Subsequent executions reuse the compiled query.
    * @param params Record characterizing the parameter names and types.
    *  Pass in `{}` if the query has no parameters.
    * @returns Number of rows deleted, in client-requested representation.
@@ -48,10 +49,11 @@ export class CompilingMappingDeleteQuery<
   }
 
   /**
-   * Runs the query, deleting the indicated rows, returning nothing.  On
-   * the first execution, compiles and discards the underlying Kysely query
-   * builder to reduce memory usage. Subsequent executions reuse the compiled
-   * query. Accepts values for any parameters embedded in the query.
+   * Runs the query, deleting the indicated rows, returning nothing.
+   * Accepts values for any parameters embedded in the query.
+   *
+   * On the first execution, compiles and discards the underlying Kysely
+   * query builder. Subsequent executions reuse the compiled query.
    * @param params Record characterizing the parameter names and types.
    *  Pass in `{}` if the query has no parameters.
    * @returns `true` if any rows were deleted, `false` otherwise.
