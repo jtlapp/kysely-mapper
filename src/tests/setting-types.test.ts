@@ -165,4 +165,9 @@ describe('table mapper setting type checks', () => {
       Readonly<['id']> // should not error
     >(db, 'users', {});
   });
+
+  it('accepts readonly settings', () => {
+    const settings = { returnColumns: ['id'] as const } as const;
+    new TableMapper(db, 'users', settings);
+  });
 });

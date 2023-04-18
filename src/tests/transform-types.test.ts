@@ -122,8 +122,11 @@ describe('table mapper transform type checks', () => {
     await insertTransformMapper.insert().run(selectedUser1);
   });
 
-  it('dummy test', () => {
-    // gets test to run without error
-    expect(true).toBe(true);
+  it('accepts readonly transforms', () => {
+    const transforms = {
+      countTransform: (count: bigint) => count,
+    } as const;
+
+    new TableMapper(db, 'users', {}).withTransforms(transforms);
   });
 });
