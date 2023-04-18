@@ -1,5 +1,5 @@
 import { Kysely, UpdateQueryBuilder, UpdateResult, Updateable } from 'kysely';
-import { AllColumns, SelectionColumn } from '../lib/type-utils';
+import { SelectionColumn } from '../lib/type-utils';
 import { MappingUpdateQuery } from './update-query';
 import { SubsettingMappingUpdateQuery } from './subsetting-update-query';
 import {
@@ -17,7 +17,7 @@ export class AnyColumnsMappingUpdateQuery<
   QB extends UpdateQueryBuilder<DB, TB, TB, UpdateResult>,
   UpdatingObject extends object,
   SelectedObject extends object,
-  ReturnColumns extends Readonly<SelectionColumn<DB, TB>[]> | AllColumns,
+  ReturnColumns extends Readonly<SelectionColumn<DB, TB>[]> | ['*'],
   ReturnCount,
   UpdateReturnsSelectedObjectWhenProvided extends boolean,
   DefaultReturnObject extends object

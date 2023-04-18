@@ -1,7 +1,6 @@
 import { Insertable, Selectable, Selection, Updateable } from 'kysely';
 
 import {
-  AllColumns,
   SelectableColumnTuple,
   SelectedRow,
   SelectionColumn,
@@ -37,13 +36,11 @@ export class TableMapper<
   DB,
   TB extends keyof DB & string,
   KeyColumns extends Readonly<SelectableColumnTuple<DB[TB]>> | [] = [],
-  SelectedColumns extends
-    | Readonly<SelectionColumn<DB, TB>[]>
-    | AllColumns = AllColumns,
+  SelectedColumns extends Readonly<SelectionColumn<DB, TB>[]> | ['*'] = ['*'],
   SelectedObject extends object = SelectedRow<
     DB,
     TB,
-    SelectedColumns extends AllColumns ? never : SelectedColumns[number],
+    SelectedColumns extends ['*'] ? never : SelectedColumns[number],
     SelectedColumns
   >,
   InsertedObject extends object = Insertable<DB[TB]>,
@@ -51,10 +48,10 @@ export class TableMapper<
   ReturnCount = bigint,
   ReturnColumns extends
     | Readonly<SelectionColumn<DB, TB>[]>
-    | AllColumns = KeyColumns,
+    | ['*'] = KeyColumns,
   InsertReturnsSelectedObject extends boolean = false,
   UpdateReturnsSelectedObjectWhenProvided extends boolean = false,
-  DefaultReturnObject extends object = ReturnColumns extends AllColumns
+  DefaultReturnObject extends object = ReturnColumns extends ['*']
     ? Selectable<DB[TB]>
     : Selection<DB, TB, ReturnColumns[number]>
 > extends AbstractTableMapper<
@@ -80,13 +77,13 @@ export class TableMapper<
     SelectedObject extends object = SelectedRow<
       DB,
       TB,
-      SelectedColumns extends AllColumns ? never : SelectedColumns[number],
+      SelectedColumns extends ['*'] ? never : SelectedColumns[number],
       SelectedColumns
     >,
     InsertedObject extends object = Insertable<DB[TB]>,
     UpdatingObject extends object = Updateable<DB[TB]>,
     ReturnCount = bigint,
-    DefaultReturnObject extends object = ReturnColumns extends AllColumns
+    DefaultReturnObject extends object = ReturnColumns extends ['*']
       ? Selectable<DB[TB]>
       : Selection<DB, TB, ReturnColumns[number]>
   >(

@@ -6,7 +6,7 @@ import {
   Insertable,
 } from 'kysely';
 
-import { AllColumns, SelectionColumn } from '../lib/type-utils';
+import { SelectionColumn } from '../lib/type-utils';
 import { InsertTransforms } from '../mappers/table-mapper-transforms';
 
 // TODO: see what else should be made readonly
@@ -21,7 +21,7 @@ export class MappingInsertQuery<
   QB extends InsertQueryBuilder<DB, TB, InsertResult>,
   InsertedObject extends object,
   SelectedObject extends object,
-  ReturnColumns extends Readonly<SelectionColumn<DB, TB>[]> | AllColumns,
+  ReturnColumns extends Readonly<SelectionColumn<DB, TB>[]> | ['*'],
   InsertReturnsSelectedObject extends boolean,
   DefaultReturnObject extends object
 > {

@@ -18,7 +18,6 @@ import {
 
 import { QueryFilter, applyQueryFilter } from '../lib/query-filter';
 import {
-  AllColumns,
   SelectableColumnTuple,
   SelectedRow,
   SelectionColumn,
@@ -67,13 +66,11 @@ export abstract class AbstractTableMapper<
   DB,
   TB extends keyof DB & string,
   KeyColumns extends Readonly<SelectableColumnTuple<DB[TB]>> | [] = [],
-  SelectedColumns extends
-    | Readonly<SelectionColumn<DB, TB>[]>
-    | AllColumns = AllColumns,
+  SelectedColumns extends Readonly<SelectionColumn<DB, TB>[]> | ['*'] = ['*'],
   SelectedObject extends object = SelectedRow<
     DB,
     TB,
-    SelectedColumns extends AllColumns ? never : SelectedColumns[number],
+    SelectedColumns extends ['*'] ? never : SelectedColumns[number],
     SelectedColumns
   >,
   InsertedObject extends object = Insertable<DB[TB]>,
@@ -81,10 +78,10 @@ export abstract class AbstractTableMapper<
   ReturnCount = bigint,
   ReturnColumns extends
     | Readonly<SelectionColumn<DB, TB>[]>
-    | AllColumns = Readonly<KeyColumns>,
+    | ['*'] = Readonly<KeyColumns>,
   InsertReturnsSelectedObject extends boolean = false,
   UpdateReturnsSelectedObjectWhenProvided extends boolean = false,
-  DefaultReturnObject extends object = ReturnColumns extends AllColumns
+  DefaultReturnObject extends object = ReturnColumns extends ['*']
     ? Selectable<DB[TB]>
     : Selection<DB, TB, ReturnColumns[number]>
 > {
@@ -100,9 +97,7 @@ export abstract class AbstractTableMapper<
   protected readonly selectedColumns: SelectionColumn<DB, TB>[];
 
   /** Columns to return from the table on insert or update. */
-  protected readonly returnColumns:
-    | Readonly<SelectionColumn<DB, TB>[]>
-    | AllColumns;
+  protected readonly returnColumns: Readonly<SelectionColumn<DB, TB>[]> | ['*'];
 
   /** Query input and output value transforms. */
   protected transforms: TableMapperTransforms<
@@ -546,7 +541,7 @@ export abstract class AbstractTableMapper<
    */
   protected getSelectQB():
     | SelectQueryBuilder<DB, TB, object & AllSelection<DB, TB>>
-    | (SelectedColumns extends AllColumns
+    | (SelectedColumns extends ['*']
         ? never
         : SelectQueryBuilder<
             DB,

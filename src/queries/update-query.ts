@@ -5,7 +5,7 @@ import {
   UpdateResult,
   Updateable,
 } from 'kysely';
-import { AllColumns, SelectionColumn } from '../lib/type-utils';
+import { SelectionColumn } from '../lib/type-utils';
 import {
   CountTransform,
   UpdateTransforms,
@@ -22,7 +22,7 @@ export class MappingUpdateQuery<
   QB extends UpdateQueryBuilder<DB, TB, TB, UpdateResult>,
   UpdatingObject extends object,
   SelectedObject extends object,
-  ReturnColumns extends Readonly<SelectionColumn<DB, TB>[]> | AllColumns,
+  ReturnColumns extends Readonly<SelectionColumn<DB, TB>[]> | ['*'],
   ReturnCount,
   UpdateReturnsSelectedObjectWhenProvided extends boolean,
   DefaultReturnObject extends object

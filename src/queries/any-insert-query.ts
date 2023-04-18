@@ -1,6 +1,6 @@
 import { Kysely, InsertQueryBuilder, InsertResult, Insertable } from 'kysely';
 
-import { AllColumns, SelectionColumn } from '../lib/type-utils';
+import { SelectionColumn } from '../lib/type-utils';
 import { SubsettingMappingInsertQuery } from './subsetting-insert-query';
 import { MappingInsertQuery } from './insert-query';
 import { InsertTransforms } from '../mappers/table-mapper-transforms';
@@ -15,7 +15,7 @@ export class AnyColumnsMappingInsertQuery<
   QB extends InsertQueryBuilder<DB, TB, InsertResult>,
   InsertedObject extends object,
   SelectedObject extends object,
-  ReturnColumns extends Readonly<SelectionColumn<DB, TB>[]> | AllColumns,
+  ReturnColumns extends Readonly<SelectionColumn<DB, TB>[]> | ['*'],
   InsertReturnsSelectedObject extends boolean,
   DefaultReturnObject extends object
 > extends MappingInsertQuery<

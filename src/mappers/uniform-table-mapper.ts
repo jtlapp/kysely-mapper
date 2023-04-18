@@ -2,7 +2,6 @@ import { Kysely, Selectable, Selection, Updateable } from 'kysely';
 
 import { AbstractTableMapper } from './abstract-table-mapper';
 import {
-  AllColumns,
   SelectableColumn,
   SelectableColumnTuple,
   SelectedRow,
@@ -39,13 +38,9 @@ export class UniformTableMapper<
   KeyColumns extends Readonly<SelectableColumnTuple<DB[TB]>> | [] = [
     'id' & SelectableColumn<DB[TB]>
   ],
-  SelectedColumns extends
-    | Readonly<SelectionColumn<DB, TB>[]>
-    | AllColumns = AllColumns,
+  SelectedColumns extends Readonly<SelectionColumn<DB, TB>[]> | ['*'] = ['*'],
   ReturnCount = bigint,
-  ReturnColumns extends
-    | Readonly<SelectionColumn<DB, TB>[]>
-    | AllColumns = KeyColumns
+  ReturnColumns extends Readonly<SelectionColumn<DB, TB>[]> | ['*'] = KeyColumns
 > extends AbstractTableMapper<
   DB,
   TB,
@@ -114,7 +109,7 @@ export class UniformTableMapper<
   withTransforms<
     MappedObject extends object,
     ReturnCount = bigint,
-    DefaultReturnObject extends object = ReturnColumns extends AllColumns
+    DefaultReturnObject extends object = ReturnColumns extends ['*']
       ? Selectable<DB[TB]>
       : Selection<DB, TB, ReturnColumns[number]>
   >(
@@ -161,8 +156,8 @@ function _prepareSettings<
   DB,
   TB extends keyof DB & string,
   KeyColumns extends Readonly<SelectableColumnTuple<DB[TB]>> | [],
-  SelectedColumns extends Readonly<SelectionColumn<DB, TB>[]> | AllColumns,
-  ReturnColumns extends Readonly<SelectionColumn<DB, TB>[]> | AllColumns
+  SelectedColumns extends Readonly<SelectionColumn<DB, TB>[]> | ['*'],
+  ReturnColumns extends Readonly<SelectionColumn<DB, TB>[]> | ['*']
 >(
   settings: UniformTableMapperSettings<
     DB,
@@ -194,10 +189,10 @@ function _prepareTransforms<
   DB,
   TB extends keyof DB & string,
   KeyColumns extends Readonly<SelectableColumnTuple<DB[TB]>> | [],
-  SelectedColumns extends Readonly<SelectionColumn<DB, TB>[]> | AllColumns,
+  SelectedColumns extends Readonly<SelectionColumn<DB, TB>[]> | ['*'],
   MappedObject extends object,
   ReturnCount,
-  ReturnColumns extends Readonly<SelectionColumn<DB, TB>[]> | AllColumns,
+  ReturnColumns extends Readonly<SelectionColumn<DB, TB>[]> | ['*'],
   DefaultReturnObject extends object
 >(
   keyColumns: KeyColumns,
@@ -236,7 +231,7 @@ function _prepareTransforms<
       : SelectedRow<
           DB,
           TB,
-          ReturnColumns extends AllColumns ? never : ReturnColumns[number],
+          ReturnColumns extends ['*'] ? never : ReturnColumns[number],
           ReturnColumns
         >
   ) => ({ ...obj, ...returns });
@@ -259,7 +254,7 @@ function _prepareTransforms<
       : SelectedRow<
           DB,
           TB,
-          ReturnColumns extends AllColumns ? never : ReturnColumns[number],
+          ReturnColumns extends ['*'] ? never : ReturnColumns[number],
           ReturnColumns
         >
   ) =>

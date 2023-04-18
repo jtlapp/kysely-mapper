@@ -1,8 +1,4 @@
-import {
-  AllColumns,
-  SelectableColumnTuple,
-  SelectionColumn,
-} from '../lib/type-utils';
+import { SelectableColumnTuple, SelectionColumn } from '../lib/type-utils';
 import { TableMapperSettings } from './table-mapper-settings';
 
 /**
@@ -22,8 +18,8 @@ export interface UniformTableMapperSettings<
   DB,
   TB extends keyof DB & string,
   KeyColumns extends Readonly<SelectableColumnTuple<DB[TB]>> | [],
-  SelectedColumns extends Readonly<SelectionColumn<DB, TB>[]> | AllColumns,
-  ReturnColumns extends Readonly<SelectionColumn<DB, TB>[]> | AllColumns
+  SelectedColumns extends Readonly<SelectionColumn<DB, TB>[]> | ['*'],
+  ReturnColumns extends Readonly<SelectionColumn<DB, TB>[]> | ['*']
 > extends TableMapperSettings<
     DB,
     TB,

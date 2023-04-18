@@ -1,6 +1,5 @@
 import { Insertable, Selectable, Selection, Updateable } from 'kysely';
 import {
-  AllColumns,
   SelectableColumnTuple,
   SelectedRow,
   SelectionColumn,
@@ -34,13 +33,11 @@ export interface TableMapperTransforms<
   DB,
   TB extends keyof DB & string,
   KeyColumns extends Readonly<SelectableColumnTuple<DB[TB]>> | [] = [],
-  SelectedColumns extends
-    | Readonly<SelectionColumn<DB, TB>[]>
-    | AllColumns = AllColumns,
+  SelectedColumns extends Readonly<SelectionColumn<DB, TB>[]> | ['*'] = ['*'],
   SelectedObject extends object = SelectedRow<
     DB,
     TB,
-    SelectedColumns extends AllColumns ? never : SelectedColumns[number],
+    SelectedColumns extends ['*'] ? never : SelectedColumns[number],
     SelectedColumns
   >,
   InsertedObject extends object = Insertable<DB[TB]>,
@@ -48,10 +45,10 @@ export interface TableMapperTransforms<
   ReturnCount = bigint,
   ReturnColumns extends
     | Readonly<SelectionColumn<DB, TB>[]>
-    | AllColumns = KeyColumns,
+    | ['*'] = KeyColumns,
   InsertReturnsSelectedObject extends boolean = false,
   UpdateReturnsSelectedObjectWhenProvided extends boolean = false,
-  DefaultReturnObject extends object = ReturnColumns extends AllColumns
+  DefaultReturnObject extends object = ReturnColumns extends ['*']
     ? Selectable<DB[TB]>
     : Selection<DB, TB, ReturnColumns[number]>
 > extends CountTransform<ReturnCount>,
@@ -85,7 +82,7 @@ export interface InsertTransforms<
   TB extends keyof DB & string,
   SelectedObject extends object,
   InsertedObject extends object,
-  ReturnColumns extends Readonly<SelectionColumn<DB, TB>[]> | AllColumns,
+  ReturnColumns extends Readonly<SelectionColumn<DB, TB>[]> | ['*'],
   InsertReturnsSelectedObject extends boolean,
   DefaultReturnObject extends object
 > {
@@ -100,7 +97,7 @@ export interface InsertTransforms<
       : SelectedRow<
           DB,
           TB,
-          ReturnColumns extends AllColumns ? never : ReturnColumns[number],
+          ReturnColumns extends ['*'] ? never : ReturnColumns[number],
           ReturnColumns
         >
   ) => InsertReturnsSelectedObject extends true
@@ -111,7 +108,7 @@ export interface InsertTransforms<
 export interface SelectTransform<
   DB,
   TB extends keyof DB & string,
-  SelectedColumns extends Readonly<SelectionColumn<DB, TB>[]> | AllColumns,
+  SelectedColumns extends Readonly<SelectionColumn<DB, TB>[]> | ['*'],
   SelectedObject extends object
 > {
   /** Transformation to apply to selected objects. */
@@ -119,7 +116,7 @@ export interface SelectTransform<
     row: SelectedRow<
       DB,
       TB,
-      SelectedColumns extends AllColumns ? never : SelectedColumns[number],
+      SelectedColumns extends ['*'] ? never : SelectedColumns[number],
       SelectedColumns
     >
   ) => SelectedObject;
@@ -130,7 +127,7 @@ export interface UpdateTransforms<
   TB extends keyof DB & string,
   SelectedObject extends object,
   UpdatingObject extends object,
-  ReturnColumns extends Readonly<SelectionColumn<DB, TB>[]> | AllColumns,
+  ReturnColumns extends Readonly<SelectionColumn<DB, TB>[]> | ['*'],
   UpdateReturnsSelectedObjectWhenProvided extends boolean,
   DefaultReturnObject extends object
 > {
@@ -145,7 +142,7 @@ export interface UpdateTransforms<
       : SelectedRow<
           DB,
           TB,
-          ReturnColumns extends AllColumns ? never : ReturnColumns[number],
+          ReturnColumns extends ['*'] ? never : ReturnColumns[number],
           ReturnColumns
         >
   ) => UpdateReturnsSelectedObjectWhenProvided extends true

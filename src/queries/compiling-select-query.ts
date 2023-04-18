@@ -1,5 +1,5 @@
 import { Kysely, SelectQueryBuilder } from 'kysely';
-import { AllColumns, SelectionColumn } from '../lib/type-utils';
+import { SelectionColumn } from '../lib/type-utils';
 import { ParameterizableMappingQuery } from './paramable-query';
 import { ParameterizedQuery, ParametersObject } from 'kysely-params';
 import { SelectTransform } from '../mappers/table-mapper-transforms';
@@ -10,7 +10,7 @@ import { SelectTransform } from '../mappers/table-mapper-transforms';
 export class CompilingMappingSelectQuery<
   DB,
   TB extends keyof DB & string,
-  SelectedColumns extends Readonly<SelectionColumn<DB, TB>[]> | AllColumns,
+  SelectedColumns extends Readonly<SelectionColumn<DB, TB>[]> | ['*'],
   SelectedObject extends object,
   QB extends SelectQueryBuilder<DB, TB, any>,
   P extends ParametersObject<P>

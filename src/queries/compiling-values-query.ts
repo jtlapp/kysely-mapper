@@ -6,7 +6,7 @@ import {
   ReturningInterface,
 } from 'kysely';
 
-import { AllColumns, SelectionColumn } from '../lib/type-utils';
+import { SelectionColumn } from '../lib/type-utils';
 import { ParametersObject, ParameterizedValue } from 'kysely-params';
 
 /**
@@ -23,7 +23,7 @@ export class CompilingValuesQuery<
   DB,
   TB extends keyof DB & string,
   QB extends ReturningInterface<DB, TB, any> & Compilable<any>,
-  ReturnColumns extends Readonly<SelectionColumn<DB, TB>[]> | AllColumns,
+  ReturnColumns extends Readonly<SelectionColumn<DB, TB>[]> | ['*'],
   P extends ParametersObject<P>,
   Values extends Record<string, any>
 > {

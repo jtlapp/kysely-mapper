@@ -11,7 +11,6 @@ import {
 } from './utils/test-mappers';
 import { USERS, POSTS } from './utils/test-objects';
 import { ignore } from './utils/test-utils';
-import { AllColumns } from '../lib/type-utils';
 
 let db: Kysely<Database>;
 
@@ -28,18 +27,18 @@ let postTableMapper: TableMapper<
   Database,
   'posts',
   [],
-  AllColumns,
+  ['*'],
   Selectable<Posts>,
   Insertable<Posts>,
   Updateable<Posts>,
   number,
-  AllColumns
+  ['*']
 >;
 let postTableMapperReturningIDAndTitleAsT: TableMapper<
   Database,
   'posts',
   [],
-  AllColumns,
+  ['*'],
   Selectable<Posts>,
   Insertable<Posts>,
   Updateable<Posts>,

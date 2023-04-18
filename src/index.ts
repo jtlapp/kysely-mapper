@@ -8,4 +8,3 @@ export * from './queries/insert-query';
 export * from './queries/select-query';
 export * from './queries/update-query';
 export * from './lib/query-filter';
-export { AllColumns } from './lib/type-utils';
