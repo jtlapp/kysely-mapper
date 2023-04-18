@@ -15,7 +15,7 @@ beforeAll(async () => {
 beforeEach(() => resetDB(db));
 afterAll(() => destroyDB(db));
 
-describe('table mapper transformation type checks', () => {
+describe('table mapper transform type checks', () => {
   ignore('detects invalid select transform configuration', () => {
     class TestMapper extends TableMapper<Database, 'users', [], ['*'], User> {}
     // @ts-expect-error - invalid select transform

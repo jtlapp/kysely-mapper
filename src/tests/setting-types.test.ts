@@ -14,7 +14,7 @@ beforeAll(async () => {
 beforeEach(() => resetDB(db));
 afterAll(() => destroyDB(db));
 
-describe('table mapper configuration type checks', () => {
+describe('table mapper setting type checks', () => {
   ignore('detects invalid return column configurations', () => {
     new TableMapper<
       Database,

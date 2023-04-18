@@ -23,7 +23,7 @@ beforeAll(async () => {
 beforeEach(() => resetDB(db));
 afterAll(() => destroyDB(db));
 
-describe('select all returns', () => {
+describe('selecting all returns', () => {
   it('selects nothing when nothing matches filter', async () => {
     await userMapper.insert().run(USERS);
 
@@ -140,30 +140,33 @@ describe('select all returns', () => {
     });
   });
 
-  ignore('detects select() returnAll() simple filter type errors', async () => {
-    // @ts-expect-error - only table columns are accessible unfiltered
-    (await userMapper.select().returnAll())[0].notThere;
-    // @ts-expect-error - only table columns are accessible unfiltered
-    (await userMapper.select({}).returnAll())[0].notThere;
-    // @ts-expect-error - only table columns are accessible w/ object filter
-    // prettier-ignore
-    (await userMapper.select({ name: "Sue" }).returnAll())[0].notThere;
-    // @ts-expect-error - only table columns are accessible w/ op filter
-    // prettier-ignore
-    (await userMapper.select("name", "=", "Sue").returnAll())[0].notThere;
-    // prettier-ignore
-    (
+  ignore(
+    'detects selecting returnAll() simple filter type errors',
+    async () => {
+      // @ts-expect-error - only table columns are accessible unfiltered
+      (await userMapper.select().returnAll())[0].notThere;
+      // @ts-expect-error - only table columns are accessible unfiltered
+      (await userMapper.select({}).returnAll())[0].notThere;
+      // @ts-expect-error - only table columns are accessible w/ object filter
+      // prettier-ignore
+      (await userMapper.select({ name: "Sue" }).returnAll())[0].notThere;
+      // @ts-expect-error - only table columns are accessible w/ op filter
+      // prettier-ignore
+      (await userMapper.select("name", "=", "Sue").returnAll())[0].notThere;
+      // prettier-ignore
+      (
         await userMapper
           .select((qb) => qb)
           .returnAll()
         // @ts-expect-error - only table columns are accessible w/ QB filter
       )[0].notThere;
-    // prettier-ignore
-    (
+      // prettier-ignore
+      (
         await userMapper
           .select(sql`name = 'Sue'`)
           .returnAll()
         // @ts-expect-error - only table columns are accessible w/ expr filter
       )[0].notThere;
-  });
+    }
+  );
 });

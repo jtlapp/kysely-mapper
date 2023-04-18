@@ -208,63 +208,6 @@ describe('compiled updates', () => {
     });
   });
 
-  ignore('detects update() and update() type errors', async () => {
-    userMapperReturningID
-      .update(
-        // @ts-expect-error - table must have all filter fields
-        { notThere: 'xyz' }
-      )
-      .returnCount({ email: 'abc@def.ghi' });
-    userMapperReturningID
-      .update(
-        // @ts-expect-error - table must have all filter fields
-        { notThere: 'xyz' }
-      )
-      .returnAll({ email: 'abc@def.ghi' });
-    // @ts-expect-error - table must have all filter fields
-    userMapperReturningID.update('notThere', '=', 'foo').returnAll({
-      email: 'abc@def.ghi',
-    });
-    // @ts-expect-error - table must have all filter fields
-    userMapperReturningID.update('notThere', '=', 'foo').returnAll({
-      email: 'abc@def.ghi',
-    });
-    userMapperReturningID
-      .update({ id: 32 })
-      // @ts-expect-error - update must only have table columns
-      .returnAll({ notThere: 'xyz@pdq.xyz' });
-    userMapperReturningID.update({ id: 32 }).returnAll(
-      // @ts-expect-error - update must only have table columns
-      { notThere: 'xyz@pdq.xyz' }
-    );
-    // @ts-expect-error - only requested columns are accessible
-    // prettier-ignore
-    (await userMapperReturningID.update({ id: 32 }).returnAll(USERS[0]))[0].name;
-    // @ts-expect-error - only requested columns are accessible
-    // prettier-ignore
-    (await userMapperReturningID.update({ id: 32 }).returnAll( USERS[0]))[0].name;
-    await userMapperReturningID
-      .update(({ or, cmpr }) =>
-        // @ts-expect-error - only table columns are accessible via anyOf()
-        or([cmpr('notThere', '=', 'xyz'), cmpr('alsoNotThere', '=', 'Sue')])
-      )
-      .returnCount(USERS[0]);
-    await userMapperReturningID
-      .update(({ or, cmpr }) =>
-        // @ts-expect-error - only table columns are accessible via anyOf()
-        or([cmpr('notThere', '=', 'xyz'), cmpr('alsoNotThere', '=', 'Sue')])
-      )
-      .returnAll(USERS[0]);
-    // @ts-expect-error - ID filter must have correct type
-    userMapperReturningID.update('str');
-    // @ts-expect-error - ID filter must have correct type
-    userMapperReturningID.update(['str']);
-    // @ts-expect-error - ID filter not allowed when when no ID column
-    userMapperReturningNothing.update(1);
-    // @ts-expect-error - ID filter not allowed when when no ID column
-    userMapperReturningNothing.update([1]);
-  });
-
   it('compiles an update query with transformation', async () => {
     const transformMapper = new TableMapper(db, 'users', {
       returnColumns: ['*'],

@@ -23,7 +23,7 @@ beforeAll(async () => {
 beforeEach(() => resetDB(db));
 afterAll(() => destroyDB(db));
 
-describe('select one return', () => {
+describe('selecting one return', () => {
   it('selects the first row with no filter', async () => {
     await userMapper.insert().run(USERS);
 
@@ -107,7 +107,7 @@ describe('select one return', () => {
     });
   });
 
-  ignore('detects select() returnOne() type errors', async () => {
+  ignore('detects selecting returnOne() type errors', async () => {
     // @ts-expect-error - only table columns are accessible unfiltered
     (await userMapper.select({}).returnOne()).notThere;
     // @ts-expect-error - only table columns are accessible w/ object filter

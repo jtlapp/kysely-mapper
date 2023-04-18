@@ -37,7 +37,7 @@ beforeAll(async () => {
 beforeEach(() => resetDB(db));
 afterAll(() => destroyDB(db));
 
-describe('general updates', () => {
+describe('general update', () => {
   it('updates nothing returning zero update count', async () => {
     const updateValues = { email: 'new.email@xyz.pdq' };
 
@@ -325,5 +325,58 @@ describe('general updates', () => {
       { id: insertReturns[0].id },
       { id: insertReturns[2].id },
     ]);
+  });
+
+  ignore('detects update type errors', async () => {
+    userMapperReturningID.update(
+      // @ts-expect-error - table must have all filter fields
+      { notThere: 'xyz' }
+    );
+    // @ts-expect-error - table must have all filter fields
+    userMapperReturningID.update('notThere', '=', 'foo');
+    userMapperReturningID.update(({ or, cmpr }) =>
+      // @ts-expect-error - only table columns are accessible via anyOf()
+      or([cmpr('notThere', '=', 'xyz'), cmpr('alsoNotThere', '=', 'Sue')])
+    );
+    // @ts-expect-error - ID filter must have correct type
+    userMapperReturningID.update('str');
+    // @ts-expect-error - ID filter must have correct type
+    userMapperReturningID.update(['str']);
+    // @ts-expect-error - ID filter not allowed when when no ID column
+    userMapperReturningNothing.update(1);
+    // @ts-expect-error - ID filter not allowed when when no ID column
+    userMapperReturningNothing.update([1]);
+
+    userMapperReturningID.update({ id: 32 }).returnAll(
+      // @ts-expect-error - update must only have table columns
+      { notThere: 'xyz@pdq.xyz' }
+    );
+    // @ts-expect-error - only requested columns are accessible
+    // prettier-ignore
+    (await userMapperReturningID.update({ id: 32 }).returnAll(USERS[0]))[0].name;
+
+    userMapperReturningID.update({ id: 32 }).returnOne(
+      // @ts-expect-error - update must only have table columns
+      { notThere: 'xyz@pdq.xyz' }
+    );
+    // @ts-expect-error - only requested columns are accessible
+    // prettier-ignore
+    (await userMapperReturningID.update({ id: 32 }).returnOne(USERS[0]))[0].name;
+
+    userMapperReturningID.update({ id: 32 }).returnCount(
+      // @ts-expect-error - update must only have table columns
+      { notThere: 'xyz@pdq.xyz' }
+    );
+    // @ts-expect-error - only requested columns are accessible
+    // prettier-ignore
+    (await userMapperReturningID.update({ id: 32 }).returnCount(USERS[0]))[0].name;
+
+    userMapperReturningID.update({ id: 32 }).run(
+      // @ts-expect-error - update must only have table columns
+      { notThere: 'xyz@pdq.xyz' }
+    );
+    // @ts-expect-error - only requested columns are accessible
+    // prettier-ignore
+    (await userMapperReturningID.update({ id: 32 }).run(USERS[0]))[0].name;
   });
 });

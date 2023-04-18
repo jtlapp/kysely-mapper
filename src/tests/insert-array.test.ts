@@ -50,7 +50,7 @@ beforeAll(async () => {
 beforeEach(() => resetDB(db));
 afterAll(() => destroyDB(db));
 
-describe('insert an array of objects without transformation', () => {
+describe('inserting an array of objects without transformation', () => {
   it('inserts multiple via run() without returning columns', async () => {
     const success = await userMapperReturningDefault.insert().run(USERS);
     expect(success).toBe(true);
