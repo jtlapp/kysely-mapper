@@ -103,12 +103,7 @@ export class MappingInsertQuery<
 
   async returnAll(
     objs: InsertedObject[]
-  ): Promise<
-    | (InsertReturnsSelectedObject extends true
-        ? SelectedObject[]
-        : DefaultReturnObject[])
-    | void
-  > {
+  ): Promise<SelectedObject[] | DefaultReturnObject[] | void> {
     if (this.returnColumns.length === 0) {
       await this.loadInsertedObjects(this.qb, objs).execute();
       return;
@@ -144,14 +139,9 @@ export class MappingInsertQuery<
       : DefaultReturnObject
   >;
 
-  async returnOne(obj: InsertedObject): Promise<
-    // TODO: simplify and remove null (look elsewhere too)
-    | (InsertReturnsSelectedObject extends true
-        ? SelectedObject
-        : DefaultReturnObject)
-    | null
-    | void
-  > {
+  async returnOne(
+    obj: InsertedObject
+  ): Promise<SelectedObject | DefaultReturnObject | void> {
     if (this.returnColumns.length === 0) {
       await this.loadInsertedObjects(this.qb, obj).execute();
       return;
