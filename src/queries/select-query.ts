@@ -11,7 +11,7 @@ import { SelectTransform } from '../mappers/table-mapper-transforms';
 export class MappingSelectQuery<
   DB,
   TB extends keyof DB & string,
-  SelectedColumns extends SelectionColumn<DB, TB>[] | AllColumns,
+  SelectedColumns extends Readonly<SelectionColumn<DB, TB>[]> | AllColumns,
   SelectedObject extends object,
   QB extends SelectQueryBuilder<DB, TB, any>
 > implements ParameterizableMappingQuery

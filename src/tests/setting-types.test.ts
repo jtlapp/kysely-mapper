@@ -135,7 +135,16 @@ describe('table mapper setting type checks', () => {
     });
   });
 
-  it('accepts readonly return columns', () => {
+  it('accepts readonly SelectedColumns', () => {
+    new TableMapper<
+      Database,
+      'users',
+      ['id'],
+      Readonly<['id', 'name']> // should not error
+    >(db, 'users', {});
+  });
+
+  it('accepts readonly ReturnColumns', () => {
     new TableMapper<
       Database,
       'users',

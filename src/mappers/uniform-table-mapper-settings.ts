@@ -22,7 +22,7 @@ export interface UniformTableMapperSettings<
   DB,
   TB extends keyof DB & string,
   KeyColumns extends SelectableColumnTuple<DB[TB]> | [],
-  SelectedColumns extends SelectionColumn<DB, TB>[] | AllColumns,
+  SelectedColumns extends Readonly<SelectionColumn<DB, TB>[]> | AllColumns,
   ReturnColumns extends Readonly<SelectionColumn<DB, TB>[]> | AllColumns
 > extends TableMapperSettings<
     DB,

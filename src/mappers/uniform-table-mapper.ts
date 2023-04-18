@@ -39,7 +39,9 @@ export class UniformTableMapper<
   KeyColumns extends SelectableColumnTuple<DB[TB]> | [] = [
     'id' & SelectableColumn<DB[TB]>
   ],
-  SelectedColumns extends SelectionColumn<DB, TB>[] | AllColumns = AllColumns,
+  SelectedColumns extends
+    | Readonly<SelectionColumn<DB, TB>[]>
+    | AllColumns = AllColumns,
   ReturnCount = bigint,
   ReturnColumns extends
     | Readonly<SelectionColumn<DB, TB>[]>
@@ -159,7 +161,7 @@ function _prepareSettings<
   DB,
   TB extends keyof DB & string,
   KeyColumns extends SelectableColumnTuple<DB[TB]> | [],
-  SelectedColumns extends SelectionColumn<DB, TB>[] | AllColumns,
+  SelectedColumns extends Readonly<SelectionColumn<DB, TB>[]> | AllColumns,
   ReturnColumns extends Readonly<SelectionColumn<DB, TB>[]> | AllColumns
 >(
   settings: UniformTableMapperSettings<
@@ -192,7 +194,7 @@ function _prepareTransforms<
   DB,
   TB extends keyof DB & string,
   KeyColumns extends SelectableColumnTuple<DB[TB]> | [],
-  SelectedColumns extends SelectionColumn<DB, TB>[] | AllColumns,
+  SelectedColumns extends Readonly<SelectionColumn<DB, TB>[]> | AllColumns,
   MappedObject extends object,
   ReturnCount,
   ReturnColumns extends Readonly<SelectionColumn<DB, TB>[]> | AllColumns,

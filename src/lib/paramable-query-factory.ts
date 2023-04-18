@@ -15,7 +15,7 @@ export interface ParameterizableMappingQueryFactory<
   DB,
   TB extends keyof DB & string,
   KeyColumns extends SelectableColumnTuple<DB[TB]> | [],
-  SelectedColumns extends SelectionColumn<DB, TB>[] | AllColumns,
+  SelectedColumns extends Readonly<SelectionColumn<DB, TB>[]> | AllColumns,
   SelectedObject extends object,
   InsertedObject extends object,
   UpdatingObject extends object,

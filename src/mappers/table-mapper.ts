@@ -37,7 +37,9 @@ export class TableMapper<
   DB,
   TB extends keyof DB & string,
   KeyColumns extends SelectableColumnTuple<DB[TB]> | [] = [],
-  SelectedColumns extends SelectionColumn<DB, TB>[] | AllColumns = AllColumns,
+  SelectedColumns extends
+    | Readonly<SelectionColumn<DB, TB>[]>
+    | AllColumns = AllColumns,
   SelectedObject extends object = SelectedRow<
     DB,
     TB,

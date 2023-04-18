@@ -26,7 +26,9 @@ export interface TableMapperSettings<
   DB,
   TB extends keyof DB & string,
   KeyColumns extends SelectableColumnTuple<DB[TB]> | [] = [],
-  SelectedColumns extends SelectionColumn<DB, TB>[] | AllColumns = AllColumns,
+  SelectedColumns extends
+    | Readonly<SelectionColumn<DB, TB>[]>
+    | AllColumns = AllColumns,
   ReturnColumns extends
     | Readonly<SelectionColumn<DB, TB>[]>
     | AllColumns = KeyColumns,

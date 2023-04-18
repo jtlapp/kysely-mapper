@@ -34,7 +34,9 @@ export interface TableMapperTransforms<
   DB,
   TB extends keyof DB & string,
   KeyColumns extends SelectableColumnTuple<DB[TB]> | [] = [],
-  SelectedColumns extends SelectionColumn<DB, TB>[] | AllColumns = AllColumns,
+  SelectedColumns extends
+    | Readonly<SelectionColumn<DB, TB>[]>
+    | AllColumns = AllColumns,
   SelectedObject extends object = SelectedRow<
     DB,
     TB,
@@ -109,7 +111,7 @@ export interface InsertTransforms<
 export interface SelectTransform<
   DB,
   TB extends keyof DB & string,
-  SelectedColumns extends SelectionColumn<DB, TB>[] | AllColumns,
+  SelectedColumns extends Readonly<SelectionColumn<DB, TB>[]> | AllColumns,
   SelectedObject extends object
 > {
   /** Transformation to apply to selected objects. */
