@@ -5,7 +5,7 @@ import {
   UpdateResult,
   Updateable,
 } from 'kysely';
-import { SelectionColumn } from '../lib/type-utils';
+import { AllColumns, SelectionColumn } from '../lib/type-utils';
 import {
   CountTransform,
   UpdateTransforms,
@@ -22,7 +22,7 @@ export class MappingUpdateQuery<
   QB extends UpdateQueryBuilder<DB, TB, TB, UpdateResult>,
   UpdatingObject extends object,
   SelectedObject extends object,
-  ReturnColumns extends SelectionColumn<DB, TB>[] | ['*'],
+  ReturnColumns extends Readonly<SelectionColumn<DB, TB>[]> | AllColumns,
   ReturnCount,
   UpdateReturnsSelectedObjectWhenProvided extends boolean,
   DefaultReturnObject extends object
@@ -60,7 +60,7 @@ export class MappingUpdateQuery<
           DefaultReturnObject
         >
     >,
-    protected readonly returnColumns: ReturnColumns
+    protected readonly returnColumns: Readonly<ReturnColumns>
   ) {}
 
   /**
@@ -223,10 +223,12 @@ export class MappingUpdateQuery<
   protected getReturningQB(): UpdateQueryBuilder<DB, TB, TB, any> {
     if (this.#returningQB === null) {
       this.#returningQB =
-        this.returnColumns[0] == '*'
+        this.returnColumns[0 as number] == '*'
           ? this.qb.returningAll()
           : this.qb.returning(
-              this.returnColumns as (keyof Selectable<DB[TB]> & string)[]
+              this.returnColumns as Readonly<
+                (keyof Selectable<DB[TB]> & string)[]
+              >
             );
     }
     return this.#returningQB;

@@ -1,6 +1,6 @@
 import { Kysely, InsertQueryBuilder, Insertable } from 'kysely';
 
-import { SelectionColumn } from '../lib/type-utils';
+import { AllColumns, SelectionColumn } from '../lib/type-utils';
 import { CompilingValuesQuery } from './compiling-values-query';
 import { InsertTransforms } from '../mappers/table-mapper-transforms';
 
@@ -13,7 +13,7 @@ export class CompilingMappingInsertQuery<
   QB extends InsertQueryBuilder<DB, TB, any>,
   InsertedObject extends object,
   SelectedObject extends object,
-  ReturnColumns extends SelectionColumn<DB, TB>[] | ['*'],
+  ReturnColumns extends Readonly<SelectionColumn<DB, TB>[]> | AllColumns,
   InsertReturnsSelectedObject extends boolean,
   DefaultReturnObject extends object
 > extends CompilingValuesQuery<
@@ -54,7 +54,7 @@ export class CompilingMappingInsertQuery<
         DefaultReturnObject
       >
     >,
-    returnColumns: ReturnColumns
+    returnColumns: Readonly<ReturnColumns>
   ) {
     super(db, returnColumns);
     const parameterizedValues = this.getParameterizedObject(columnsToInsert);

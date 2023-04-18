@@ -6,7 +6,7 @@ import {
   Insertable,
 } from 'kysely';
 
-import { SelectionColumn } from '../lib/type-utils';
+import { AllColumns, SelectionColumn } from '../lib/type-utils';
 import { InsertTransforms } from '../mappers/table-mapper-transforms';
 
 // TODO: see what else should be made readonly
@@ -21,7 +21,7 @@ export class MappingInsertQuery<
   QB extends InsertQueryBuilder<DB, TB, InsertResult>,
   InsertedObject extends object,
   SelectedObject extends object,
-  ReturnColumns extends SelectionColumn<DB, TB>[] | ['*'],
+  ReturnColumns extends Readonly<SelectionColumn<DB, TB>[]> | AllColumns,
   InsertReturnsSelectedObject extends boolean,
   DefaultReturnObject extends object
 > {
@@ -55,7 +55,7 @@ export class MappingInsertQuery<
         DefaultReturnObject
       >
     >,
-    protected readonly returnColumns: ReturnColumns
+    protected readonly returnColumns: Readonly<ReturnColumns>
   ) {}
 
   /**
@@ -176,10 +176,12 @@ export class MappingInsertQuery<
   protected getReturningQB(): InsertQueryBuilder<DB, TB, any> {
     if (this.#returningQB === null) {
       this.#returningQB =
-        this.returnColumns[0] == '*'
+        this.returnColumns[0 as number] == '*'
           ? this.qb.returningAll()
           : this.qb.returning(
-              this.returnColumns as (keyof Selectable<DB[TB]> & string)[]
+              this.returnColumns as Readonly<
+                (keyof Selectable<DB[TB]> & string)[]
+              >
             );
     }
     return this.#returningQB;

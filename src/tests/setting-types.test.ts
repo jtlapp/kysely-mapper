@@ -135,8 +135,17 @@ describe('table mapper setting type checks', () => {
     });
   });
 
-  it('dummy test', () => {
-    // gets test to run without error
-    expect(true).toBe(true);
+  it('accepts readonly return columns', () => {
+    new TableMapper<
+      Database,
+      'users',
+      ['id'],
+      ['*'],
+      Selectable<Users>,
+      Insertable<Users>,
+      Updateable<Users>,
+      bigint,
+      Readonly<['id']> // should not error
+    >(db, 'users', {});
   });
 });

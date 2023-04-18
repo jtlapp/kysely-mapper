@@ -1,4 +1,8 @@
-import { SelectableColumnTuple, SelectionColumn } from '../lib/type-utils';
+import {
+  AllColumns,
+  SelectableColumnTuple,
+  SelectionColumn,
+} from '../lib/type-utils';
 
 /**
  * General table mapper settings
@@ -22,8 +26,10 @@ export interface TableMapperSettings<
   DB,
   TB extends keyof DB & string,
   KeyColumns extends SelectableColumnTuple<DB[TB]> | [] = [],
-  SelectedColumns extends SelectionColumn<DB, TB>[] | ['*'] = ['*'],
-  ReturnColumns extends SelectionColumn<DB, TB>[] | ['*'] = KeyColumns,
+  SelectedColumns extends SelectionColumn<DB, TB>[] | AllColumns = AllColumns,
+  ReturnColumns extends
+    | Readonly<SelectionColumn<DB, TB>[]>
+    | AllColumns = KeyColumns,
   InsertReturnsSelectedObject extends boolean = false,
   UpdateReturnsSelectedObjectWhenProvided extends boolean = false
 > {

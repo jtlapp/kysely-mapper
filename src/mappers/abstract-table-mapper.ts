@@ -18,6 +18,7 @@ import {
 
 import { QueryFilter, applyQueryFilter } from '../lib/query-filter';
 import {
+  AllColumns,
   SelectableColumnTuple,
   SelectedRow,
   SelectionColumn,
@@ -61,24 +62,27 @@ import { TableMapperTransforms } from './table-mapper-transforms';
  * @typeparam DefaultReturnObject Type of objects returned from inserts and
  *  updates, unless configured to return `SelectedObject`.
  */
+// TODO:
 export abstract class AbstractTableMapper<
   DB,
   TB extends keyof DB & string,
   KeyColumns extends SelectableColumnTuple<DB[TB]> | [] = [],
-  SelectedColumns extends SelectionColumn<DB, TB>[] | ['*'] = ['*'],
+  SelectedColumns extends SelectionColumn<DB, TB>[] | AllColumns = AllColumns,
   SelectedObject extends object = SelectedRow<
     DB,
     TB,
-    SelectedColumns extends ['*'] ? never : SelectedColumns[number],
+    SelectedColumns extends AllColumns ? never : SelectedColumns[number],
     SelectedColumns
   >,
   InsertedObject extends object = Insertable<DB[TB]>,
   UpdatingObject extends object = Updateable<DB[TB]>,
   ReturnCount = bigint,
-  ReturnColumns extends SelectionColumn<DB, TB>[] | ['*'] = KeyColumns,
+  ReturnColumns extends
+    | Readonly<SelectionColumn<DB, TB>[]>
+    | AllColumns = Readonly<KeyColumns>,
   InsertReturnsSelectedObject extends boolean = false,
   UpdateReturnsSelectedObjectWhenProvided extends boolean = false,
-  DefaultReturnObject extends object = ReturnColumns extends ['*']
+  DefaultReturnObject extends object = ReturnColumns extends AllColumns
     ? Selectable<DB[TB]>
     : Selection<DB, TB, ReturnColumns[number]>
 > {
@@ -94,7 +98,9 @@ export abstract class AbstractTableMapper<
   protected readonly selectedColumns: SelectionColumn<DB, TB>[];
 
   /** Columns to return from the table on insert or update. */
-  protected readonly returnColumns: SelectionColumn<DB, TB>[] | ['*'];
+  protected readonly returnColumns:
+    | Readonly<SelectionColumn<DB, TB>[]>
+    | AllColumns;
 
   /** Query input and output value transforms. */
   protected transforms: TableMapperTransforms<
@@ -538,7 +544,7 @@ export abstract class AbstractTableMapper<
    */
   protected getSelectQB():
     | SelectQueryBuilder<DB, TB, object & AllSelection<DB, TB>>
-    | (SelectedColumns extends ['*']
+    | (SelectedColumns extends AllColumns
         ? never
         : SelectQueryBuilder<
             DB,

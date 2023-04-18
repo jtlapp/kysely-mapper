@@ -5,6 +5,11 @@
 import { Selectable, SelectArg, SelectExpression, Selection } from 'kysely';
 
 /**
+ * Type representing all columns of a table.
+ */
+export type AllColumns = Readonly<['*']>;
+
+/**
  * Type of the key tuple whose column names are given by `KA` and are
  * found in the table interface `T`. Supports up to 4 columns.
  * @typeparam T Table interface.
@@ -45,8 +50,8 @@ export type SelectedRow<
   DB,
   TB extends keyof DB & string,
   SE extends SelectExpression<DB, TB>,
-  S extends SelectArg<DB, TB, any> | ['*']
-> = S extends ['*'] ? Selectable<DB[TB]> : Selection<DB, TB, SE>;
+  S extends SelectArg<DB, TB, any> | AllColumns
+> = S extends AllColumns ? Selectable<DB[TB]> : Selection<DB, TB, SE>;
 
 /**
  * Tuple of up to four selectable columns.

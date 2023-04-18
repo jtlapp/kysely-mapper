@@ -6,7 +6,7 @@ import {
   ReturningInterface,
 } from 'kysely';
 
-import { SelectionColumn } from '../lib/type-utils';
+import { AllColumns, SelectionColumn } from '../lib/type-utils';
 import { ParametersObject, ParameterizedValue } from 'kysely-params';
 
 /**
@@ -23,7 +23,7 @@ export class CompilingValuesQuery<
   DB,
   TB extends keyof DB & string,
   QB extends ReturningInterface<DB, TB, any> & Compilable<any>,
-  ReturnColumns extends SelectionColumn<DB, TB>[] | ['*'],
+  ReturnColumns extends Readonly<SelectionColumn<DB, TB>[]> | AllColumns,
   P extends ParametersObject<P>,
   Values extends Record<string, any>
 > {
@@ -33,7 +33,7 @@ export class CompilingValuesQuery<
 
   constructor(
     protected readonly db: Kysely<DB>,
-    protected readonly returnColumns: ReturnColumns
+    protected readonly returnColumns: Readonly<ReturnColumns>
   ) {}
 
   protected getParameterizedObject(columnsToAllow: (keyof Values & string)[]) {
@@ -54,10 +54,10 @@ export class CompilingValuesQuery<
 
   // TODO: maybe embed this if doesn't end up shared
   private getReturningQB(): QB {
-    return this.returnColumns[0] == '*'
+    return this.returnColumns[0 as number] == '*'
       ? (this.qb!.returningAll() as QB)
       : (this.qb!.returning(
-          this.returnColumns as (keyof Selectable<DB[TB]> & string)[]
+          this.returnColumns as Readonly<(keyof Selectable<DB[TB]> & string)[]>
         ) as QB);
   }
 

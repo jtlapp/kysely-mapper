@@ -1,6 +1,6 @@
 import { Kysely, UpdateQueryBuilder, UpdateResult, Updateable } from 'kysely';
 
-import { SelectionColumn } from '../lib/type-utils';
+import { AllColumns, SelectionColumn } from '../lib/type-utils';
 import { CompilingValuesQuery } from './compiling-values-query';
 import { ParametersObject } from 'kysely-params';
 import {
@@ -17,7 +17,7 @@ export class CompilingMappingUpdateQuery<
   QB extends UpdateQueryBuilder<DB, TB, TB, UpdateResult>,
   UpdatingObject extends object,
   SelectedObject extends object,
-  ReturnColumns extends SelectionColumn<DB, TB>[] | ['*'],
+  ReturnColumns extends Readonly<SelectionColumn<DB, TB>[]> | AllColumns,
   ReturnCount,
   UpdateReturnsSelectedObjectWhenProvided extends boolean,
   DefaultReturnObject extends object,
@@ -63,7 +63,7 @@ export class CompilingMappingUpdateQuery<
           DefaultReturnObject
         >
     >,
-    returnColumns: ReturnColumns
+    returnColumns: Readonly<ReturnColumns>
   ) {
     super(db, returnColumns);
     const parameterizedValues = this.getParameterizedObject(columnsToUpdate);

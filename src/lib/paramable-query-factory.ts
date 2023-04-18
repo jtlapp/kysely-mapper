@@ -1,6 +1,10 @@
 import { ParametersObject, QueryParameterMaker } from 'kysely-params';
 import { AbstractTableMapper } from '../mappers/abstract-table-mapper';
-import { SelectableColumnTuple, SelectionColumn } from './type-utils';
+import {
+  AllColumns,
+  SelectableColumnTuple,
+  SelectionColumn,
+} from './type-utils';
 import { ParameterizableMappingQuery } from '../queries/paramable-query';
 
 /**
@@ -11,12 +15,12 @@ export interface ParameterizableMappingQueryFactory<
   DB,
   TB extends keyof DB & string,
   KeyColumns extends SelectableColumnTuple<DB[TB]> | [],
-  SelectedColumns extends SelectionColumn<DB, TB>[] | ['*'],
+  SelectedColumns extends SelectionColumn<DB, TB>[] | AllColumns,
   SelectedObject extends object,
   InsertedObject extends object,
   UpdatingObject extends object,
   ReturnCount,
-  ReturnColumns extends SelectionColumn<DB, TB>[] | ['*'],
+  ReturnColumns extends Readonly<SelectionColumn<DB, TB>[]> | AllColumns,
   InsertReturnsSelectedObject extends boolean,
   UpdateReturnsSelectedObjectWhenProvided extends boolean,
   DefaultReturnObject extends object,
