@@ -21,7 +21,10 @@ export class User {
 export class InsertedUser extends User {
   readonly __type = 'InsertedUser';
 
-  static create(id: number, obj: VariableFieldsOf<InsertedUser>): InsertedUser {
+  static override create(
+    id: number,
+    obj: VariableFieldsOf<InsertedUser>
+  ): InsertedUser {
     return new InsertedUser(
       id,
       obj.firstName,
@@ -35,7 +38,10 @@ export class InsertedUser extends User {
 export class SelectedUser extends User {
   readonly __type = 'SelectedUser';
 
-  static create(id: number, obj: VariableFieldsOf<SelectedUser>): SelectedUser {
+  static override create(
+    id: number,
+    obj: VariableFieldsOf<SelectedUser>
+  ): SelectedUser {
     return new SelectedUser(
       id,
       obj.firstName,
@@ -49,7 +55,10 @@ export class SelectedUser extends User {
 export class UpdatingUser extends User {
   readonly __type = 'UpdatingUser';
 
-  static create(id: number, obj: VariableFieldsOf<UpdatingUser>): UpdatingUser {
+  static override create(
+    id: number,
+    obj: VariableFieldsOf<UpdatingUser>
+  ): UpdatingUser {
     return new UpdatingUser(
       id,
       obj.firstName,
@@ -63,7 +72,10 @@ export class UpdatingUser extends User {
 export class ReturnedUser extends User {
   readonly __type = 'ReturnedUser';
 
-  static create(id: number, obj: VariableFieldsOf<ReturnedUser>): ReturnedUser {
+  static override create(
+    id: number,
+    obj: VariableFieldsOf<ReturnedUser>
+  ): ReturnedUser {
     return new ReturnedUser(
       id,
       obj.firstName,

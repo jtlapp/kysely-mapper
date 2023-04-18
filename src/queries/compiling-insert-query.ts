@@ -40,7 +40,7 @@ export class CompilingMappingInsertQuery<
    *  type `DefaultReturnObject`.
    */
   constructor(
-    protected readonly db: Kysely<DB>,
+    db: Kysely<DB>,
     qb: QB,
     columnsToInsert: (keyof Insertable<DB[TB]> & string)[],
     protected readonly transforms: InsertTransforms<

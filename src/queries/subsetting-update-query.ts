@@ -86,7 +86,7 @@ export class SubsettingMappingUpdateQuery<
     );
   }
 
-  protected setColumnValues(
+  protected override setColumnValues(
     qb: UpdateQueryBuilder<DB, TB, TB, UpdateResult>,
     obj: Updateable<DB[TB]>
   ): UpdateQueryBuilder<DB, TB, TB, UpdateResult> {

@@ -51,7 +51,7 @@ export class CompilingMappingUpdateQuery<
    *  of this type; otherwise it is of type `DefaultReturnObject`.
    */
   constructor(
-    protected readonly db: Kysely<DB>,
+    db: Kysely<DB>,
     qb: QB,
     columnsToUpdate: (keyof Updateable<DB[TB]> & string)[],
     protected readonly transforms: CountTransform<ReturnCount> &
