@@ -27,7 +27,6 @@ export class MappingUpdateQuery<
   UpdateReturnsSelectedObjectWhenProvided extends boolean,
   DefaultReturnObject extends object
 > {
-  protected readonly returnColumns: ReturnColumns;
   #returningQB: UpdateQueryBuilder<DB, TB, TB, any> | null = null;
 
   /**
@@ -59,10 +58,8 @@ export class MappingUpdateQuery<
         UpdateReturnsSelectedObjectWhenProvided,
         DefaultReturnObject
       >,
-    returnColumns?: ReturnColumns
-  ) {
-    this.returnColumns = returnColumns ?? ([] as any);
-  }
+    protected readonly returnColumns: ReturnColumns
+  ) {}
 
   /**
    * Modifies the underlying Kysely query builder.

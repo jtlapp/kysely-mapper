@@ -64,7 +64,7 @@ export class CompilingMappingUpdateQuery<
         UpdateReturnsSelectedObjectWhenProvided,
         DefaultReturnObject
       >,
-    returnColumns?: ReturnColumns
+    returnColumns: ReturnColumns
   ) {
     super(db, returnColumns);
     const parameterizedValues = this.getParameterizedObject(columnsToUpdate);

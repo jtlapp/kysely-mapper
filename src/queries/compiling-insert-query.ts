@@ -52,7 +52,7 @@ export class CompilingMappingInsertQuery<
       InsertReturnsSelectedObject,
       DefaultReturnObject
     >,
-    returnColumns?: ReturnColumns
+    returnColumns: ReturnColumns
   ) {
     super(db, returnColumns);
     const parameterizedValues = this.getParameterizedObject(columnsToInsert);

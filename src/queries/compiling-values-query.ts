@@ -27,18 +27,14 @@ export class CompilingValuesQuery<
   P extends ParametersObject<P>,
   Values extends Record<string, any>
 > {
-  protected readonly returnColumns: ReturnColumns;
   protected qb: QB | null = null;
   #compiledQueryNoReturns?: CompiledQuery<any>;
   #compiledQueryWithReturns?: CompiledQuery<any>;
 
   constructor(
     protected readonly db: Kysely<DB>,
-    returnColumns?: ReturnColumns
-  ) {
-    // TODO: can I just receive the final returnColumns?
-    this.returnColumns = returnColumns ?? ([] as any);
-  }
+    protected readonly returnColumns: ReturnColumns
+  ) {}
 
   protected getParameterizedObject(columnsToAllow: (keyof Values & string)[]) {
     return Object.fromEntries(

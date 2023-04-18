@@ -51,7 +51,7 @@ export class SubsettingMappingUpdateQuery<
         UpdateReturnsSelectedObjectWhenProvided,
         DefaultReturnObject
       >,
-    returnColumns?: ReturnColumns
+    returnColumns: ReturnColumns
   ) {
     super(db, qb, transforms, returnColumns);
   }

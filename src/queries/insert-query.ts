@@ -25,7 +25,6 @@ export class MappingInsertQuery<
   InsertReturnsSelectedObject extends boolean,
   DefaultReturnObject extends object
 > {
-  protected readonly returnColumns: ReturnColumns;
   #returningQB: InsertQueryBuilder<DB, TB, any> | null = null;
 
   /**
@@ -54,10 +53,8 @@ export class MappingInsertQuery<
       InsertReturnsSelectedObject,
       DefaultReturnObject
     >,
-    returnColumns?: ReturnColumns
-  ) {
-    this.returnColumns = returnColumns ?? ([] as any);
-  }
+    protected readonly returnColumns: ReturnColumns
+  ) {}
 
   /**
    * Modifies the underlying Kysely query builder.

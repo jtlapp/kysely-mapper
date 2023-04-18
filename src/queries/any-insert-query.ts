@@ -40,7 +40,7 @@ export class AnyColumnsMappingInsertQuery<
       InsertReturnsSelectedObject,
       DefaultReturnObject
     >,
-    returnColumns?: ReturnColumns
+    returnColumns: ReturnColumns
   ) {
     super(db, qb, transforms, returnColumns);
   }

@@ -94,13 +94,7 @@ export class TableMapper<
   protected readonly selectedColumns: SelectionColumn<DB, TB>[];
 
   /** Columns to return from the table on insert or update. */
-  // TODO: readonly?
-  protected returnColumns: SelectionColumn<DB, TB>[] | ['*'];
-
-  /** Transforms query counts into `ReturnCount`. */
-  // TODO: readonly?
-  protected countTransform: (count: bigint) => ReturnCount = (count) =>
-    count as any;
+  protected readonly returnColumns: SelectionColumn<DB, TB>[] | ['*'];
 
   /**
    * Constructs a new table mapper.
@@ -137,7 +131,8 @@ export class TableMapper<
       > = {}
   ) {
     this.keyColumns = options.keyColumns ?? ([] as any);
-    this.returnColumns = options.returnColumns ?? this.keyColumns;
+    this.returnColumns =
+      options.returnColumns ?? this.keyColumns ?? ([] as any);
 
     this.selectedColumns =
       options.selectedColumns === undefined
@@ -145,10 +140,6 @@ export class TableMapper<
         : options.selectedColumns.includes('*' as any)
         ? ([] as any)
         : options.selectedColumns;
-
-    if (options.countTransform) {
-      this.countTransform = options.countTransform;
-    }
   }
 
   /**
