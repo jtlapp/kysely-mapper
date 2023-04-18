@@ -6,8 +6,6 @@ import { ParameterizableMappingQuery } from './paramable-query';
 import { CompilingMappingInsertQuery } from './compiling-insert-query';
 import { InsertTransforms } from '../mappers/table-mapper-transforms';
 
-// TODO: where else should I use Map or Set instead of objects?
-
 /**
  * Mapping query for inserting rows into a database table,
  * inserting a specified subset of the insertable columns.
