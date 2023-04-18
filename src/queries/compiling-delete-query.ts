@@ -2,7 +2,7 @@ import { DeleteQueryBuilder, Kysely, QueryResult } from 'kysely';
 import { ParameterizedQuery, ParametersObject } from 'kysely-params';
 
 import { CountTransform } from '../mappers/table-mapper-transforms';
-import { ParameterizableMappingQuery } from './paramable-query';
+import { ParameterizableMappingQuery } from './parameterizable-query';
 
 /**
  * Compiling mapping query for deleting rows from a database table.

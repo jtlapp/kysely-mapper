@@ -1,7 +1,7 @@
 import { Kysely, UpdateQueryBuilder, UpdateResult, Updateable } from 'kysely';
 import { SelectionColumn } from '../lib/type-utils';
 import { MappingUpdateQuery } from './update-query';
-import { ParameterizableMappingQuery } from './paramable-query';
+import { ParameterizableMappingQuery } from './parameterizable-query';
 import { ParametersObject } from 'kysely-params';
 import { CompilingMappingUpdateQuery } from './compiling-update-query';
 import {

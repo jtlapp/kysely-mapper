@@ -29,7 +29,7 @@ import { MappingUpdateQuery } from '../queries/update-query';
 import { AnyColumnsMappingInsertQuery } from '../queries/any-insert-query';
 import { AnyColumnsMappingUpdateQuery } from '../queries/any-update-query';
 import { ParametersObject, QueryParameterMaker } from 'kysely-params';
-import { ParameterizableMappingQueryFactory } from '../lib/paramable-query-factory';
+import { ParameterizableMappingQueryFactory } from '../lib/parameterizable-query-factory';
 import { CompilingMappingSelectQuery } from '../queries/compiling-select-query';
 import { CompilingMappingDeleteQuery } from '../queries/compiling-delete-query';
 import { SubsettingMappingUpdateQuery } from '../queries/subsetting-update-query';

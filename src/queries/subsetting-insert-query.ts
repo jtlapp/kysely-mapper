@@ -2,7 +2,7 @@ import { Kysely, InsertQueryBuilder, InsertResult, Insertable } from 'kysely';
 
 import { SelectionColumn } from '../lib/type-utils';
 import { MappingInsertQuery } from './insert-query';
-import { ParameterizableMappingQuery } from './paramable-query';
+import { ParameterizableMappingQuery } from './parameterizable-query';
 import { CompilingMappingInsertQuery } from './compiling-insert-query';
 import { InsertTransforms } from '../mappers/table-mapper-transforms';
 

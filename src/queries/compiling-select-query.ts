@@ -1,6 +1,6 @@
 import { Kysely, SelectQueryBuilder } from 'kysely';
 import { SelectionColumn } from '../lib/type-utils';
-import { ParameterizableMappingQuery } from './paramable-query';
+import { ParameterizableMappingQuery } from './parameterizable-query';
 import { ParameterizedQuery, ParametersObject } from 'kysely-params';
 import { SelectTransform } from '../mappers/table-mapper-transforms';
 

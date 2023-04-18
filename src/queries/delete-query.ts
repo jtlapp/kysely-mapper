@@ -1,5 +1,5 @@
 import { DeleteQueryBuilder, DeleteResult, Kysely } from 'kysely';
-import { ParameterizableMappingQuery } from './paramable-query';
+import { ParameterizableMappingQuery } from './parameterizable-query';
 import { ParametersObject } from 'kysely-params';
 import { CompilingMappingDeleteQuery } from './compiling-delete-query';
 import { CountTransform } from '../mappers/table-mapper-transforms';
