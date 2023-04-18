@@ -2,15 +2,7 @@
  * Type utilities.
  */
 
-// TODO: drop types I'm not using
-
-import {
-  Compilable,
-  Selectable,
-  SelectArg,
-  SelectExpression,
-  Selection,
-} from 'kysely';
+import { Selectable, SelectArg, SelectExpression, Selection } from 'kysely';
 
 /**
  * Type of the key tuple whose column names are given by `KA` and are
@@ -33,21 +25,6 @@ export type KeyTuple<
   : KA[1] extends string
   ? [Selectable<T>[KA[0]], Selectable<T>[KA[1]]]
   : [Selectable<T>[KA[0]]];
-
-/**
- * Evalutes to the type of the query builder output.
- */
-export type QueryBuilderOutput<QB> = QB extends Compilable<infer O> ? O : never;
-
-/**
- * Type that turns the given properties of the given object into required
- * properties.
- * @typeparam O Object type.
- * @typeparam K Array of property names.
- */
-export type RequireProperties<O, K extends keyof O> = Omit<O, K> & {
-  [P in K]-?: O[P];
-};
 
 /**
  * Shorthand type for a selectable column, restricted to a column name.
