@@ -61,7 +61,6 @@ import { TableMapperTransforms } from './table-mapper-transforms';
  * @typeparam DefaultReturnObject Type of objects returned from inserts and
  *  updates, unless configured to return `SelectedObject`.
  */
-// TODO:
 export abstract class AbstractTableMapper<
   DB,
   TB extends keyof DB & string,

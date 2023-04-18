@@ -9,7 +9,6 @@ import {
 import { SelectionColumn } from '../lib/type-utils';
 import { InsertTransforms } from '../mappers/table-mapper-transforms';
 
-// TODO: see what else should be made readonly
 // TODO: freeze objects
 
 /**
