@@ -2,12 +2,9 @@ import { SelectableColumnTuple, SelectionColumn } from '../lib/type-utils';
 import { TableMapperSettings } from './table-mapper-settings';
 
 /**
- * Options governing UniformTableMapper behavior.
+ * Uniform table mapper settings
  * @typeparam DB The database type.
  * @typeparam TB The name of the table.
- * @typeparam MappedObject The type of the objects that are mapped to and from
- *  the table rows on inserts, updates, and selects. Updates may also be given
- *  as columns of the table.
  * @typeparam KeyColumns Tuple of the names of the table's key columns.
  *  Defaults to `['id']`. `[]` indicates no key columns.
  * @typeparam SelectedColumns Columns to return from selection queries.
@@ -16,7 +13,6 @@ import { TableMapperSettings } from './table-mapper-settings';
  *  when selecting or updating rows, for use when creating the mapped objects.
  *  `['*']` returns all columns; `[]` returns none. May specify aliases.
  *  Defaults to `KeyColumns`.
- * @typeparam ReturnCount Type of count query results.
  */
 export interface UniformTableMapperSettings<
   DB,
@@ -30,7 +26,6 @@ export interface UniformTableMapperSettings<
     KeyColumns,
     SelectedColumns,
     ReturnColumns,
-    true,
     true
   > {
   /** Indicates whether the provided object is an instance of `MappedObject`. */

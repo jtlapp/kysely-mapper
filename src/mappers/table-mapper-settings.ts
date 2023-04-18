@@ -1,7 +1,7 @@
 import { SelectableColumnTuple, SelectionColumn } from '../lib/type-utils';
 
 /**
- * Options governing TableMapper behavior.
+ * General table mapper settings
  * @typeparam DB Interface whose fields are table names defining tables.
  * @typeparam TB Name of the table.
  * @typeparam KeyColumns Tuple of the names of the table's key columns.
@@ -12,8 +12,6 @@ import { SelectableColumnTuple, SelectionColumn } from '../lib/type-utils';
  *  update, except when explicitly requesting no columns. `['*']` returns
  *  all columns; `[]` returns none and is the default. May specify aliases.
  *  Defaults to `KeyColumns`.
- * @typeparam InsertReturnsSelectedObject Whether insert queries return
- *  `SelectedObject` or `DefaultReturnObject`.
  * @typeparam UpdateReturnsSelectedObjectWhenProvided Whether update queries
  *  return `SelectedObject` when the updating object is a `SelectedObject`;
  *  update queries otherwise return `DefaultReturnObject`.
@@ -24,7 +22,6 @@ export interface TableMapperSettings<
   KeyColumns extends SelectableColumnTuple<DB[TB]> | [] = [],
   SelectedColumns extends SelectionColumn<DB, TB>[] | ['*'] = ['*'],
   ReturnColumns extends SelectionColumn<DB, TB>[] | ['*'] = KeyColumns,
-  InsertReturnsSelectedObject extends boolean = false,
   UpdateReturnsSelectedObjectWhenProvided extends boolean = false
 > {
   /** Tuple of the columns that make up the table's key. May be `[]`. */
@@ -36,15 +33,10 @@ export interface TableMapperSettings<
    */
   readonly selectedColumns?: SelectedColumns;
 
-  /** Whether insert queries return `SelectedObject` or `DefaultReturnObject`. */
-  // TODO: do I need this? can it be properly inferred?
-  readonly insertReturnsSelectedObject?: InsertReturnsSelectedObject;
-
   /**
    * Whether update queries return `SelectedObject` when the updating object
    * is a `SelectedObject`; update queries otherwise return `DefaultReturnObject`.
    */
-  // TODO: do I need this? can it be properly inferred?
   readonly updateReturnsSelectedObjectWhenProvided?: UpdateReturnsSelectedObjectWhenProvided;
 
   /**
