@@ -128,6 +128,7 @@ export abstract class AbstractTableMapper<
       KeyColumns,
       SelectedColumns,
       ReturnColumns,
+      InsertReturnsSelectedObject,
       UpdateReturnsSelectedObjectWhenProvided
     > = {}
   ) {

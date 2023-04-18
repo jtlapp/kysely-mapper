@@ -633,8 +633,18 @@ describe('update transformation', () => {
   function createUpdateAndReturnTransformMapper(db: Kysely<Database>) {
     return new TableMapper(db, 'users', {
       returnColumns: ['id', 'handle'],
+      insertReturnsSelectedObject: true,
       updateReturnsSelectedObjectWhenProvided: true,
     }).withTransforms({
+      insertReturnTransform: (source, results) => {
+        const names = source.name.split(' ');
+        return SelectedUser.create(results.id, {
+          firstName: names[0],
+          lastName: names[1],
+          handle: results.handle,
+          email: source.email || null,
+        });
+      },
       selectTransform: (row) => {
         const names = row.name.split(' ');
         return SelectedUser.create(row.id, {
