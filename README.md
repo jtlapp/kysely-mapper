@@ -1,6 +1,6 @@
 # kysely-params
 
-Flexible Kysely-based library for mapping between tables and objects
+Flexible Kysely-based utility for mapping between tables and objects
 
 **WORK IN PROGRESS**
 
