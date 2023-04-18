@@ -5,7 +5,7 @@ import { createDB, resetDB, destroyDB } from './utils/test-setup';
 import { Database, Users } from './utils/test-tables';
 import { User } from './utils/test-types';
 import { ignore } from './utils/test-utils';
-import { SelectionColumn } from '../lib/type-utils';
+import { createInsertTransformMapper } from './utils/test-mappers';
 
 let db: Kysely<Database>;
 
@@ -15,89 +15,7 @@ beforeAll(async () => {
 beforeEach(() => resetDB(db));
 afterAll(() => destroyDB(db));
 
-describe('table mapper configuration type checks', () => {
-  ignore('detects invalid return column configurations', () => {
-    new TableMapper<
-      Database,
-      'users',
-      ['id']
-      // @ts-expect-error - invalid return column configuration
-    >(db, 'users', { returnColumns: ['notThere'] });
-
-    new TableMapper<
-      Database,
-      'users',
-      [],
-      ['*'],
-      Selectable<Users>,
-      Insertable<Users>,
-      Updateable<Users>,
-      bigint,
-      // @ts-expect-error - invalid return column configuration
-      ['notThere']
-    >(db, 'users', {});
-
-    new TableMapper<
-      Database,
-      'users',
-      [],
-      ['*'],
-      Selectable<Users>,
-      Insertable<Users>,
-      Updateable<Users>,
-      bigint,
-      // @ts-expect-error - invalid return column configuration
-      ['name', 'notThere']
-    >(db, 'users', {});
-
-    new TableMapper<
-      Database,
-      'users',
-      ['id']
-      // @ts-expect-error - invalid return column configuration
-    >(db, 'users', { returnColumns: [''] });
-
-    new TableMapper<
-      Database,
-      'users',
-      ['id']
-      // @ts-expect-error - invalid return column configuration
-    >(db, 'users', { returnColumns: ['notThere'] });
-
-    class TestMapper6<
-      ReturnColumns extends SelectionColumn<Database, 'users'>[] | ['*'] = []
-    > extends TableMapper<
-      Database,
-      'users',
-      [],
-      ['*'],
-      Selectable<Users>,
-      Insertable<Users>,
-      Updateable<Users>,
-      number,
-      ReturnColumns
-    > {}
-    // @ts-expect-error - invalid return column configuration
-    new TestMapper6(db, 'users', { returnColumns: ['notThere'] });
-  });
-
-  ignore('detects invalid return count configuration', () => {
-    class TestMapper extends TableMapper<
-      Database,
-      'users',
-      ['id'],
-      ['*'],
-      Selectable<Users>,
-      Insertable<Users>,
-      Updateable<Users>,
-      number
-    > {}
-    new TestMapper(db, 'users', {
-      // @ts-expect-error - invalid return count
-      countTransform: (count: bigint) => BigInt(count),
-    });
-  });
-
+describe('table mapper transformation type checks', () => {
   ignore('detects invalid select transform configuration', () => {
     class TestMapper extends TableMapper<Database, 'users', [], ['*'], User> {}
     // @ts-expect-error - invalid select transform
@@ -189,6 +107,19 @@ describe('table mapper configuration type checks', () => {
       .update({ id: 1 })
       // @ts-expect-error - ensure that return type is User
       .returnOne(new User(1, 'John', 'Doe', 'jdoe', 'jdoe@abc.def')))!.name;
+  });
+
+  ignore('detects insertion transformation type errors', async () => {
+    const insertTransformMapper = createInsertTransformMapper(db);
+
+    // @ts-expect-error - requires InsertedObject as input
+    await insertTransformMapper.insert().returnOne(USERS[0]);
+    // @ts-expect-error - requires InsertedObject as input
+    await insertTransformMapper.insert().run(USERS[0]);
+    // @ts-expect-error - requires InsertedObject as input
+    await insertTransformMapper.insert().returnOne(selectedUser1);
+    // @ts-expect-error - requires InsertedObject as input
+    await insertTransformMapper.insert().run(selectedUser1);
   });
 
   it('dummy test', () => {

@@ -2,7 +2,7 @@ import { Kysely, Updateable } from 'kysely';
 
 import { TableMapper } from '../../mappers/table-mapper';
 import { Database } from './test-tables';
-import { SelectedUser } from './test-types';
+import { InsertedUser, SelectedUser } from './test-types';
 
 const countTransform = (count: bigint) => Number(count);
 
@@ -32,6 +32,19 @@ export function createUserMapperReturningIDAndHandleAsH(db: Kysely<Database>) {
 export function createUserMapperReturningAll(db: Kysely<Database>) {
   return new TableMapper(db, 'users', { returnColumns: ['*'] }).withTransforms({
     countTransform,
+  });
+}
+
+export function createInsertTransformMapper(db: Kysely<Database>) {
+  return new TableMapper(db, 'users', {
+    returnColumns: ['id'],
+  }).withTransforms({
+    insertTransform: (source: InsertedUser) => ({
+      name: `${source.firstName} ${source.lastName}`,
+      handle: source.handle,
+      email: source.email,
+    }),
+    countTransform: (count) => Number(count),
   });
 }
 
