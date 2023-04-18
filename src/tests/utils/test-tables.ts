@@ -1,9 +1,7 @@
 import { Kysely, Generated, sql } from 'kysely';
 
-// TODO: Do I still need the posts table? The comments table?
-
 // list tables after those they depend on
-const TABLE_NAMES = ['comments', 'posts', 'users'];
+const TABLE_NAMES = ['posts', 'users'];
 
 export interface Users {
   id: Generated<number>;
@@ -20,15 +18,9 @@ export interface Posts {
   createdAt: Generated<Date>;
 }
 
-export interface Comments {
-  userId: number;
-  text: string;
-}
-
 export interface Database {
   users: Users;
   posts: Posts;
-  comments: Comments;
 }
 
 export async function createTables(db: Kysely<Database>) {
@@ -47,14 +39,6 @@ export async function createTables(db: Kysely<Database>) {
     .addColumn('createdAt', 'timestamp', (col) =>
       col.defaultTo(sql`current_timestamp`).notNull()
     )
-    .execute();
-
-  await db.schema
-    .createTable('comments')
-    .addColumn('postId', 'integer', (col) =>
-      col.references('post.id').notNull()
-    )
-    .addColumn('text', 'varchar(255)', (col) => col.notNull())
     .execute();
 
   return db;
