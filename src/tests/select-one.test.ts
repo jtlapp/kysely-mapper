@@ -11,8 +11,6 @@ import { createUserMapperReturningID } from './utils/test-mappers';
 import { USERS } from './utils/test-objects';
 import { ignore } from './utils/test-utils';
 
-// TODO: what tests can I drop for now being redundant?
-
 let db: Kysely<Database>;
 let userMapper: ReturnType<typeof createUserMapperReturningID>;
 
