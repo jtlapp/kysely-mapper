@@ -17,7 +17,7 @@ export type AllColumns = Readonly<['*']>;
  */
 export type KeyTuple<
   T,
-  KA extends (keyof Selectable<T> & string)[]
+  KA extends Readonly<(keyof Selectable<T> & string)[]>
 > = KA[3] extends string
   ? [
       Selectable<T>[KA[0]],

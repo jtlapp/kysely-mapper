@@ -32,7 +32,7 @@ type KeyColumnType<
 export type QueryFilter<
   DB,
   TB extends keyof DB & string,
-  KeyColumns extends SelectableColumnTuple<DB[TB]> | [],
+  KeyColumns extends Readonly<SelectableColumnTuple<DB[TB]>> | [],
   RE extends ReferenceExpression<DB, TB>
 > =
   | (KeyColumns extends [string] ? KeyColumnType<DB, TB, KeyColumns[0]> : never)
@@ -68,7 +68,7 @@ export type FieldMatchingFilter<
 export function applyQueryFilter<
   DB,
   TB extends keyof DB & string,
-  KeyColumns extends SelectableColumnTuple<DB[TB]> | [],
+  KeyColumns extends Readonly<SelectableColumnTuple<DB[TB]>> | [],
   QB extends AnyWhereInterface,
   RE extends ReferenceExpression<DB, TB>
 >(

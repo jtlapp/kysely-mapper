@@ -36,7 +36,7 @@ import { AbstractTableMapper } from './abstract-table-mapper';
 export class TableMapper<
   DB,
   TB extends keyof DB & string,
-  KeyColumns extends SelectableColumnTuple<DB[TB]> | [] = [],
+  KeyColumns extends Readonly<SelectableColumnTuple<DB[TB]>> | [] = [],
   SelectedColumns extends
     | Readonly<SelectionColumn<DB, TB>[]>
     | AllColumns = AllColumns,
