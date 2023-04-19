@@ -24,13 +24,17 @@ import { AbstractTableMapper } from './abstract-table-mapper';
  *  update, except when explicitly requesting no columns. `['*']` returns
  *  all columns; `[]` returns none and is the default. May specify aliases.
  *  Defaults to `KeyColumns`.
+ * TODO: can I ditch InsertReturnsSelectedObject now?
  * @typeparam InsertReturnsSelectedObject Whether insert queries return
- *  `SelectedObject` or `DefaultReturn`.
+ *  `SelectedObject` or `DefaultInsertReturn`.
  * @typeparam UpdateReturnsSelectedObjectWhenProvided Whether update queries
  *  return `SelectedObject` when the updating object is a `SelectedObject`;
- *  update queries otherwise return `DefaultReturn`.
- * @typeparam DefaultReturn Type returned from inserts and updates, unless
+ *  update queries otherwise return `DefaultUpdateReturn`.
+ * @typeparam DefaultInsertReturn Type returned from inserts unless
  *  configured to return `SelectedObject`. Defaults to an object whose
+ *  properties are the columns of `ReturnColumns`.
+ * @typeparam DefaultUpdateReturn Type returned from updates except for
+ *  situations that return `SelectedObject`. Defaults to an object whose
  *  properties are the columns of `ReturnColumns`.
  */
 export class TableMapper<
@@ -52,7 +56,10 @@ export class TableMapper<
     | ['*'] = KeyColumns,
   InsertReturnsSelectedObject extends boolean = false,
   UpdateReturnsSelectedObjectWhenProvided extends boolean = false,
-  DefaultReturn = ReturnColumns extends ['*']
+  DefaultInsertReturn = ReturnColumns extends ['*']
+    ? Selectable<DB[TB]>
+    : Selection<DB, TB, ReturnColumns[number]>,
+  DefaultUpdateReturn = ReturnColumns extends ['*']
     ? Selectable<DB[TB]>
     : Selection<DB, TB, ReturnColumns[number]>
 > extends AbstractTableMapper<
@@ -67,7 +74,8 @@ export class TableMapper<
   ReturnColumns,
   InsertReturnsSelectedObject,
   UpdateReturnsSelectedObjectWhenProvided,
-  DefaultReturn
+  DefaultInsertReturn,
+  DefaultUpdateReturn
 > {
   /**
    * Returns a new table mapper that uses the provided transformations.
@@ -84,7 +92,10 @@ export class TableMapper<
     InsertedObject extends object = Insertable<DB[TB]>,
     UpdatingObject extends object = Updateable<DB[TB]>,
     ReturnCount = bigint,
-    DefaultReturn = ReturnColumns extends ['*']
+    DefaultInsertReturn = ReturnColumns extends ['*']
+      ? Selectable<DB[TB]>
+      : Selection<DB, TB, ReturnColumns[number]>,
+    DefaultUpdateReturn = ReturnColumns extends ['*']
       ? Selectable<DB[TB]>
       : Selection<DB, TB, ReturnColumns[number]>
   >(
@@ -101,7 +112,8 @@ export class TableMapper<
         ReturnColumns,
         InsertReturnsSelectedObject,
         UpdateReturnsSelectedObjectWhenProvided,
-        DefaultReturn
+        DefaultInsertReturn,
+        DefaultUpdateReturn
       >
     >
   ) {
@@ -117,7 +129,8 @@ export class TableMapper<
       ReturnColumns,
       InsertReturnsSelectedObject,
       UpdateReturnsSelectedObjectWhenProvided,
-      DefaultReturn
+      DefaultInsertReturn,
+      DefaultUpdateReturn
     >(this.db, this.tableName, this.settings);
     transformingTableMapper.transforms = transforms;
     return transformingTableMapper;

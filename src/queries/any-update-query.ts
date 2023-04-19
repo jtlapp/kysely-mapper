@@ -20,7 +20,7 @@ export class AnyColumnsMappingUpdateQuery<
   ReturnColumns extends Readonly<SelectionColumn<DB, TB>[]> | ['*'],
   ReturnCount,
   UpdateReturnsSelectedObjectWhenProvided extends boolean,
-  DefaultReturn
+  DefaultUpdateReturn
 > extends MappingUpdateQuery<
   DB,
   TB,
@@ -30,7 +30,7 @@ export class AnyColumnsMappingUpdateQuery<
   ReturnColumns,
   ReturnCount,
   UpdateReturnsSelectedObjectWhenProvided,
-  DefaultReturn
+  DefaultUpdateReturn
 > {
   constructor(
     db: Kysely<DB>,
@@ -44,7 +44,7 @@ export class AnyColumnsMappingUpdateQuery<
           UpdatingObject,
           ReturnColumns,
           UpdateReturnsSelectedObjectWhenProvided,
-          DefaultReturn
+          DefaultUpdateReturn
         >
     >,
     returnColumns: Readonly<ReturnColumns>
@@ -69,7 +69,7 @@ export class AnyColumnsMappingUpdateQuery<
     ReturnColumns,
     ReturnCount,
     UpdateReturnsSelectedObjectWhenProvided,
-    DefaultReturn
+    DefaultUpdateReturn
   > {
     return new SubsettingMappingUpdateQuery(
       this.db,

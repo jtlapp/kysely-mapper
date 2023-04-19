@@ -20,7 +20,7 @@ export class CompilingMappingUpdateQuery<
   ReturnColumns extends Readonly<SelectionColumn<DB, TB>[]> | ['*'],
   ReturnCount,
   UpdateReturnsSelectedObjectWhenProvided extends boolean,
-  DefaultReturn,
+  DefaultUpdateReturn,
   Parameters extends ParametersObject<Parameters>
 > extends CompilingValuesQuery<
   DB,
@@ -43,7 +43,7 @@ export class CompilingMappingUpdateQuery<
           UpdatingObject,
           ReturnColumns,
           UpdateReturnsSelectedObjectWhenProvided,
-          DefaultReturn
+          DefaultUpdateReturn
         >
     >,
     returnColumns: Readonly<ReturnColumns>
@@ -79,7 +79,7 @@ export class CompilingMappingUpdateQuery<
    * Updates rows with the values that result from transforming the object via
    * `insertTransform` (if defined). For each row updated, retrieves the
    * columns specified in `returnColumns` (if defined), returning them to the
-   * caller as either `DefaultReturn` or `SelectedObject`, depending
+   * caller as either `DefaultUpdateReturn` or `SelectedObject`, depending
    * on whether `UpdateReturnsSelectedObjectWhenProvided` is `true` and the
    * provided object is a `SelectedObject`, after transformation by
    * `updateReturnTransform`. If `returnColumns` is empty, returns `undefined`.
@@ -98,18 +98,18 @@ export class CompilingMappingUpdateQuery<
       ? void
       : UpdateReturnsSelectedObjectWhenProvided extends true
       ? SelectedObject[]
-      : DefaultReturn[]
+      : DefaultUpdateReturn[]
   >;
 
   returnAll(
     params: Parameters,
     obj: UpdatingObject
-  ): Promise<ReturnColumns extends [] ? void : DefaultReturn[]>;
+  ): Promise<ReturnColumns extends [] ? void : DefaultUpdateReturn[]>;
 
   async returnAll(
     params: Parameters,
     obj: UpdatingObject | SelectedObject
-  ): Promise<SelectedObject[] | DefaultReturn[] | void> {
+  ): Promise<SelectedObject[] | DefaultUpdateReturn[] | void> {
     if (this.returnColumns.length === 0) {
       await this.run(params, obj as UpdatingObject);
       return;
@@ -128,7 +128,7 @@ export class CompilingMappingUpdateQuery<
    * Updates rows with the values that result from transforming the object via
    * `updateTransform` (if defined). For the first row updated, retrieves the
    * columns specified in `returnColumns` (if defined), returning them to the
-   * caller as either `DefaultReturn` or `SelectedObject`, depending
+   * caller as either `DefaultUpdateReturn` or `SelectedObject`, depending
    * on whether `UpdateReturnsSelectedObjectWhenProvided` is `true` and the
    * provided object is a `SelectedObject`, after transformation by
    * `updateReturnTransform`. If `returnColumns` is empty, returns `undefined`.
@@ -149,19 +149,19 @@ export class CompilingMappingUpdateQuery<
       :
           | (UpdateReturnsSelectedObjectWhenProvided extends true
               ? SelectedObject
-              : DefaultReturn)
+              : DefaultUpdateReturn)
           | null
   >;
 
   returnOne(
     params: Parameters,
     obj: UpdatingObject
-  ): Promise<ReturnColumns extends [] ? void : DefaultReturn | null>;
+  ): Promise<ReturnColumns extends [] ? void : DefaultUpdateReturn | null>;
 
   async returnOne(
     params: Parameters,
     obj: UpdatingObject | SelectedObject
-  ): Promise<SelectedObject | DefaultReturn | null | void> {
+  ): Promise<SelectedObject | DefaultUpdateReturn | null | void> {
     if (this.returnColumns.length === 0) {
       await this.run(params, obj as UpdatingObject);
       return;

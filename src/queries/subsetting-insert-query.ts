@@ -17,7 +17,7 @@ export class SubsettingMappingInsertQuery<
   SelectedObject extends object,
   ReturnColumns extends Readonly<SelectionColumn<DB, TB>[]> | ['*'],
   InsertReturnsSelectedObject extends boolean,
-  DefaultReturn
+  DefaultInsertReturn
 > extends MappingInsertQuery<
   DB,
   TB,
@@ -26,7 +26,7 @@ export class SubsettingMappingInsertQuery<
   SelectedObject,
   ReturnColumns,
   InsertReturnsSelectedObject,
-  DefaultReturn
+  DefaultInsertReturn
 > {
   constructor(
     db: Kysely<DB>,
@@ -42,7 +42,7 @@ export class SubsettingMappingInsertQuery<
         InsertedObject,
         ReturnColumns,
         InsertReturnsSelectedObject,
-        DefaultReturn
+        DefaultInsertReturn
       >
     >,
     returnColumns: Readonly<ReturnColumns>
@@ -67,7 +67,7 @@ export class SubsettingMappingInsertQuery<
     SelectedObject,
     ReturnColumns,
     InsertReturnsSelectedObject,
-    DefaultReturn
+    DefaultInsertReturn
   > {
     return new CompilingMappingInsertQuery(
       this.db,
