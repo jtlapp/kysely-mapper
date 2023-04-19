@@ -6,7 +6,9 @@ import {
 } from '../lib/type-utils';
 
 /**
- * Options governing TableMapper behavior.
+ * Transformations to apply to values provided to and received from queries.
+ * All transformations are optional. When no transformation is provided, the
+ * value is passed through unchanged.
  * @typeparam DB Interface whose fields are table names defining tables.
  * @typeparam TB Name of the table.
  * @typeparam KeyColumns Tuple of the names of the table's key columns.
@@ -73,7 +75,10 @@ export interface TableMapperTransforms<
     > {}
 
 export interface CountTransform<ReturnCount> {
-  /** Transformation to apply to bigint count results. */
+  /**
+   * Transformation to apply to bigint count results before returning
+   * the count to the client.
+   */
   countTransform?: (count: bigint) => ReturnCount;
 }
 
@@ -86,10 +91,18 @@ export interface InsertTransforms<
   InsertReturnsSelectedObject extends boolean,
   DefaultReturnObject extends object
 > {
-  /** Transformation to apply to inserted objects before insertion. */
+  /**
+   * Transformation to apply to inserted objects before insertion.
+   */
   insertTransform?: (obj: InsertedObject) => Insertable<DB[TB]>;
 
-  /** Transformation to apply to column values returned from inserts. */
+  /**
+   * Transformation to apply to column values returned from inserts before
+   * returning values to the client. When inferring type parameters, specify
+   * a type for the `source` parameter. If you are returning an instance of
+   * `SelectedObject`, be sure to set the `InsertReturnsSelectedObject`
+   * setting to `true`.
+   */
   insertReturnTransform?: (
     source: InsertedObject,
     returns: ReturnColumns extends []
@@ -111,7 +124,10 @@ export interface SelectTransform<
   SelectedColumns extends Readonly<SelectionColumn<DB, TB>[]> | ['*'],
   SelectedObject extends object
 > {
-  /** Transformation to apply to selected objects. */
+  /**
+   * Transformation to apply to selected objects after retrieval from the
+   * database and before returning to the client.
+   */
   selectTransform?: (
     row: SelectedRow<
       DB,
@@ -131,10 +147,18 @@ export interface UpdateTransforms<
   UpdateReturnsSelectedObjectWhenProvided extends boolean,
   DefaultReturnObject extends object
 > {
-  /** Transformation to apply to objects provided for updating values. */
+  /**
+   * Transformation to apply to objects provided for updating rows.
+   */
   updateTransform?: (update: UpdatingObject) => Updateable<DB[TB]>;
 
-  /** Transformation to apply to column values returned from updates. */
+  /**
+   * Transformation to apply to column values returned from updates before
+   * returning values to the client. When inferring type parameters, specify
+   * a type for the `source` parameter. If you return an instance of
+   * `SelectedObject` when the updating object is a `SelectedObject`, be sure
+   * to set the `UpdateReturnsSelectedObjectWhenProvided` setting to `true`.
+   */
   updateReturnTransform?: (
     source: UpdatingObject,
     returns: ReturnColumns extends []

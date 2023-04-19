@@ -2,7 +2,7 @@ import { SelectableColumnTuple, SelectionColumn } from '../lib/type-utils';
 import { TableMapperSettings } from './table-mapper-settings';
 
 /**
- * Uniform table mapper settings
+ * Settings governing uniform table mapper behavior, excluding transformations.
  * @typeparam DB The database type.
  * @typeparam TB The name of the table.
  * @typeparam KeyColumns Tuple of the names of the table's key columns.

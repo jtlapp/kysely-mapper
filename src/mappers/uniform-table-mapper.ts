@@ -78,9 +78,9 @@ export class UniformTableMapper<
   /**
    * @param db The Kysely database instance.
    * @param tableName The name of the table.
-   * @param options Options governing mapper behavior. Defaults to
-   *  a key of `id`, to selecting all columns, and to returning
-   *  the `id` on insert or update, when the caller requests returns.
+   * @param options Options governing table mapper behavior. Defaults to a key
+   *  of `id`, to selecting all columns, and to returning the `id` on insert
+   *  or update, when the caller requests returns.
    */
   constructor(
     db: Kysely<DB>,
@@ -102,9 +102,9 @@ export class UniformTableMapper<
   }
 
   /**
-   * Returns a new table mapper that uses the provided transformations.
+   * Returns a new uniform table mapper that uses the provided transformations.
    * @param transforms The transforms to use.
-   * @returns A new table mapper that uses the provided transforms.
+   * @returns A new uniform table mapper that uses the provided transforms.
    */
   withTransforms<
     MappedObject extends object,
