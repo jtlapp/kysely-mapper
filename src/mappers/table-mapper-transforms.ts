@@ -77,7 +77,7 @@ export interface TableMapperTransforms<
 export interface CountTransform<ReturnCount> {
   /**
    * Transformation to apply to bigint count results before returning
-   * the count to the client.
+   * the count to the client. `count` is the count returned by the query.
    */
   countTransform?: (count: bigint) => ReturnCount;
 }
@@ -93,6 +93,7 @@ export interface InsertTransforms<
 > {
   /**
    * Transformation to apply to inserted objects before insertion.
+   * `source` is the object provided for insertion.
    */
   insertTransform?: (source: InsertedObject) => Insertable<DB[TB]>;
 
@@ -101,7 +102,8 @@ export interface InsertTransforms<
    * returning values to the client. When inferring type parameters, specify
    * a type for the `source` parameter. If you are returning an instance of
    * `SelectedObject`, be sure to set the `InsertReturnsSelectedObject`
-   * setting to `true`.
+   * setting to `true`. `source` is the object that was provided for
+   * insertion, and `returns` are the values returned from the insert.
    */
   insertReturnTransform?: (
     source: InsertedObject,
@@ -126,7 +128,8 @@ export interface SelectTransform<
 > {
   /**
    * Transformation to apply to selected objects after retrieval from the
-   * database and before returning to the client.
+   * database and before returning to the client. `row` is the selected
+   * row, as returned by the Kysely query.
    */
   selectTransform?: (
     row: SelectedRow<
@@ -148,7 +151,8 @@ export interface UpdateTransforms<
   DefaultReturnObject extends object
 > {
   /**
-   * Transformation to apply to objects provided for updating rows.
+   * Transformation to apply to objects provided for updating rows. `source`
+   * is the object containing the values which which to update the table row.
    */
   updateTransform?: (source: UpdatingObject) => Updateable<DB[TB]>;
 
@@ -158,6 +162,8 @@ export interface UpdateTransforms<
    * a type for the `source` parameter. If you return an instance of
    * `SelectedObject` when the updating object is a `SelectedObject`, be sure
    * to set the `UpdateReturnsSelectedObjectWhenProvided` setting to `true`.
+   * `source` is the object that contained the valiues with which the table
+   * row was updated, and `returns` are the values returned from the update.
    */
   updateReturnTransform?: (
     source: UpdatingObject,
