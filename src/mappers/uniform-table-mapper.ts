@@ -109,7 +109,7 @@ export class UniformTableMapper<
   withTransforms<
     MappedObject extends object,
     ReturnCount = bigint,
-    DefaultReturnObject extends object = ReturnColumns extends ['*']
+    DefaultReturn = ReturnColumns extends ['*']
       ? Selectable<DB[TB]>
       : Selection<DB, TB, ReturnColumns[number]>
   >(
@@ -126,7 +126,7 @@ export class UniformTableMapper<
         ReturnColumns,
         true,
         true,
-        DefaultReturnObject
+        DefaultReturn
       >
     >
   ) {
@@ -193,7 +193,7 @@ function _prepareTransforms<
   MappedObject extends object,
   ReturnCount,
   ReturnColumns extends Readonly<SelectionColumn<DB, TB>[]> | ['*'],
-  DefaultReturnObject extends object
+  DefaultReturn
 >(
   keyColumns: KeyColumns,
   isMappedObject: (obj: any) => boolean,
@@ -209,7 +209,7 @@ function _prepareTransforms<
     ReturnColumns,
     true,
     true,
-    DefaultReturnObject
+    DefaultReturn
   >
 ) {
   // Remove falsy key values from inserted object, by default

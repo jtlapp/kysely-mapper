@@ -15,7 +15,7 @@ export class CompilingMappingInsertQuery<
   SelectedObject extends object,
   ReturnColumns extends Readonly<SelectionColumn<DB, TB>[]> | ['*'],
   InsertReturnsSelectedObject extends boolean,
-  DefaultReturnObject extends object
+  DefaultReturn
 > extends CompilingValuesQuery<
   DB,
   TB,
@@ -36,7 +36,7 @@ export class CompilingMappingInsertQuery<
         InsertedObject,
         ReturnColumns,
         InsertReturnsSelectedObject,
-        DefaultReturnObject
+        DefaultReturn
       >
     >,
     returnColumns: Readonly<ReturnColumns>
@@ -50,7 +50,7 @@ export class CompilingMappingInsertQuery<
    * Inserts the provided object into the table as a row, first transforming
    * it into a row via `insertTransform` (if defined). Also retrieves the
    * columns specified in `returnColumns`, returning them to the caller as
-   * either `DefaultReturnObject` or `SelectedObject`, depending on whether
+   * either `DefaultReturn` or `SelectedObject`, depending on whether
    * `InsertReturnsSelectedObject` is `true`, after transformation by
    * `insertReturnTransform`. If `returnColumns` is empty, returns `undefined`.
    *
@@ -66,12 +66,12 @@ export class CompilingMappingInsertQuery<
       ? void
       : InsertReturnsSelectedObject extends true
       ? SelectedObject
-      : DefaultReturnObject
+      : DefaultReturn
   >;
 
   async returnOne(
     obj: InsertedObject
-  ): Promise<SelectedObject | DefaultReturnObject | void> {
+  ): Promise<SelectedObject | DefaultReturn | void> {
     if (this.returnColumns.length === 0) {
       await this.run(obj);
       return;

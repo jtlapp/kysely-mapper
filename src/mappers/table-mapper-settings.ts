@@ -13,10 +13,10 @@ import { SelectableColumnTuple, SelectionColumn } from '../lib/type-utils';
  *  all columns; `[]` returns none and is the default. May specify aliases.
  *  Defaults to `KeyColumns`.
  * @typeparam InsertReturnsSelectedObject Whether insert queries return
- *  `SelectedObject` or `DefaultReturnObject`.
+ *  `SelectedObject` or `DefaultReturn`.
  * @typeparam UpdateReturnsSelectedObjectWhenProvided Whether update queries
  *  return `SelectedObject` when the updating object is a `SelectedObject`;
- *  update queries otherwise return `DefaultReturnObject`.
+ *  update queries otherwise return `DefaultReturn`.
  */
 export interface TableMapperSettings<
   DB,
@@ -39,13 +39,13 @@ export interface TableMapperSettings<
   selectedColumns?: SelectedColumns;
 
   /**
-   * Whether insert queries return `SelectedObject` or `DefaultReturnObject`.
+   * Whether insert queries return `SelectedObject` or `DefaultReturn`.
    */
   insertReturnsSelectedObject?: InsertReturnsSelectedObject;
 
   /**
    * Whether update queries return `SelectedObject` when the updating object
-   * is a `SelectedObject`; update queries otherwise return `DefaultReturnObject`.
+   * is a `SelectedObject`; update queries otherwise return `DefaultReturn`.
    */
   updateReturnsSelectedObjectWhenProvided?: UpdateReturnsSelectedObjectWhenProvided;
 

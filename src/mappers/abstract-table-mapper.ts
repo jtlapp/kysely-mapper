@@ -54,12 +54,13 @@ import { TableMapperTransforms } from './table-mapper-transforms';
  *  all columns; `[]` returns none and is the default. May specify aliases.
  *  Defaults to `KeyColumns`.
  * @typeparam InsertReturnsSelectedObject Whether insert queries return
- *  `SelectedObject` or `DefaultReturnObject`.
+ *  `SelectedObject` or `DefaultReturn`.
  * @typeparam UpdateReturnsSelectedObjectWhenProvided Whether update queries
  *  return `SelectedObject` when the updating object is a `SelectedObject`;
- *  update queries otherwise return `DefaultReturnObject`.
- * @typeparam DefaultReturnObject Type of objects returned from inserts and
- *  updates, unless configured to return `SelectedObject`.
+ *  update queries otherwise return `DefaultReturn`.
+ * @typeparam DefaultReturn Type returned from inserts and updates, unless
+ *  configured to return `SelectedObject`. Defaults to an object whose
+ *  properties are the columns of `ReturnColumns`.
  */
 export abstract class AbstractTableMapper<
   DB,
@@ -80,7 +81,7 @@ export abstract class AbstractTableMapper<
     | ['*'] = Readonly<KeyColumns>,
   InsertReturnsSelectedObject extends boolean = false,
   UpdateReturnsSelectedObjectWhenProvided extends boolean = false,
-  DefaultReturnObject extends object = ReturnColumns extends ['*']
+  DefaultReturn = ReturnColumns extends ['*']
     ? Selectable<DB[TB]>
     : Selection<DB, TB, ReturnColumns[number]>
 > {
@@ -111,7 +112,7 @@ export abstract class AbstractTableMapper<
     ReturnColumns,
     InsertReturnsSelectedObject,
     UpdateReturnsSelectedObjectWhenProvided,
-    DefaultReturnObject
+    DefaultReturn
   > = {};
 
   /**
@@ -214,7 +215,7 @@ export abstract class AbstractTableMapper<
     SelectedObject,
     ReturnColumns,
     InsertReturnsSelectedObject,
-    DefaultReturnObject
+    DefaultReturn
   > {
     return new AnyColumnsMappingInsertQuery(
       this.db,
@@ -252,7 +253,7 @@ export abstract class AbstractTableMapper<
       ReturnColumns,
       InsertReturnsSelectedObject,
       UpdateReturnsSelectedObjectWhenProvided,
-      DefaultReturnObject,
+      DefaultReturn,
       this,
       Parameters,
       MappingDeleteQuery<
@@ -283,7 +284,7 @@ export abstract class AbstractTableMapper<
       ReturnColumns,
       InsertReturnsSelectedObject,
       UpdateReturnsSelectedObjectWhenProvided,
-      DefaultReturnObject,
+      DefaultReturn,
       this,
       Parameters,
       MappingSelectQuery<
@@ -316,7 +317,7 @@ export abstract class AbstractTableMapper<
       ReturnColumns,
       InsertReturnsSelectedObject,
       UpdateReturnsSelectedObjectWhenProvided,
-      DefaultReturnObject,
+      DefaultReturn,
       this,
       Parameters,
       SubsettingMappingUpdateQuery<
@@ -328,7 +329,7 @@ export abstract class AbstractTableMapper<
         ReturnColumns,
         ReturnCount,
         UpdateReturnsSelectedObjectWhenProvided,
-        DefaultReturnObject
+        DefaultReturn
       >
     >
   ): CompilingMappingUpdateQuery<
@@ -340,7 +341,7 @@ export abstract class AbstractTableMapper<
     ReturnColumns,
     ReturnCount,
     UpdateReturnsSelectedObjectWhenProvided,
-    DefaultReturnObject,
+    DefaultReturn,
     Parameters
   >;
 
@@ -357,7 +358,7 @@ export abstract class AbstractTableMapper<
       ReturnColumns,
       InsertReturnsSelectedObject,
       UpdateReturnsSelectedObjectWhenProvided,
-      DefaultReturnObject,
+      DefaultReturn,
       this,
       Parameters,
       any
@@ -456,7 +457,7 @@ export abstract class AbstractTableMapper<
     ReturnColumns,
     ReturnCount,
     UpdateReturnsSelectedObjectWhenProvided,
-    DefaultReturnObject
+    DefaultReturn
   >;
 
   update<RE extends ReferenceExpression<DB, TB>>(
@@ -470,7 +471,7 @@ export abstract class AbstractTableMapper<
     ReturnColumns,
     ReturnCount,
     UpdateReturnsSelectedObjectWhenProvided,
-    DefaultReturnObject
+    DefaultReturn
   >;
 
   update<RE extends ReferenceExpression<DB, TB>>(
@@ -486,7 +487,7 @@ export abstract class AbstractTableMapper<
     ReturnColumns,
     ReturnCount,
     UpdateReturnsSelectedObjectWhenProvided,
-    DefaultReturnObject
+    DefaultReturn
   > {
     return new AnyColumnsMappingUpdateQuery(
       this.db,

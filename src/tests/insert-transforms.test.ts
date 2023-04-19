@@ -59,7 +59,7 @@ describe('inserting with transformation', () => {
     );
   });
 
-  it('transforms insertion return without transforming insertion', async () => {
+  it('transforms insertion return into object without transforming insertion', async () => {
     const insertReturnTransformMapper = new TableMapper(db, 'users', {
       returnColumns: ['id'],
     }).withTransforms({
@@ -83,6 +83,29 @@ describe('inserting with transformation', () => {
       .insert()
       .returnAll([userRow2, userRow3]);
     expect(insertReturns).toEqual([insertReturnedUser2, insertReturnedUser3]);
+  });
+
+  it('transforms insertion return into primitive without transforming insertion', async () => {
+    const insertReturnTransformMapper = new TableMapper(db, 'users', {
+      returnColumns: ['id'],
+    }).withTransforms({
+      insertReturnTransform: (_source, returns) => returns.id,
+      countTransform: (count) => Number(count),
+    });
+
+    const insertReturn = await insertReturnTransformMapper
+      .insert()
+      .returnOne(userRow1);
+    expect(insertReturn).toEqual(1);
+    // ensure return type can be accessed as a number
+    ((_: number) => {})(insertReturn);
+
+    const insertReturns = await insertReturnTransformMapper
+      .insert()
+      .returnAll([userRow2, userRow3]);
+    expect(insertReturns).toEqual([2, 3]);
+    // ensure return type can be accessed as a number
+    ((_: number) => {})(insertReturns[0]);
   });
 
   it('transforms insertion and insertion return', async () => {
@@ -109,11 +132,15 @@ describe('inserting with transformation', () => {
       .insert()
       .returnOne(insertedUser1);
     expect(insertReturn).toEqual(insertReturnedUser1);
+    // ensure return type can be accessed as a ReturnedUser
+    ((_: string) => {})(insertReturn.firstName);
 
     const insertReturns = await insertAndReturnTransformMapper
       .insert()
       .returnAll([insertedUser2, insertedUser3]);
     expect(insertReturns).toEqual([insertReturnedUser2, insertReturnedUser3]);
+    // ensure return type can be accessed as a ReturnedUser
+    ((_: string) => {})(insertReturns[0].firstName);
   });
 
   it('returns SelectedObject when updates can return rows', async () => {

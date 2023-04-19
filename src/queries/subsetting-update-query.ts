@@ -22,7 +22,7 @@ export class SubsettingMappingUpdateQuery<
     ReturnColumns extends Readonly<SelectionColumn<DB, TB>[]> | ['*'],
     ReturnCount,
     UpdateReturnsSelectedObjectWhenProvided extends boolean,
-    DefaultReturnObject extends object
+    DefaultReturn
   >
   extends MappingUpdateQuery<
     DB,
@@ -33,7 +33,7 @@ export class SubsettingMappingUpdateQuery<
     ReturnColumns,
     ReturnCount,
     UpdateReturnsSelectedObjectWhenProvided,
-    DefaultReturnObject
+    DefaultReturn
   >
   implements ParameterizableMappingQuery
 {
@@ -52,7 +52,7 @@ export class SubsettingMappingUpdateQuery<
           UpdatingObject,
           ReturnColumns,
           UpdateReturnsSelectedObjectWhenProvided,
-          DefaultReturnObject
+          DefaultReturn
         >
     >,
     returnColumns: Readonly<ReturnColumns>
@@ -80,7 +80,7 @@ export class SubsettingMappingUpdateQuery<
     ReturnColumns,
     ReturnCount,
     UpdateReturnsSelectedObjectWhenProvided,
-    DefaultReturnObject,
+    DefaultReturn,
     Parameters
   > {
     return new CompilingMappingUpdateQuery(
