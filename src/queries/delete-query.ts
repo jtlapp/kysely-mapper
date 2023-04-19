@@ -14,11 +14,6 @@ export class MappingDeleteQuery<
   ReturnCount
 > implements ParameterizableMappingQuery
 {
-  /**
-   * @param db Kysely database instance.
-   * @param qb Kysely delete query builder.
-   * @param countTransform Function that transforms returned row counts
-   */
   constructor(
     protected readonly db: Kysely<DB>,
     protected readonly qb: QB,

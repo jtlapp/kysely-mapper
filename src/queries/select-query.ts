@@ -16,12 +16,6 @@ export class MappingSelectQuery<
   QB extends SelectQueryBuilder<DB, TB, any>
 > implements ParameterizableMappingQuery
 {
-  /**
-   * @param db Kysely database instance.
-   * @param qb Kysely select query builder.
-   * @param selectTransform A function that transforms a selected row
-   *  into an object to be returned from the select query.
-   */
   constructor(
     readonly db: Kysely<DB>,
     readonly qb: QB,

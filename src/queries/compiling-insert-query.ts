@@ -24,21 +24,6 @@ export class CompilingMappingInsertQuery<
   {},
   Insertable<DB[TB]>
 > {
-  /**
-   * @param db Kysely database instance.
-   * @param qb Kysely update query builder.
-   * @param columnsToInsert The columns to insert into the table.
-   * @param insertTransform A function that transforms the object to be
-   *  inserted into a row for insertion into the database.
-   * @param returnColumns The columns to return from the insert query.
-   *  If `returnColumns` is `['*']`, returns all columns. If `returnColumns`
-   *  is empty, returns nothing.
-   * @param insertReturnTransform A function that transforms the object
-   *  to be inserted and the returned row into the object to be returned
-   *  from the insert query. When `InsertReturnsSelectedObject` is `true`,
-   *  the returned object is of type `SelectedObject`; otherwise it is of
-   *  type `DefaultReturnObject`.
-   */
   constructor(
     db: Kysely<DB>,
     qb: QB,

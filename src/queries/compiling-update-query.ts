@@ -30,23 +30,6 @@ export class CompilingMappingUpdateQuery<
   Parameters,
   Updateable<DB[TB]>
 > {
-  /**
-   * TODO: look into eliminating duplicate jsdocs
-   * @param db Kysely database instance.
-   * @param qb Kysely update query builder.
-   * @param countTransform A function that transforms the number of updated
-   *  rows into the representation required by the client.
-   * @param updateTransform A function that transforms the updating object
-   *  into a row for updating the database.
-   * @param returnColumns The columns to return from the update query.
-   *  If `returnColumns` is `['*']`, returns all columns. If `returnColumns`
-   *  is empty, returns nothing.
-   * @param updateReturnTransform A function that transforms the returned
-   *  row into the object to be returned from the update query. When
-   * `UpdateReturnsSelectedObjectWhenProvided` is `true`, the returned
-   *  object is of type `SelectedObject` if the function's input is also
-   *  of this type; otherwise it is of type `DefaultReturnObject`.
-   */
   constructor(
     db: Kysely<DB>,
     qb: QB,

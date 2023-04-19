@@ -18,12 +18,6 @@ export class CompilingMappingSelectQuery<
 {
   #parameterizedQuery: ParameterizedQuery<Parameters, SelectedObject>;
 
-  /**
-   * @param db Kysely database instance.
-   * @param qb Kysely select query builder.
-   * @param selectTransform A function that transforms a selected row
-   *  into an object to be returned from the select query.
-   */
   constructor(
     readonly db: Kysely<DB>,
     qb: QB,
