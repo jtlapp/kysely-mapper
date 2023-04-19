@@ -25,7 +25,6 @@ import {
 } from '../lib/type-utils';
 import { MappingDeleteQuery } from '../queries/delete-query';
 import { MappingSelectQuery } from '../queries/select-query';
-import { AllSelection } from '../lib/kysely-types';
 import { MappingUpdateQuery } from '../queries/update-query';
 import { AnyColumnsMappingInsertQuery } from '../queries/any-insert-query';
 import { AnyColumnsMappingUpdateQuery } from '../queries/any-update-query';
@@ -540,15 +539,13 @@ export abstract class AbstractTableMapper<
    * the columns and aliases specified in `SelectedColumns`.
    * @returns A query builder for selecting rows from the table.
    */
-  protected getSelectQB():
-    | SelectQueryBuilder<DB, TB, object & AllSelection<DB, TB>>
-    | (SelectedColumns extends ['*']
-        ? never
-        : SelectQueryBuilder<
-            DB,
-            TB,
-            object & Selection<DB, TB, SelectedColumns[number]>
-          >);
+  protected getSelectQB(): SelectedColumns extends ['*']
+    ? never
+    : SelectQueryBuilder<
+        DB,
+        TB,
+        object & Selection<DB, TB, SelectedColumns[number]>
+      >;
 
   protected getSelectQB(): SelectQueryBuilder<DB, TB, object> {
     if (this.#baseSelectQB === null) {
