@@ -104,7 +104,8 @@ export interface InsertTransforms<
    * a type for the `source` parameter. If you are returning an instance of
    * `SelectedObject`, be sure to set the `InsertReturnsSelectedObject`
    * setting to `true`. `source` is the object that was provided for
-   * insertion, and `returns` are the values returned from the insert.
+   * insertion, and `returns` are the values returned from the insert. It's
+   * best to also define `updateReturnTransform` when defining this transform.
    */
   insertReturnTransform?: (
     source: InsertedObject,
@@ -165,6 +166,8 @@ export interface UpdateTransforms<
    * to set the `UpdateReturnsSelectedObjectWhenProvided` setting to `true`.
    * `source` is the object that contained the valiues with which the table
    * row was updated, and `returns` are the values returned from the update.
+   * It's best to also define `insertReturnTransform` when defining this
+   * transform.
    */
   updateReturnTransform?: (
     source: UpdatingObject,
