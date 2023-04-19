@@ -22,6 +22,12 @@ beforeEach(() => resetDB(db));
 afterAll(() => destroyDB(db));
 
 describe('selecting all returns', () => {
+  it('accepts readonly filters', async () => {
+    const filter = { name: 'Not There' as const } as const;
+    await userMapper.select(filter).returnAll();
+    await userMapper.select(filter).returnOne();
+  });
+
   it('selects nothing when nothing matches filter', async () => {
     await userMapper.insert().run(USERS);
 

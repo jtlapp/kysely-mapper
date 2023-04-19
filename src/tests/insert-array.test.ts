@@ -51,6 +51,17 @@ beforeEach(() => resetDB(db));
 afterAll(() => destroyDB(db));
 
 describe('inserting an array of objects without transformation', () => {
+  it('inserts readonly objects', async () => {
+    const obj = {
+      name: 'John Doe' as const,
+      handle: 'johndoe' as const,
+      email: 'abc@def.ghi' as const,
+    } as const;
+    await userMapperReturningAll.insert().run(obj);
+    await userMapperReturningAll.insert().returnAll([obj]);
+    await userMapperReturningAll.insert().returnOne(obj);
+  });
+
   it('inserts multiple via run() without returning columns', async () => {
     const success = await userMapperReturningDefault.insert().run(USERS);
     expect(success).toBe(true);

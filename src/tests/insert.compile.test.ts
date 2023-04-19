@@ -39,8 +39,20 @@ describe('compiled insertions', () => {
         ),
       countTransform: (count) => Number(count),
     });
-    const user1 = new User(0, 'John', 'Doe', 'johndoe', 'jdoe@abc.def');
-    const user2 = new User(0, 'Sam', 'Gamgee', 'sg', 'sg@abc.def');
+    const user1: Readonly<User> = new User(
+      0,
+      'John',
+      'Doe',
+      'johndoe',
+      'jdoe@abc.def'
+    );
+    const user2: Readonly<User> = new User(
+      0,
+      'Sam',
+      'Gamgee',
+      'sg',
+      'sg@abc.def'
+    );
     const user3 = new User(100, 'Sue', 'Rex', 'srex', 'srex@abc.def');
 
     const compilation = transformMapper

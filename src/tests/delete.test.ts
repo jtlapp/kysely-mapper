@@ -26,6 +26,12 @@ beforeEach(() => resetDB(db));
 afterAll(() => destroyDB(db));
 
 describe('deleting rows via TableMapper', () => {
+  it('accepts readonly filters', async () => {
+    const filter = { name: 'Not There' as const } as const;
+    await userMapper.delete(filter).run();
+    await userMapper.delete(filter).returnCount();
+  });
+
   it("doesn't delete anything if no rows match", async () => {
     const count = await userMapper
       .delete({ name: USERS[0].name })

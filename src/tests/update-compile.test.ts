@@ -32,6 +32,18 @@ beforeEach(() => resetDB(db));
 afterAll(() => destroyDB(db));
 
 describe('compiled updates', () => {
+  it('compilations accept readonly updating objects', async () => {
+    const compilation = userMapperReturningNothing
+      .update('id', '=', 1)
+      .columns(['name', 'email'])
+      .compile();
+    const updateValues1 = {
+      name: 'Sue Rex' as const,
+      email: 'srex@abc.def' as const,
+    } as const;
+    await compilation.run({}, updateValues1);
+  });
+
   it('compiles a non-returning update query without transformation', async () => {
     const insertReturns = await userMapperReturningID.insert().returnAll(USERS);
     const compilation = userMapperReturningNothing
@@ -40,7 +52,10 @@ describe('compiled updates', () => {
       .compile();
 
     // test run()
-    const updateValues1 = { name: 'Sue Rex', email: 'srex@abc.def' };
+    const updateValues1 = {
+      name: 'Sue Rex' as const,
+      email: 'srex@abc.def' as const,
+    } as const;
     const updateReturns1 = await compilation.run({}, updateValues1);
     expect(updateReturns1).toBe(true);
     const readUser1 = await userMapperReturningID
@@ -50,7 +65,10 @@ describe('compiled updates', () => {
     expect(readUser1?.email).toEqual(updateValues1.email);
 
     // test returnOne()
-    const updateValues2 = { name: 'Johnny Rex', email: 'jrex@abc.def' };
+    const updateValues2 = {
+      name: 'Johnny Rex' as const,
+      email: 'jrex@abc.def' as const,
+    } as const;
     const updateReturns2 = await compilation.returnOne({}, updateValues2);
     expect(updateReturns2).toBeUndefined();
     const readUser2 = await userMapperReturningID
@@ -121,6 +139,24 @@ describe('compiled updates', () => {
       // @ts-expect-error - only expected columns are returned
       updateReturns3[0].handle;
     });
+  });
+
+  it('accepts readonly parameters and updating objects', async () => {
+    const parameterization = userMapperReturningIDAndHandleAsH.parameterize<{
+      id: number;
+    }>(({ mapper, param }) =>
+      mapper.update({ id: param('id') }).columns(['name'])
+    );
+
+    const params = { id: 1 as const } as const;
+    const updateValues = {
+      name: 'Sue Rex' as const,
+      email: 'srex@abc.def' as const,
+    } as const;
+    await parameterization.run(params, updateValues);
+    await parameterization.returnAll(params, updateValues);
+    await parameterization.returnOne(params, updateValues);
+    await parameterization.returnCount(params, updateValues);
   });
 
   it('parameterizes a returning update query without transformation', async () => {
