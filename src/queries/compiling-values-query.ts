@@ -60,21 +60,20 @@ export class CompilingValuesQuery<
     return this.instantiate(this.#compiledQueryWithReturns!, params, obj);
   }
 
-  // TODO: maybe embed this if doesn't end up shared
-  private getReturningQB(): QB {
-    return this.returnColumns[0 as number] == '*'
-      ? (this.qb!.returningAll() as QB)
-      : (this.qb!.returning(
-          this.returnColumns as Readonly<(keyof Selectable<DB[TB]> & string)[]>
-        ) as QB);
-  }
-
   private compileQueries(): void {
     if (this.qb !== null) {
       this.#compiledQueryNoReturns = this.qb!.compile();
       this.#compiledQueryWithReturns = this.getReturningQB().compile();
       this.qb = null;
     }
+  }
+
+  private getReturningQB(): QB {
+    return this.returnColumns[0 as number] == '*'
+      ? (this.qb!.returningAll() as QB)
+      : (this.qb!.returning(
+          this.returnColumns as Readonly<(keyof Selectable<DB[TB]> & string)[]>
+        ) as QB);
   }
 
   private instantiate(

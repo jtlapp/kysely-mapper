@@ -9,8 +9,6 @@ import {
 import { SelectionColumn } from '../lib/type-utils';
 import { InsertTransforms } from '../mappers/table-mapper-transforms';
 
-// TODO: freeze objects
-
 /**
  * Mapping query for inserting rows into a database table.
  */

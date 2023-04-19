@@ -11,8 +11,6 @@ import {
   UpdateTransforms,
 } from '../mappers/table-mapper-transforms';
 
-// TODO: look into factoring out methods into base classes
-
 /**
  * Mapping query for updating rows from a database table.
  */
