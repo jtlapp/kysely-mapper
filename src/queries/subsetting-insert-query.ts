@@ -2,7 +2,6 @@ import { Kysely, InsertQueryBuilder, InsertResult, Insertable } from 'kysely';
 
 import { SelectionColumn } from '../lib/type-utils';
 import { MappingInsertQuery } from './insert-query';
-import { ParameterizableMappingQuery } from './parameterizable-query';
 import { CompilingMappingInsertQuery } from './compiling-insert-query';
 import { InsertTransforms } from '../mappers/table-mapper-transforms';
 
@@ -11,27 +10,24 @@ import { InsertTransforms } from '../mappers/table-mapper-transforms';
  * inserting a specified subset of the insertable columns.
  */
 export class SubsettingMappingInsertQuery<
-    DB,
-    TB extends keyof DB & string,
-    QB extends InsertQueryBuilder<DB, TB, InsertResult>,
-    InsertedObject extends object,
-    SelectedObject extends object,
-    ReturnColumns extends Readonly<SelectionColumn<DB, TB>[]> | ['*'],
-    InsertReturnsSelectedObject extends boolean,
-    DefaultReturnObject extends object
-  >
-  extends MappingInsertQuery<
-    DB,
-    TB,
-    QB,
-    InsertedObject,
-    SelectedObject,
-    ReturnColumns,
-    InsertReturnsSelectedObject,
-    DefaultReturnObject
-  >
-  implements ParameterizableMappingQuery
-{
+  DB,
+  TB extends keyof DB & string,
+  QB extends InsertQueryBuilder<DB, TB, InsertResult>,
+  InsertedObject extends object,
+  SelectedObject extends object,
+  ReturnColumns extends Readonly<SelectionColumn<DB, TB>[]> | ['*'],
+  InsertReturnsSelectedObject extends boolean,
+  DefaultReturnObject extends object
+> extends MappingInsertQuery<
+  DB,
+  TB,
+  QB,
+  InsertedObject,
+  SelectedObject,
+  ReturnColumns,
+  InsertReturnsSelectedObject,
+  DefaultReturnObject
+> {
   constructor(
     db: Kysely<DB>,
     qb: QB,
