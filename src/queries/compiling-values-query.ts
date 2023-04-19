@@ -36,7 +36,9 @@ export class CompilingValuesQuery<
     protected readonly returnColumns: Readonly<ReturnColumns>
   ) {}
 
-  protected getParameterizedObject(columnsToAllow: (keyof Values & string)[]) {
+  protected getParameterizedObject(
+    columnsToAllow: Readonly<(keyof Values & string)[]>
+  ) {
     return Object.fromEntries(
       columnsToAllow.map((col) => [col, new ColumnParameter<Values>(col)])
     ) as Values;

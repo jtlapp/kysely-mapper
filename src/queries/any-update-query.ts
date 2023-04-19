@@ -59,7 +59,7 @@ export class AnyColumnsMappingUpdateQuery<
    * @returns A mapping query that only updates the specified columns.
    */
   columns(
-    columnsToUpdate: (keyof Updateable<DB[TB]> & string)[]
+    columnsToUpdate: Readonly<(keyof Updateable<DB[TB]> & string)[]>
   ): SubsettingMappingUpdateQuery<
     DB,
     TB,

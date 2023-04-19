@@ -50,7 +50,7 @@ export class CompilingMappingUpdateQuery<
   constructor(
     db: Kysely<DB>,
     qb: QB,
-    columnsToUpdate: (keyof Updateable<DB[TB]> & string)[],
+    columnsToUpdate: Readonly<(keyof Updateable<DB[TB]> & string)[]>,
     protected readonly transforms: Readonly<
       CountTransform<ReturnCount> &
         UpdateTransforms<

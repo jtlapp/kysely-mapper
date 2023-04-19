@@ -40,7 +40,9 @@ export class SubsettingMappingUpdateQuery<
   constructor(
     db: Kysely<DB>,
     qb: QB,
-    protected readonly columnsToUpdate: (keyof Updateable<DB[TB]> & string)[],
+    protected readonly columnsToUpdate: Readonly<
+      (keyof Updateable<DB[TB]> & string)[]
+    >,
     transforms: Readonly<
       CountTransform<ReturnCount> &
         UpdateTransforms<

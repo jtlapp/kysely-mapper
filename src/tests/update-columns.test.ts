@@ -22,7 +22,7 @@ describe('updating specific columns', () => {
     const updateValues = { id: 100, name: 'Sue Rex', email: 'rex@abc.def' };
     const subsetQuery = userMapperReturningID
       .update('id', '=', insertReturns[0].id)
-      .columns(['name']);
+      .columns(['name'] as const); // allows readonly array
     const updateReturns = await subsetQuery.returnAll(updateValues);
     expect(updateReturns).toEqual([{ id: insertReturns[0].id }]);
 

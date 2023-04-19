@@ -42,7 +42,7 @@ export class CompilingMappingInsertQuery<
   constructor(
     db: Kysely<DB>,
     qb: QB,
-    columnsToInsert: (keyof Insertable<DB[TB]> & string)[],
+    columnsToInsert: Readonly<(keyof Insertable<DB[TB]> & string)[]>,
     protected readonly transforms: Readonly<
       InsertTransforms<
         DB,

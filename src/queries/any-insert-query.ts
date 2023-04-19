@@ -54,7 +54,7 @@ export class AnyColumnsMappingInsertQuery<
    * @returns A mapping query that only inserts the specified columns.
    */
   columns(
-    columnsToInsert: (keyof Insertable<DB[TB]> & string)[]
+    columnsToInsert: Readonly<(keyof Insertable<DB[TB]> & string)[]>
   ): SubsettingMappingInsertQuery<
     DB,
     TB,

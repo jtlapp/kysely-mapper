@@ -35,7 +35,9 @@ export class SubsettingMappingInsertQuery<
   constructor(
     db: Kysely<DB>,
     qb: QB,
-    protected readonly columnsToInsert: (keyof Insertable<DB[TB]> & string)[],
+    protected readonly columnsToInsert: Readonly<
+      (keyof Insertable<DB[TB]> & string)[]
+    >,
     transforms: Readonly<
       InsertTransforms<
         DB,
