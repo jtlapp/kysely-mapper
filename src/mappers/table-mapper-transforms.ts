@@ -94,7 +94,7 @@ export interface InsertTransforms<
   /**
    * Transformation to apply to inserted objects before insertion.
    */
-  insertTransform?: (obj: InsertedObject) => Insertable<DB[TB]>;
+  insertTransform?: (source: InsertedObject) => Insertable<DB[TB]>;
 
   /**
    * Transformation to apply to column values returned from inserts before
@@ -150,7 +150,7 @@ export interface UpdateTransforms<
   /**
    * Transformation to apply to objects provided for updating rows.
    */
-  updateTransform?: (update: UpdatingObject) => Updateable<DB[TB]>;
+  updateTransform?: (source: UpdatingObject) => Updateable<DB[TB]>;
 
   /**
    * Transformation to apply to column values returned from updates before
