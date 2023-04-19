@@ -34,8 +34,8 @@ export interface ParameterizableMappingQueryFactory<
     UpdateReturnsSelectedObjectWhenProvided,
     DefaultReturnObject
   >,
-  P extends ParametersObject<P>,
+  Parameters extends ParametersObject<Parameters>,
   Q extends ParameterizableMappingQuery
 > {
-  (factory: { mapper: M; param: QueryParameterMaker<P>['param'] }): Q;
+  (factory: { mapper: M; param: QueryParameterMaker<Parameters>['param'] }): Q;
 }

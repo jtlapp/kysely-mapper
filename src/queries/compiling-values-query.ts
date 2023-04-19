@@ -24,7 +24,7 @@ export class CompilingValuesQuery<
   TB extends keyof DB & string,
   QB extends ReturningInterface<DB, TB, any> & Compilable<any>,
   ReturnColumns extends Readonly<SelectionColumn<DB, TB>[]> | ['*'],
-  P extends ParametersObject<P>,
+  Parameters extends ParametersObject<Parameters>,
   Values extends Record<string, any>
 > {
   protected qb: QB | null = null;
@@ -44,12 +44,18 @@ export class CompilingValuesQuery<
     ) as Values;
   }
 
-  protected instantiateNoReturns(params: P, obj: Values): CompiledQuery<any> {
+  protected instantiateNoReturns(
+    params: Parameters,
+    obj: Values
+  ): CompiledQuery<any> {
     this.compileQueries();
     return this.instantiate(this.#compiledQueryNoReturns!, params, obj);
   }
 
-  protected instantiateWithReturns(params: P, obj: Values): CompiledQuery<any> {
+  protected instantiateWithReturns(
+    params: Parameters,
+    obj: Values
+  ): CompiledQuery<any> {
     this.compileQueries();
     return this.instantiate(this.#compiledQueryWithReturns!, params, obj);
   }
@@ -73,7 +79,7 @@ export class CompilingValuesQuery<
 
   private instantiate(
     compiledQuery: CompiledQuery<any>,
-    params: P,
+    params: Parameters,
     obj: Values
   ): CompiledQuery<any> {
     return {
@@ -83,7 +89,7 @@ export class CompilingValuesQuery<
         value instanceof ColumnParameter
           ? obj[value.columnName]
           : value instanceof ParameterizedValue
-          ? params[value.parameterName as keyof P]
+          ? params[value.parameterName as keyof Parameters]
           : value
       ),
     };

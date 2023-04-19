@@ -13,10 +13,10 @@ export class CompilingMappingSelectQuery<
   SelectedColumns extends Readonly<SelectionColumn<DB, TB>[]> | ['*'],
   SelectedObject extends object,
   QB extends SelectQueryBuilder<DB, TB, any>,
-  P extends ParametersObject<P>
+  Parameters extends ParametersObject<Parameters>
 > implements ParameterizableMappingQuery
 {
-  #parameterizedQuery: ParameterizedQuery<P, SelectedObject>;
+  #parameterizedQuery: ParameterizedQuery<Parameters, SelectedObject>;
 
   /**
    * @param db Kysely database instance.
@@ -45,7 +45,7 @@ export class CompilingMappingSelectQuery<
    *  Pass in `{}` if the query has no parameters.
    * @returns An array of objects for the selected rows, possibly empty.
    */
-  async returnAll(params: P): Promise<SelectedObject[]> {
+  async returnAll(params: Parameters): Promise<SelectedObject[]> {
     const results = await this.#parameterizedQuery.execute(this.db, params);
     return this.transforms.selectTransform === undefined
       ? (results.rows as SelectedObject[])
@@ -63,7 +63,7 @@ export class CompilingMappingSelectQuery<
    *  Pass in `{}` if the query has no parameters.
    * @returns An object for the selected rows, or null if not found.
    */
-  async returnOne(params: P): Promise<SelectedObject | null> {
+  async returnOne(params: Parameters): Promise<SelectedObject | null> {
     const result = await this.#parameterizedQuery.executeTakeFirst(
       this.db,
       params

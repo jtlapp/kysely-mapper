@@ -12,10 +12,10 @@ export class CompilingMappingDeleteQuery<
   TB extends keyof DB & string,
   QB extends DeleteQueryBuilder<DB, TB, any>,
   ReturnCount,
-  P extends ParametersObject<P>
+  Parameters extends ParametersObject<Parameters>
 > implements ParameterizableMappingQuery
 {
-  #parameterizedQuery: ParameterizedQuery<P, QueryResult<any>>;
+  #parameterizedQuery: ParameterizedQuery<Parameters, QueryResult<any>>;
 
   /**
    * @param db Kysely database instance.
@@ -41,7 +41,7 @@ export class CompilingMappingDeleteQuery<
    *  Pass in `{}` if the query has no parameters.
    * @returns Number of rows deleted, in client-requested representation.
    */
-  async returnCount(params: P): Promise<ReturnCount> {
+  async returnCount(params: Parameters): Promise<ReturnCount> {
     const result = await this.#parameterizedQuery.execute(this.db, params);
     return this.transforms.countTransform === undefined
       ? (result.numAffectedRows! as ReturnCount)
@@ -58,7 +58,7 @@ export class CompilingMappingDeleteQuery<
    *  Pass in `{}` if the query has no parameters.
    * @returns `true` if any rows were deleted, `false` otherwise.
    */
-  async run(params: P): Promise<boolean> {
+  async run(params: Parameters): Promise<boolean> {
     const results = await this.#parameterizedQuery.execute(this.db, params);
     return results.numAffectedRows !== BigInt(0);
   }

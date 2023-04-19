@@ -65,11 +65,13 @@ export class SubsettingMappingUpdateQuery<
    * different parameters (if any parameters were provided), but which only
    * compiles the underlying Kysely query builder on the first execution.
    * Frees the query builder on the first execution to reduce memory usage.
-   * @typeparam P Record characterizing the parameter names and types
-   *  that were previously embedded in the query, if any.
+   * @typeparam Parameters Record characterizing the parameter names and
+   *  types that were previously embedded in the query, if any.
    * @returns A compiling update query.
    */
-  compile<P extends ParametersObject<P> = {}>(): CompilingMappingUpdateQuery<
+  compile<
+    Parameters extends ParametersObject<Parameters> = {}
+  >(): CompilingMappingUpdateQuery<
     DB,
     TB,
     QB,
@@ -79,7 +81,7 @@ export class SubsettingMappingUpdateQuery<
     ReturnCount,
     UpdateReturnsSelectedObjectWhenProvided,
     DefaultReturnObject,
-    P
+    Parameters
   > {
     return new CompilingMappingUpdateQuery(
       this.db,

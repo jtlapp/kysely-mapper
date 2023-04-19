@@ -228,17 +228,18 @@ export abstract class AbstractTableMapper<
    * Creates and returns a parameterized mapping query, which can be repeatedly
    * executed with different parameter values, but which only ever compiles
    * the underlying Kysely query once (on the first execution).
-   * @paramtype P Record characterizing the available parameter names and types.
+   * @paramtype Parameters Record characterizing the available parameter names
+   *  and types.
    * @param factory Function that receives an object of the form `{ mapper,
    *  param }`, where `mapper` is the present table mapper and `param` is a
    *  function for creating parameters. The argument to `param` is the name of
-   *  the parameter, which must occur as a property of `P`. You may parameterize
-   *  inserted values, updated values, and right-hand-side values of filters.
-   *  Parameters may not be arrays, but you can parameterize the individual
-   *  elements of an array. Returns a parameterized mapping query.
+   *  the parameter, which must occur as a property of `Parameters`. You may
+   *  parameterize inserted values, updated values, and right-hand-side values
+   *  of filters. Parameters may not be arrays, but you can parameterize the
+   *  individual elements of an array. Returns a parameterized mapping query.
    * @returns A parameterized mapping query
    */
-  parameterize<P extends ParametersObject<P>>(
+  parameterize<Parameters extends ParametersObject<Parameters>>(
     factory: ParameterizableMappingQueryFactory<
       DB,
       TB,
@@ -253,7 +254,7 @@ export abstract class AbstractTableMapper<
       UpdateReturnsSelectedObjectWhenProvided,
       DefaultReturnObject,
       this,
-      P,
+      Parameters,
       MappingDeleteQuery<
         DB,
         TB,
@@ -266,10 +267,10 @@ export abstract class AbstractTableMapper<
     TB,
     DeleteQueryBuilder<DB, TB, DeleteResult>,
     ReturnCount,
-    P
+    Parameters
   >;
 
-  parameterize<P extends ParametersObject<P>>(
+  parameterize<Parameters extends ParametersObject<Parameters>>(
     factory: ParameterizableMappingQueryFactory<
       DB,
       TB,
@@ -284,7 +285,7 @@ export abstract class AbstractTableMapper<
       UpdateReturnsSelectedObjectWhenProvided,
       DefaultReturnObject,
       this,
-      P,
+      Parameters,
       MappingSelectQuery<
         DB,
         TB,
@@ -299,10 +300,10 @@ export abstract class AbstractTableMapper<
     SelectedColumns,
     SelectedObject,
     SelectQueryBuilder<DB, TB, object>,
-    P
+    Parameters
   >;
 
-  parameterize<P extends ParametersObject<P>>(
+  parameterize<Parameters extends ParametersObject<Parameters>>(
     factory: ParameterizableMappingQueryFactory<
       DB,
       TB,
@@ -317,7 +318,7 @@ export abstract class AbstractTableMapper<
       UpdateReturnsSelectedObjectWhenProvided,
       DefaultReturnObject,
       this,
-      P,
+      Parameters,
       SubsettingMappingUpdateQuery<
         DB,
         TB,
@@ -340,10 +341,10 @@ export abstract class AbstractTableMapper<
     ReturnCount,
     UpdateReturnsSelectedObjectWhenProvided,
     DefaultReturnObject,
-    P
+    Parameters
   >;
 
-  parameterize<P extends ParametersObject<P>>(
+  parameterize<Parameters extends ParametersObject<Parameters>>(
     factory: ParameterizableMappingQueryFactory<
       DB,
       TB,
@@ -358,11 +359,11 @@ export abstract class AbstractTableMapper<
       UpdateReturnsSelectedObjectWhenProvided,
       DefaultReturnObject,
       this,
-      P,
+      Parameters,
       any
     >
   ): any {
-    const parameterMaker = new QueryParameterMaker<P>();
+    const parameterMaker = new QueryParameterMaker<Parameters>();
     return factory({
       mapper: this,
       param: parameterMaker.param.bind(parameterMaker),

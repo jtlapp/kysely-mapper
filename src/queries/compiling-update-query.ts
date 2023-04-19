@@ -21,13 +21,13 @@ export class CompilingMappingUpdateQuery<
   ReturnCount,
   UpdateReturnsSelectedObjectWhenProvided extends boolean,
   DefaultReturnObject extends object,
-  P extends ParametersObject<P>
+  Parameters extends ParametersObject<Parameters>
 > extends CompilingValuesQuery<
   DB,
   TB,
   QB,
   ReturnColumns,
-  P,
+  Parameters,
   Updateable<DB[TB]>
 > {
   /**
@@ -80,7 +80,10 @@ export class CompilingMappingUpdateQuery<
    * @param obj The object which which to update the rows.
    * @returns Number of rows updated, in client-requested representation.
    */
-  async returnCount(params: P, obj: UpdatingObject): Promise<ReturnCount> {
+  async returnCount(
+    params: Parameters,
+    obj: UpdatingObject
+  ): Promise<ReturnCount> {
     const transformedObj = this.applyUpdateTransform(obj);
     const compiledQuery = this.instantiateNoReturns(params, transformedObj);
     const result = await this.db.executeQuery(compiledQuery);
@@ -105,7 +108,7 @@ export class CompilingMappingUpdateQuery<
    *  object for each row updated; otherwise returns `undefined`.
    */
   returnAll(
-    params: P,
+    params: Parameters,
     obj: SelectedObject
   ): Promise<
     ReturnColumns extends []
@@ -116,12 +119,12 @@ export class CompilingMappingUpdateQuery<
   >;
 
   returnAll(
-    params: P,
+    params: Parameters,
     obj: UpdatingObject
   ): Promise<ReturnColumns extends [] ? void : DefaultReturnObject[]>;
 
   async returnAll(
-    params: P,
+    params: Parameters,
     obj: UpdatingObject | SelectedObject
   ): Promise<SelectedObject[] | DefaultReturnObject[] | void> {
     if (this.returnColumns.length === 0) {
@@ -155,7 +158,7 @@ export class CompilingMappingUpdateQuery<
    *  no rows were updated.
    */
   returnOne(
-    params: P,
+    params: Parameters,
     obj: SelectedObject
   ): Promise<
     ReturnColumns extends []
@@ -168,12 +171,12 @@ export class CompilingMappingUpdateQuery<
   >;
 
   returnOne(
-    params: P,
+    params: Parameters,
     obj: UpdatingObject
   ): Promise<ReturnColumns extends [] ? void : DefaultReturnObject | null>;
 
   async returnOne(
-    params: P,
+    params: Parameters,
     obj: UpdatingObject | SelectedObject
   ): Promise<SelectedObject | DefaultReturnObject | null | void> {
     if (this.returnColumns.length === 0) {
@@ -201,7 +204,7 @@ export class CompilingMappingUpdateQuery<
    * @param obj The object which which to update the rows.
    * @returns `true` if any rows were updated, `false` otherwise.
    */
-  async run(params: P, obj: UpdatingObject): Promise<boolean> {
+  async run(params: Parameters, obj: UpdatingObject): Promise<boolean> {
     return (await this.returnCount(params, obj)) !== 0;
   }
 

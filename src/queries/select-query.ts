@@ -35,17 +35,19 @@ export class MappingSelectQuery<
    * different parameters (if any parameters were provided), but which only
    * compiles the underlying Kysely query builder on the first execution.
    * Frees the query builder on the first execution to reduce memory usage.
-   * @typeparam P Record characterizing the parameter names and types
-   *  that were previously embedded in the query, if any.
+   * @typeparam Parameters Record characterizing the parameter names and
+   *  types that were previously embedded in the query, if any.
    * @returns A compiling select query.
    */
-  compile<P extends ParametersObject<P> = {}>(): CompilingMappingSelectQuery<
+  compile<
+    Parameters extends ParametersObject<Parameters> = {}
+  >(): CompilingMappingSelectQuery<
     DB,
     TB,
     SelectedColumns,
     SelectedObject,
-    SelectQueryBuilder<DB, TB, P>,
-    P
+    SelectQueryBuilder<DB, TB, Parameters>,
+    Parameters
   > {
     return new CompilingMappingSelectQuery(this.db, this.qb, this.transforms);
   }
