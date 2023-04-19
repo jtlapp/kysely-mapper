@@ -86,12 +86,7 @@ export class CompilingMappingInsertQuery<
 
   async returnOne(
     obj: InsertedObject
-  ): Promise<
-    | (InsertReturnsSelectedObject extends true
-        ? SelectedObject
-        : DefaultReturnObject)
-    | void
-  > {
+  ): Promise<SelectedObject | DefaultReturnObject | void> {
     if (this.returnColumns.length === 0) {
       await this.run(obj);
       return;
