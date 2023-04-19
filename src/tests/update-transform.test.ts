@@ -71,7 +71,7 @@ describe('updating with transformation', () => {
     ]);
   });
 
-  it('transforms update return without transforming update', async () => {
+  it('transforms update return into object without transforming update', async () => {
     const updateReturnTransformMapper = new TableMapper(db, 'users', {
       returnColumns: ['id'],
     }).withTransforms({
@@ -88,10 +88,11 @@ describe('updating with transformation', () => {
     const insertReturn = await updateReturnTransformMapper
       .insert()
       .returnOne(userRow1);
-    const updateReturn = await updateReturnTransformMapper
+
+    const updateReturn1 = await updateReturnTransformMapper
       .update({ id: insertReturn.id })
       .returnAll({ name: 'Suzanne Smith' });
-    expect(updateReturn).toEqual([
+    expect(updateReturn1).toEqual([
       new ReturnedUser(
         insertReturn.id,
         'Suzanne',
@@ -100,6 +101,50 @@ describe('updating with transformation', () => {
         '(email)'
       ),
     ]);
+    // Ensure the returned value is accessible as a ReturnedUser
+    ((_: string) => {})(updateReturn1[0].firstName);
+
+    const updateReturn2 = await updateReturnTransformMapper
+      .update({ id: insertReturn.id })
+      .returnOne({ name: 'Suzanne Smithy' });
+    expect(updateReturn2).toEqual(
+      new ReturnedUser(
+        insertReturn.id,
+        'Suzanne',
+        'Smithy',
+        '(handle)',
+        '(email)'
+      )
+    );
+    // Ensure the returned value is accessible as a ReturnedUser
+    ((_: string) => {})(updateReturn2!.firstName);
+  });
+
+  it('transforms update return into primitive without transforming update', async () => {
+    const updateReturnTransformMapper = new TableMapper(db, 'users', {
+      returnColumns: ['id'],
+    }).withTransforms({
+      insertReturnTransform: (_source, returns) => returns.id,
+      updateReturnTransform: (_source, returns) => returns.id,
+    });
+
+    const insertReturn = await updateReturnTransformMapper
+      .insert()
+      .returnOne(userRow1);
+
+    const updateReturn1 = await updateReturnTransformMapper
+      .update({ id: insertReturn })
+      .returnAll({ name: 'Suzanne Smith' });
+    expect(updateReturn1).toEqual([1]);
+    // Ensure the returned value is accessible as a number
+    ((_: number) => {})(updateReturn1[0]);
+
+    const updateReturn2 = await updateReturnTransformMapper
+      .update({ id: insertReturn })
+      .returnOne({ name: 'Suzanne Smithy' });
+    expect(updateReturn2).toEqual(1);
+    // Ensure the returned value is accessible as a number
+    ((_: number) => {})(updateReturn2!);
   });
 
   it('transforms update and update return', async () => {
@@ -136,6 +181,8 @@ describe('updating with transformation', () => {
         userObject1.email
       ),
     ]);
+    // Ensure the returned value is accessible as a ReturnedUser
+    ((_: string) => {})(updateReturn[0].firstName);
   });
 
   it('variably transforms update and update return for returnOne()', async () => {
