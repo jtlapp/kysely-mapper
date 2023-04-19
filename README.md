@@ -190,6 +190,11 @@ const table = new TableMapper(db, 'users', {
 });
 ```
 
+This table mapper creates a new `User` from an inserted `User` and the auto-incremented return ID. It could instead have set the ID in the inserted `User` and returned that object, or it could have simply returned the ID instead of an object.
+
+TODO: I think the following means that insert and update returns need different types.
+The above table mapper cannot be used with updates that return values via `returnOne()` or `returnAll()`; it can only be used with `run()` or `returnCount()`. This is because, except in special circumstances described later, `insertReturnTransform` and `updateReturnTransform` must return an object of the same type. `updateReturnTransform` is not defined here, leaving updates to return an object containing the return columns. In this case, when you attempt to access values returned from an update, TypeScript assumes you're accessing a `User` when you are not. To avoid this confusion, it's best to define both `insertReturnTransform` and `updateReturnTransform` when you define either.
+
 ## License
 
 MIT License. Copyright &copy; 2023 Joseph T. Lapp
