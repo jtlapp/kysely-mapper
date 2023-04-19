@@ -16,7 +16,8 @@ import {
   Updateable,
 } from 'kysely';
 
-import { QueryFilter, applyQueryFilter } from '../lib/query-filter';
+import { QueryFilter } from '../lib/query-filter';
+import { applyQueryFilter } from '../lib/apply-query-filter';
 import {
   SelectableColumnTuple,
   SelectedRow,
