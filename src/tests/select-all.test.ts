@@ -23,9 +23,13 @@ afterAll(() => destroyDB(db));
 
 describe('selecting all returns', () => {
   it('accepts readonly filters', async () => {
-    const filter = { name: 'Not There' as const } as const;
-    await userMapper.select(filter).returnAll();
-    await userMapper.select(filter).returnOne();
+    const filter1 = { name: 'Not There' as const } as const;
+    await userMapper.select(filter1).returnAll();
+    await userMapper.select(filter1).returnOne();
+
+    const filter2 = { name: ['name1', 'name2'] as const } as const;
+    await userMapper.select(filter2).returnAll();
+    await userMapper.select(filter2).returnOne();
   });
 
   it('selects nothing when nothing matches filter', async () => {

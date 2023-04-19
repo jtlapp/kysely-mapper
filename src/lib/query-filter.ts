@@ -51,7 +51,7 @@ export type FieldMatchingFilter<
 > = {
   [K in RE & string]?:
     | SelectType<ExtractTypeFromStringReference<DB, TB, K>>
-    | SelectType<ExtractTypeFromStringReference<DB, TB, K>>[];
+    | Readonly<SelectType<ExtractTypeFromStringReference<DB, TB, K>>[]>;
 };
 
 /**
