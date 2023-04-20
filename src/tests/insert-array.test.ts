@@ -42,7 +42,7 @@ beforeAll(async () => {
   userMapperReturningID = createUserMapperReturningID(db);
   userMapperReturningAll = createUserMapperReturningAll(db);
   postTableMapperReturningIDAndTitleAsT = new TableMapper(db, 'posts', {
-    returnColumns: ['id', 'title as t'],
+    insertReturnColumns: ['id', 'title as t'],
   }).withTransforms({
     countTransform: (count) => Number(count),
   });

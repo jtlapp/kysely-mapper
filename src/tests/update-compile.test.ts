@@ -246,7 +246,8 @@ describe('compiled updates', () => {
 
   it('compiles an update query with transformation', async () => {
     const transformMapper = new TableMapper(db, 'users', {
-      returnColumns: ['*'],
+      insertReturnColumns: ['*'],
+      updateReturnColumns: ['*'],
     }).withTransforms({
       selectTransform: (row) => {
         const names = row.name.split(' ');
@@ -363,7 +364,8 @@ describe('compiled updates', () => {
 
   it('parameterizes an update query with transformation', async () => {
     const transformMapper = new TableMapper(db, 'users', {
-      returnColumns: ['id'],
+      insertReturnColumns: ['id'],
+      updateReturnColumns: ['id'],
     }).withTransforms({
       selectTransform: (row) => {
         const names = row.name.split(' ');

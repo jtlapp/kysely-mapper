@@ -58,7 +58,8 @@ describe('inserting with transformation', () => {
 
   it('transforms insertion return into object without transforming insertion', async () => {
     const insertReturnTransformMapper = new TableMapper(db, 'users', {
-      returnColumns: ['id', 'name'],
+      insertReturnColumns: ['id', 'name'],
+      updateReturnColumns: ['id', 'name'],
     }).withTransforms({
       insertReturnTransform: (source, returns) => {
         const names = returns.name.split(' ');
@@ -94,7 +95,7 @@ describe('inserting with transformation', () => {
 
   it('transforms insertion return into primitive without transforming insertion', async () => {
     const insertReturnTransformMapper = new TableMapper(db, 'users', {
-      returnColumns: ['id'],
+      insertReturnColumns: ['id'],
     }).withTransforms({
       insertReturnTransform: (_source, returns) => returns.id,
       countTransform: (count) => Number(count),
@@ -117,7 +118,7 @@ describe('inserting with transformation', () => {
 
   it('transforms insertion and insertion return', async () => {
     const insertAndReturnTransformMapper = new TableMapper(db, 'users', {
-      returnColumns: ['id'],
+      insertReturnColumns: ['id'],
     }).withTransforms({
       insertTransform: (source: InsertedUser) => ({
         name: `${source.firstName} ${source.lastName}`,
@@ -152,7 +153,8 @@ describe('inserting with transformation', () => {
 
   it('returns SelectedObject with updates returning rows', async () => {
     const transformMapper = new TableMapper(db, 'users', {
-      returnColumns: ['id', 'name'],
+      insertReturnColumns: ['id', 'name'],
+      updateReturnColumns: ['id', 'name'],
     }).withTransforms({
       insertReturnTransform: (source, results) => {
         const names = results.name.split(' ');

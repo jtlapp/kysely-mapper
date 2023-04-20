@@ -19,11 +19,9 @@ export class MappingUpdateQuery<
   TB extends keyof DB & string,
   QB extends UpdateQueryBuilder<DB, TB, TB, UpdateResult>,
   UpdatingObject extends object,
-  SelectedObject extends object,
-  ReturnColumns extends Readonly<SelectionColumn<DB, TB>[]> | ['*'],
+  UpdateReturnColumns extends Readonly<SelectionColumn<DB, TB>[]> | ['*'],
   ReturnCount,
-  UpdateReturnsSelectedObjectWhenProvided extends boolean,
-  DefaultUpdateReturn
+  UpdateReturn
 > {
   #returningQB: UpdateQueryBuilder<DB, TB, TB, any> | null = null;
 
@@ -35,14 +33,12 @@ export class MappingUpdateQuery<
         UpdateTransforms<
           DB,
           TB,
-          SelectedObject,
           UpdatingObject,
-          ReturnColumns,
-          UpdateReturnsSelectedObjectWhenProvided,
-          DefaultUpdateReturn
+          UpdateReturnColumns,
+          UpdateReturn
         >
     >,
-    protected readonly returnColumns: Readonly<ReturnColumns>
+    protected readonly returnColumns: Readonly<UpdateReturnColumns>
   ) {}
 
   /**
@@ -57,11 +53,9 @@ export class MappingUpdateQuery<
     TB,
     NextQB,
     UpdatingObject,
-    SelectedObject,
-    ReturnColumns,
+    UpdateReturnColumns,
     ReturnCount,
-    UpdateReturnsSelectedObjectWhenProvided,
-    DefaultUpdateReturn
+    UpdateReturn
   > {
     return new MappingUpdateQuery(
       this.db,
@@ -91,30 +85,16 @@ export class MappingUpdateQuery<
    * Updates rows with the values that result from transforming the object via
    * `updateTransform` (if defined). For each row updated, retrieves the
    * columns specified in `returnColumns` (if defined), returning them to the
-   * caller as either `DefaultUpdateReturn` or `SelectedObject`, depending
-   * on whether `UpdateReturnsSelectedObjectWhenProvided` is `true` and the
-   * provided object is a `SelectedObject`, after transformation by
+   * caller as an `UpdateReturn`, after transformation by any provided
    * `updateReturnTransform`. If `returnColumns` is empty, returns `undefined`.
    * @returns If `returnColumns` is not empty, returns an array containing one
    *  object for each row updated; otherwise returns `undefined`.
    */
   returnAll(
-    obj: SelectedObject
-  ): Promise<
-    ReturnColumns extends []
-      ? void
-      : UpdateReturnsSelectedObjectWhenProvided extends true
-      ? SelectedObject[]
-      : DefaultUpdateReturn[]
-  >;
-
-  returnAll(
     obj: UpdatingObject
-  ): Promise<ReturnColumns extends [] ? void : DefaultUpdateReturn[]>;
+  ): Promise<UpdateReturnColumns extends [] ? void : UpdateReturn[]>;
 
-  async returnAll(
-    obj: UpdatingObject | SelectedObject
-  ): Promise<SelectedObject[] | DefaultUpdateReturn[] | void> {
+  async returnAll(obj: UpdatingObject): Promise<UpdateReturn[] | void> {
     if (this.returnColumns.length === 0) {
       await this.loadUpdatingObject(this.qb, obj as UpdatingObject).execute();
       return;
@@ -137,33 +117,17 @@ export class MappingUpdateQuery<
    * Updates rows with the values that result from transforming the object via
    * `updateTransform` (if defined). For the first row updated, retrieves the
    * columns specified in `returnColumns` (if defined), returning them to the
-   * caller as either `DefaultUpdateReturn` or `SelectedObject`, depending
-   * on whether `UpdateReturnsSelectedObjectWhenProvided` is `true` and the
-   * provided object is a `SelectedObject`, after transformation by
+   * caller as an `UpdateReturn`, after transformation by any provided
    * `updateReturnTransform`. If `returnColumns` is empty, returns `undefined`.
    * @returns If `returnColumns` is empty, returns `undefined`. Otherwise,
    *  returns the first object if at least one row was updated, or `null` if
    *  no rows were updated.
    */
   returnOne(
-    obj: SelectedObject
-  ): Promise<
-    ReturnColumns extends []
-      ? void
-      :
-          | (UpdateReturnsSelectedObjectWhenProvided extends true
-              ? SelectedObject
-              : DefaultUpdateReturn)
-          | null
-  >;
-
-  returnOne(
     obj: UpdatingObject
-  ): Promise<ReturnColumns extends [] ? void : DefaultUpdateReturn | null>;
+  ): Promise<UpdateReturnColumns extends [] ? void : UpdateReturn | null>;
 
-  async returnOne(
-    obj: UpdatingObject | SelectedObject
-  ): Promise<SelectedObject | DefaultUpdateReturn | null | void> {
+  async returnOne(obj: UpdatingObject): Promise<UpdateReturn | null | void> {
     if (this.returnColumns.length === 0) {
       await this.loadUpdatingObject(this.qb, obj as UpdatingObject).execute();
       return;

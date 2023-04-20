@@ -8,23 +8,22 @@ import { SelectableColumnTuple, SelectionColumn } from '../lib/type-utils';
  *  Defaults to `[]`, indicating no key columns.
  * @typeparam SelectedColumns Columns to return from selection queries.
  *  Defaults to `['*']`, returning all columns. May specify aliases.
- * @typeparam ReturnColumns Columns to return from the table on insert or
- *  update, except when explicitly requesting no columns. `['*']` returns
- *  all columns; `[]` returns none and is the default. May specify aliases.
- *  Defaults to `KeyColumns`.
- * @typeparam UpdateReturnsSelectedObjectWhenProvided Whether update queries
- *  return `SelectedObject` when the updating object is a `SelectedObject`;
- *  update queries otherwise return `DefaultUpdateReturn`.
+ * @typeparam InsertReturnColumns Columns to return from the table on insert
+ *  queries that return columns. `['*']` returns all columns; `[]` returns
+ *  none. May specify aliases. Defaults to `KeyColumns`.
+ * @typeparam UpdateReturnColumns Columns to return from the table on update
+ *  queries that return columns. `['*']` returns all columns; `[]` returns
+ *  none and is the default. May specify aliases.
  */
 export interface TableMapperSettings<
   DB,
   TB extends keyof DB & string,
   KeyColumns extends Readonly<SelectableColumnTuple<DB[TB]>> | [] = [],
   SelectedColumns extends Readonly<SelectionColumn<DB, TB>[]> | ['*'] = ['*'],
-  ReturnColumns extends
+  InsertReturnColumns extends
     | Readonly<SelectionColumn<DB, TB>[]>
-    | ['*'] = KeyColumns,
-  UpdateReturnsSelectedObjectWhenProvided extends boolean = false
+    | ['*'] = Readonly<KeyColumns>,
+  UpdateReturnColumns extends Readonly<SelectionColumn<DB, TB>[]> | ['*'] = []
 > {
   /** Tuple of the columns that make up the table's key. May be `[]`. */
   keyColumns?: KeyColumns;
@@ -36,15 +35,17 @@ export interface TableMapperSettings<
   selectedColumns?: SelectedColumns;
 
   /**
-   * Whether update queries return `SelectedObject` when the updating object
-   * is a `SelectedObject`; update queries otherwise return `DefaultUpdateReturn`.
+   * Columns to return from the table on insert queries that return columns.
+   * `['*']` returns all columns; `[]` returns none. May specify aliases.
+   * Defaults to `KeyColumns`.
    */
-  updateReturnsSelectedObjectWhenProvided?: UpdateReturnsSelectedObjectWhenProvided;
+
+  insertReturnColumns?: InsertReturnColumns;
 
   /**
-   * Columns to return from the table on insert or update, unless explicitly
-   * requesting no columns. `['*']` returns all columns; `[]` returns none.
-   * May contain aliases.
+   * Columns to return from the table on update queries that return columns.
+   * `['*']` returns all columns; `[]` returns none and is the default. May
+   * specify aliases.
    */
-  returnColumns?: ReturnColumns;
+  updateReturnColumns?: UpdateReturnColumns;
 }

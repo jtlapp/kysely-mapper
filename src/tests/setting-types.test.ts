@@ -15,17 +15,19 @@ beforeEach(() => resetDB(db));
 afterAll(() => destroyDB(db));
 
 describe('table mapper setting type checks', () => {
-  ignore('detects invalid return column configurations', () => {
-    new TableMapper<
-      Database,
-      'users',
-      ['id']
+  ignore('detects invalid return columns configurations', () => {
+    new TableMapper<Database, 'users', ['id']>(db, 'users', {
       // @ts-expect-error - invalid return column configuration
-    >(db, 'users', { returnColumns: ['notThere'] });
+      insertReturnColumns: ['notThere'],
+      // @ts-expect-error - invalid return column configuration
+      updateReturnColumns: ['notThere'],
+    });
 
     new TableMapper<Database, 'users', ['id']>(db, 'users', {
       // @ts-expect-error - actual and declared return types must match
-      returnColumns: ['id', 'name'],
+      insertReturnColumns: ['id', 'name'],
+      // @ts-expect-error - actual and declared return types must match
+      updateReturnColumns: ['id', 'name'],
     });
 
     new TableMapper<
@@ -50,26 +52,32 @@ describe('table mapper setting type checks', () => {
       Insertable<Users>,
       Updateable<Users>,
       bigint,
+      ['name'],
       // @ts-expect-error - invalid return column configuration
       ['name', 'notThere']
     >(db, 'users', {});
 
-    new TableMapper<
-      Database,
-      'users',
-      ['id']
+    new TableMapper<Database, 'users', ['id']>(db, 'users', {
       // @ts-expect-error - invalid return column configuration
-    >(db, 'users', { returnColumns: [''] });
+      insertReturnColumns: [''],
+      // @ts-expect-error - invalid return column configuration
+      updateReturnColumns: [''],
+    });
 
-    new TableMapper<
-      Database,
-      'users',
-      ['id']
+    new TableMapper<Database, 'users', ['id']>(db, 'users', {
       // @ts-expect-error - invalid return column configuration
-    >(db, 'users', { returnColumns: ['notThere'] });
+      insertReturnColumns: ['notThere'],
+      // @ts-expect-error - invalid return column configuration
+      updateReturnColumns: ['notThere'],
+    });
 
     class TestMapper6<
-      ReturnColumns extends SelectionColumn<Database, 'users'>[] | ['*'] = []
+      InsertReturnColumns extends
+        | SelectionColumn<Database, 'users'>[]
+        | ['*'] = [],
+      UpdateReturnColumns extends
+        | SelectionColumn<Database, 'users'>[]
+        | ['*'] = []
     > extends TableMapper<
       Database,
       'users',
@@ -79,10 +87,15 @@ describe('table mapper setting type checks', () => {
       Insertable<Users>,
       Updateable<Users>,
       number,
-      ReturnColumns
+      InsertReturnColumns,
+      UpdateReturnColumns
     > {}
-    // @ts-expect-error - invalid return column configuration
-    new TestMapper6(db, 'users', { returnColumns: ['notThere'] });
+    new TestMapper6(db, 'users', {
+      // @ts-expect-error - invalid return column configuration
+      insertReturnColumns: ['notThere'],
+      // @ts-expect-error - invalid return column configuration
+      updateReturnColumns: ['notThere'],
+    });
 
     new TableMapper<
       Database,
@@ -96,24 +109,37 @@ describe('table mapper setting type checks', () => {
       ['id', 'name']
     >(db, 'users', {
       // @ts-expect-error - actual and declared return types must match
-      returnColumns: ['id'],
+      insertReturnColumns: ['id'],
+      // @ts-expect-error - actual and declared return types must match
+      updateReturnColumns: ['id'],
     });
 
-    new TableMapper<Database, 'users', [], any, any, any, any, number, ['*']>(
-      db,
+    new TableMapper<
+      Database,
       'users',
-      {
-        // @ts-expect-error - actual and declared return types must match
-        returnColumns: ['id'],
-      }
-    );
+      [],
+      any,
+      any,
+      any,
+      any,
+      number,
+      ['*'],
+      ['*']
+    >(db, 'users', {
+      // @ts-expect-error - actual and declared return types must match
+      insertReturnColumns: ['id'],
+      // @ts-expect-error - actual and declared return types must match
+      updateReturnColumns: ['id'],
+    });
 
-    new TableMapper<Database, 'users', [], any, any, any, any, number, []>(
+    new TableMapper<Database, 'users', [], any, any, any, any, number, [], []>(
       db,
       'users',
       {
         // @ts-expect-error - actual and declared return types must match
-        returnColumns: ['id'],
+        insertReturnColumns: ['id'],
+        // @ts-expect-error - actual and declared return types must match
+        updateReturnColumns: ['id'],
       }
     );
   });
@@ -152,7 +178,7 @@ describe('table mapper setting type checks', () => {
     >(db, 'users', {});
   });
 
-  it('accepts readonly ReturnColumns', () => {
+  it('accepts readonly return columns', () => {
     new TableMapper<
       Database,
       'users',
@@ -162,12 +188,16 @@ describe('table mapper setting type checks', () => {
       Insertable<Users>,
       Updateable<Users>,
       bigint,
-      Readonly<['id']> // should not error
+      Readonly<['id']>, // should not error
+      Readonly<['name']> // should not error
     >(db, 'users', {});
   });
 
   it('accepts readonly settings', () => {
-    const settings = { returnColumns: ['id'] as const } as const;
+    const settings = {
+      insertReturnColumns: ['id'] as const,
+      updateReturnColumns: ['name'] as const,
+    } as const;
     new TableMapper(db, 'users', settings);
   });
 });

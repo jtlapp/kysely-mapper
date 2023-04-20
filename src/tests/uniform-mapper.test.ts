@@ -24,11 +24,19 @@ describe('uniform table mapper', () => {
       ) {}
     }
 
-    const userMapper = new UniformTableMapper<Database, 'users', MappedUser>(
-      db,
+    const userMapper = new UniformTableMapper<
+      Database,
       'users',
-      { isMappedObject: (obj) => obj instanceof MappedUser }
-    );
+      MappedUser,
+      ['id'],
+      ['*'],
+      bigint,
+      ['id'],
+      ['id', 'name']
+    >(db, 'users', {
+      isMappedObject: (obj) => obj instanceof MappedUser,
+      updateReturnColumns: ['id', 'name'],
+    });
 
     // test updating a non-existent user
     const userWithID = new MappedUser(
@@ -145,6 +153,7 @@ describe('uniform table mapper', () => {
 
     const userMapper = new UniformTableMapper(db, 'users', {
       isMappedObject: (obj) => obj instanceof MappedUser,
+      updateReturnColumns: ['id'],
     }).withTransforms({
       insertTransform: (user: MappedUser) => ({
         name: `${user.firstName} ${user.lastName}`,
@@ -297,6 +306,7 @@ describe('uniform table mapper', () => {
 
     const userMapper = new UniformTableMapper(db, 'users', {
       isMappedObject: (obj) => obj instanceof MappedUser,
+      updateReturnColumns: ['id'],
     }).withTransforms({
       insertTransform: (user: MappedUser) => ({
         name: `${user.firstName} ${user.lastName}`,

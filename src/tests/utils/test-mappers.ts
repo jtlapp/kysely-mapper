@@ -17,7 +17,10 @@ export function createUserMapperReturningNothing(db: Kysely<Database>) {
 }
 
 export function createUserMapperReturningID(db: Kysely<Database>) {
-  return new TableMapper(db, 'users', { keyColumns: ['id'] }).withTransforms({
+  return new TableMapper(db, 'users', {
+    keyColumns: ['id'],
+    updateReturnColumns: ['id'],
+  }).withTransforms({
     countTransform,
   });
 }
@@ -25,19 +28,24 @@ export function createUserMapperReturningID(db: Kysely<Database>) {
 export function createUserMapperReturningIDAndHandleAsH(db: Kysely<Database>) {
   return new TableMapper(db, 'users', {
     keyColumns: ['id'],
-    returnColumns: ['id', 'handle as h'],
+    insertReturnColumns: ['id', 'handle as h'],
+    updateReturnColumns: ['id', 'handle as h'],
   }).withTransforms({ countTransform });
 }
 
 export function createUserMapperReturningAll(db: Kysely<Database>) {
-  return new TableMapper(db, 'users', { returnColumns: ['*'] }).withTransforms({
+  return new TableMapper(db, 'users', {
+    insertReturnColumns: ['*'],
+    updateReturnColumns: ['*'],
+  }).withTransforms({
     countTransform,
   });
 }
 
 export function createInsertTransformMapper(db: Kysely<Database>) {
   return new TableMapper(db, 'users', {
-    returnColumns: ['id'],
+    insertReturnColumns: ['id'],
+    updateReturnColumns: ['id'],
   }).withTransforms({
     insertTransform: (source: InsertedUser) => ({
       name: `${source.firstName} ${source.lastName}`,

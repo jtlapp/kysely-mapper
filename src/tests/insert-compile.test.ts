@@ -18,7 +18,7 @@ afterAll(() => destroyDB(db));
 describe('compiled insertions', () => {
   it('compiles an insert query with transformation', async () => {
     const transformMapper = new TableMapper(db, 'users', {
-      returnColumns: ['id'],
+      insertReturnColumns: ['id'],
     }).withTransforms({
       selectTransform: (row) => {
         const names = row.name.split(' ');

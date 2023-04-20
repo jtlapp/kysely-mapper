@@ -14,14 +14,14 @@ export class SubsettingMappingInsertQuery<
   TB extends keyof DB & string,
   QB extends InsertQueryBuilder<DB, TB, InsertResult>,
   InsertedObject extends object,
-  ReturnColumns extends Readonly<SelectionColumn<DB, TB>[]> | ['*'],
+  InsertReturnColumns extends Readonly<SelectionColumn<DB, TB>[]> | ['*'],
   InsertReturn
 > extends MappingInsertQuery<
   DB,
   TB,
   QB,
   InsertedObject,
-  ReturnColumns,
+  InsertReturnColumns,
   InsertReturn
 > {
   constructor(
@@ -31,9 +31,15 @@ export class SubsettingMappingInsertQuery<
       (keyof Insertable<DB[TB]> & string)[]
     >,
     transforms: Readonly<
-      InsertTransforms<DB, TB, InsertedObject, ReturnColumns, InsertReturn>
+      InsertTransforms<
+        DB,
+        TB,
+        InsertedObject,
+        InsertReturnColumns,
+        InsertReturn
+      >
     >,
-    returnColumns: Readonly<ReturnColumns>
+    returnColumns: Readonly<InsertReturnColumns>
   ) {
     super(db, qb, transforms, returnColumns);
   }
@@ -52,7 +58,7 @@ export class SubsettingMappingInsertQuery<
     TB,
     QB,
     InsertedObject,
-    ReturnColumns,
+    InsertReturnColumns,
     InsertReturn
   > {
     return new CompilingMappingInsertQuery(

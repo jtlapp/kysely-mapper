@@ -26,10 +26,12 @@ export const DEFAULT_KEY = ['id'] as const;
  * @typeparam SelectedColumns Columns to return from selection queries.
  *  Defaults to `['*']`, returning all columns. May specify aliases.
  * @typeparam ReturnCount Type of count query results.
- * @typeparam ReturnColumns The columns that are returned from the database
- *  when selecting or updating rows, for use when creating mapped objects.
- *  `['*']` returns all columns; `[]` returns none. By default, the columns
- *  are added to objects returned on update. Defaults to `KeyColumns`.
+ * @typeparam InsertReturnColumns Columns to return from the table on insert
+ *  queries that return columns. `['*']` returns all columns; `[]` returns
+ *  none. May specify aliases. Defaults to `KeyColumns`.
+ * @typeparam UpdateReturnColumns Columns to return from the table on update
+ *  queries that return columns. `['*']` returns all columns; `[]` returns
+ *  none and is the default. May specify aliases.
  */
 export class UniformTableMapper<
   DB,
@@ -40,7 +42,13 @@ export class UniformTableMapper<
   ],
   SelectedColumns extends Readonly<SelectionColumn<DB, TB>[]> | ['*'] = ['*'],
   ReturnCount = bigint,
-  ReturnColumns extends Readonly<SelectionColumn<DB, TB>[]> | ['*'] = KeyColumns
+  InsertReturnColumns extends
+    | Readonly<SelectionColumn<DB, TB>[]>
+    | ['*'] = Readonly<KeyColumns>,
+  UpdateReturnColumns extends Readonly<SelectionColumn<DB, TB>[]> | ['*'] = [],
+  UpdateReturn = UpdateReturnColumns extends ['*']
+    ? Selectable<DB[TB]>
+    : Selection<DB, TB, UpdateReturnColumns[number]>
 > extends AbstractTableMapper<
   DB,
   TB,
@@ -48,21 +56,20 @@ export class UniformTableMapper<
   SelectedColumns,
   MappedObject,
   MappedObject,
-  MappedObject | Updateable<DB[TB]>,
-  ReturnCount,
-  ReturnColumns,
-  true,
   MappedObject,
-  MappedObject | ReturnColumns extends ['*']
-    ? Selectable<DB[TB]>
-    : Selection<DB, TB, ReturnColumns[number]>
+  ReturnCount,
+  InsertReturnColumns,
+  UpdateReturnColumns,
+  MappedObject,
+  UpdateReturn
 > {
   declare settings: UniformTableMapperSettings<
     DB,
     TB,
     KeyColumns,
     SelectedColumns,
-    ReturnColumns
+    InsertReturnColumns,
+    UpdateReturnColumns
   >;
   declare transforms: TableMapperTransforms<
     DB,
@@ -71,14 +78,12 @@ export class UniformTableMapper<
     SelectedColumns,
     MappedObject,
     MappedObject,
-    MappedObject | Updateable<DB[TB]>,
-    ReturnCount,
-    ReturnColumns,
-    true,
     MappedObject,
-    MappedObject | ReturnColumns extends ['*']
-      ? Selectable<DB[TB]>
-      : Selection<DB, TB, ReturnColumns[number]>
+    ReturnCount,
+    InsertReturnColumns,
+    UpdateReturnColumns,
+    MappedObject,
+    UpdateReturn
   >;
 
   /**
@@ -96,7 +101,8 @@ export class UniformTableMapper<
       TB,
       KeyColumns,
       SelectedColumns,
-      ReturnColumns
+      InsertReturnColumns,
+      UpdateReturnColumns
     >
   ) {
     super(db, tableName, _prepareSettings(settings));
@@ -121,14 +127,12 @@ export class UniformTableMapper<
         SelectedColumns,
         MappedObject,
         MappedObject,
-        MappedObject | Updateable<DB[TB]>,
-        ReturnCount,
-        ReturnColumns,
-        true,
         MappedObject,
-        MappedObject | ReturnColumns extends ['*']
-          ? Selectable<DB[TB]>
-          : Selection<DB, TB, ReturnColumns[number]>
+        ReturnCount,
+        InsertReturnColumns,
+        UpdateReturnColumns,
+        MappedObject,
+        UpdateReturn
       >
     >
   ) {
@@ -139,7 +143,9 @@ export class UniformTableMapper<
       KeyColumns,
       SelectedColumns,
       ReturnCount,
-      ReturnColumns
+      InsertReturnColumns,
+      UpdateReturnColumns,
+      UpdateReturn
     >(this.db, this.tableName, this.settings);
 
     transformingTableMapper.transforms = _prepareTransforms(
@@ -159,28 +165,31 @@ function _prepareSettings<
   TB extends keyof DB & string,
   KeyColumns extends Readonly<SelectableColumnTuple<DB[TB]>> | [],
   SelectedColumns extends Readonly<SelectionColumn<DB, TB>[]> | ['*'],
-  ReturnColumns extends Readonly<SelectionColumn<DB, TB>[]> | ['*']
+  InsertReturnColumns extends Readonly<SelectionColumn<DB, TB>[]> | ['*'],
+  UpdateReturnColumns extends Readonly<SelectionColumn<DB, TB>[]> | ['*']
 >(
   settings: UniformTableMapperSettings<
     DB,
     TB,
     KeyColumns,
     SelectedColumns,
-    ReturnColumns
+    InsertReturnColumns,
+    UpdateReturnColumns
   >
 ) {
   const keyColumns = settings.keyColumns ?? DEFAULT_KEY;
 
   return {
     keyColumns,
-    returnColumns: keyColumns,
+    insertReturnColumns: keyColumns,
     ...settings,
   } as UniformTableMapperSettings<
     DB,
     TB,
     KeyColumns,
     SelectedColumns,
-    ReturnColumns
+    InsertReturnColumns,
+    UpdateReturnColumns
   >;
 }
 
@@ -194,7 +203,9 @@ function _prepareTransforms<
   SelectedColumns extends Readonly<SelectionColumn<DB, TB>[]> | ['*'],
   MappedObject extends object,
   ReturnCount,
-  ReturnColumns extends Readonly<SelectionColumn<DB, TB>[]> | ['*']
+  InsertReturnColumns extends Readonly<SelectionColumn<DB, TB>[]> | ['*'],
+  UpdateReturnColumns extends Readonly<SelectionColumn<DB, TB>[]> | ['*'],
+  UpdateReturn
 >(
   keyColumns: KeyColumns,
   isMappedObject: (obj: any) => boolean,
@@ -205,14 +216,12 @@ function _prepareTransforms<
     SelectedColumns,
     MappedObject,
     MappedObject,
-    MappedObject | Updateable<DB[TB]>,
-    ReturnCount,
-    ReturnColumns,
-    true,
     MappedObject,
-    MappedObject | ReturnColumns extends ['*']
-      ? Selectable<DB[TB]>
-      : Selection<DB, TB, ReturnColumns[number]>
+    ReturnCount,
+    InsertReturnColumns,
+    UpdateReturnColumns,
+    MappedObject,
+    UpdateReturn
   >
 ) {
   // Remove falsy key values from inserted object, by default
@@ -229,49 +238,30 @@ function _prepareTransforms<
   // Add returned values to inserted object, by default
   const insertReturnTransform = (
     obj: MappedObject,
-    returns: ReturnColumns extends []
+    returns: InsertReturnColumns extends []
       ? never
       : SelectedRow<
           DB,
           TB,
-          ReturnColumns extends ['*'] ? never : ReturnColumns[number],
-          ReturnColumns
+          InsertReturnColumns extends ['*']
+            ? never
+            : InsertReturnColumns[number],
+          InsertReturnColumns
         >
   ) => ({ ...obj, ...returns });
 
   // Use insert transform by default; or if none is provided, remove falsy
   // key values from inserted object if the object is a `MappedObject`.
   const updateTransform =
-    transforms.insertTransform !== undefined
-      ? transforms.insertTransform
+    transforms.updateTransform !== undefined
+      ? transforms.updateTransform
       : (obj: MappedObject | Updateable<DB[TB]>) =>
           isMappedObject(obj) ? insertTransform(obj as any) : obj;
-
-  // If the object is a `MappedObject`, use the insert return transform by
-  // default, or if none is provided, add returned values to inserted object.
-  // If the object is not a `MappedObject`, return the raw return values.
-  const updateReturnTransform = (
-    obj: MappedObject | Updateable<DB[TB]>,
-    returns: ReturnColumns extends []
-      ? never
-      : SelectedRow<
-          DB,
-          TB,
-          ReturnColumns extends ['*'] ? never : ReturnColumns[number],
-          ReturnColumns
-        >
-  ) =>
-    !isMappedObject(obj)
-      ? returns
-      : transforms.insertReturnTransform === undefined
-      ? insertReturnTransform(obj as MappedObject, returns)
-      : transforms.insertReturnTransform(obj as MappedObject, returns as any);
 
   return {
     insertTransform,
     insertReturnTransform,
     updateTransform,
-    updateReturnTransform,
     ...transforms,
   } as TableMapperTransforms<
     DB,
@@ -280,13 +270,11 @@ function _prepareTransforms<
     SelectedColumns,
     MappedObject,
     MappedObject,
-    MappedObject | Updateable<DB[TB]>,
-    ReturnCount,
-    ReturnColumns,
-    true,
     MappedObject,
-    MappedObject | ReturnColumns extends ['*']
-      ? Selectable<DB[TB]>
-      : Selection<DB, TB, ReturnColumns[number]>
+    ReturnCount,
+    InsertReturnColumns,
+    UpdateReturnColumns,
+    MappedObject,
+    UpdateReturn
   >;
 }

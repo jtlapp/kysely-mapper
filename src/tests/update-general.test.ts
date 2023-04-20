@@ -229,16 +229,32 @@ describe('general update', () => {
   it('updates configured to return all columns', async () => {
     const insertReturns = await userMapperReturningID.insert().returnAll(USERS);
 
-    const updateValues = { email: 'new.email@xyz.pdq' };
+    const updateValues1 = { email: 'new.email@xyz.pdq' };
     const updateReturns = await userMapperReturningAll
       .update({ name: 'Sue' })
-      .returnAll(updateValues);
+      .returnAll(updateValues1);
 
     const expectedUsers = [
-      Object.assign({}, USERS[0], updateValues, { id: insertReturns[0].id }),
-      Object.assign({}, USERS[2], updateValues, { id: insertReturns[2].id }),
+      Object.assign({}, USERS[0], updateValues1, { id: insertReturns[0].id }),
+      Object.assign({}, USERS[2], updateValues1, { id: insertReturns[2].id }),
     ];
     expect(updateReturns).toEqual(expectedUsers);
+    // Ensure that the returned value can be accessed as a row.
+    ((_: string) => {})(updateReturns[0].name);
+    ((_: string | null) => {})(updateReturns[0].email);
+
+    const updateValues2 = { email: 'another.email@xyz.pdq' };
+    const updateReturn = await userMapperReturningAll
+      .update({ name: 'Sue' })
+      .returnOne(updateValues2);
+
+    const expectedUser = Object.assign({}, USERS[0], updateValues2, {
+      id: insertReturns[0].id,
+    });
+    expect(updateReturn).toEqual(expectedUser);
+    // Ensure that the returned value can be accessed as a row.
+    ((_: string) => {})(updateReturn!.name);
+    ((_: string | null) => {})(updateReturn!.email);
   });
 
   it('updates all rows when no filter is given', async () => {

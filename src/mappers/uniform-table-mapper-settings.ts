@@ -9,26 +9,32 @@ import { TableMapperSettings } from './table-mapper-settings';
  *  Defaults to `['id']`. `[]` indicates no key columns.
  * @typeparam SelectedColumns Columns to return from selection queries.
  *  Defaults to `['*']`, returning all columns. May specify aliases.
- * @typeparam ReturnColumns The columns that are returned from the database
- *  when selecting or updating rows, for use when creating the mapped objects.
- *  `['*']` returns all columns; `[]` returns none. May specify aliases.
- *  Defaults to `KeyColumns`.
+ * @typeparam InsertReturnColumns Columns to return from the table on insert
+ *  queries that return columns. `['*']` returns all columns; `[]` returns
+ *  none. May specify aliases. Defaults to `KeyColumns`.
+ * @typeparam UpdateReturnColumns Columns to return from the table on update
+ *  queries that return columns. `['*']` returns all columns; `[]` returns
+ *  none and is the default. May specify aliases.
  */
 export interface UniformTableMapperSettings<
   DB,
   TB extends keyof DB & string,
   KeyColumns extends Readonly<SelectableColumnTuple<DB[TB]>> | [],
   SelectedColumns extends Readonly<SelectionColumn<DB, TB>[]> | ['*'],
-  ReturnColumns extends Readonly<SelectionColumn<DB, TB>[]> | ['*']
+  InsertReturnColumns extends
+    | Readonly<SelectionColumn<DB, TB>[]>
+    | ['*'] = Readonly<KeyColumns>,
+  UpdateReturnColumns extends Readonly<SelectionColumn<DB, TB>[]> | ['*'] = []
 > extends TableMapperSettings<
     DB,
     TB,
     KeyColumns,
     SelectedColumns,
-    ReturnColumns,
-    true
+    InsertReturnColumns,
+    UpdateReturnColumns
   > {
   /** Indicates whether the provided object is an instance of `MappedObject`. */
   // Not using a type guard because it complicates assignment of the option.
+  // TODO: Do I still need this?
   isMappedObject: (obj: any) => boolean;
 }

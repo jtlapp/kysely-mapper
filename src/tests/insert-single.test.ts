@@ -53,12 +53,12 @@ beforeAll(async () => {
   userMapperReturningID = createUserMapperReturningID(db);
   userMapperReturningAll = createUserMapperReturningAll(db);
   postTableMapper = new TableMapper(db, 'posts', {
-    returnColumns: ['*'],
+    insertReturnColumns: ['*'],
   }).withTransforms({
     countTransform: (count) => Number(count),
   });
   postTableMapperReturningIDAndTitleAsT = new TableMapper(db, 'posts', {
-    returnColumns: ['id', 'title as t'],
+    insertReturnColumns: ['id', 'title as t'],
   }).withTransforms({
     countTransform: (count) => Number(count),
   });
@@ -88,30 +88,30 @@ describe('inserting a single object without transformation', () => {
   });
 
   it('inserts one returning configured return columns', async () => {
-    const insertReturn = await userMapperReturningID
+    const insertReturn1 = await userMapperReturningID
       .insert()
       .returnOne(USERS[0]);
-    expect(insertReturn.id).toBeGreaterThan(0);
-    expect(Object.keys(insertReturn).length).toEqual(1);
+    expect(insertReturn1.id).toBeGreaterThan(0);
+    expect(Object.keys(insertReturn1).length).toEqual(1);
 
     const readUser0 = await userMapperReturningAll
-      .select('id', '=', insertReturn.id)
+      .select('id', '=', insertReturn1.id)
       .returnOne();
     expect(readUser0?.email).toEqual(USERS[0].email);
 
-    const post0 = Object.assign({}, POSTS[0], { userId: insertReturn.id });
-    const updateReturn = await postTableMapperReturningIDAndTitleAsT
+    const post0 = Object.assign({}, POSTS[0], { userId: insertReturn1.id });
+    const insertReturn2 = await postTableMapperReturningIDAndTitleAsT
       .insert()
       .returnOne(post0);
-    expect(updateReturn.id).toBeGreaterThan(0);
-    expect(updateReturn.t).toEqual(POSTS[0].title);
-    expect(Object.keys(updateReturn).length).toEqual(2);
+    expect(insertReturn2.id).toBeGreaterThan(0);
+    expect(insertReturn2.t).toEqual(POSTS[0].title);
+    expect(Object.keys(insertReturn2).length).toEqual(2);
 
     const readPost0 = await postTableMapper
       .select(({ and, cmpr }) =>
         and([
-          cmpr('id', '=', updateReturn.id),
-          cmpr('title', '=', updateReturn.t),
+          cmpr('id', '=', insertReturn2.id),
+          cmpr('title', '=', insertReturn2.t),
         ])
       )
       .returnOne();
@@ -119,9 +119,13 @@ describe('inserting a single object without transformation', () => {
 
     ignore('check return types', () => {
       // @ts-expect-error - check return types
-      updateReturn.title;
+      insertReturn1.title;
       // @ts-expect-error - check return types
-      updateReturn.userId;
+      insertReturn1.userId;
+      // @ts-expect-error - check return types
+      insertReturn2.title;
+      // @ts-expect-error - check return types
+      insertReturn2.userId;
     });
   });
 
@@ -130,6 +134,7 @@ describe('inserting a single object without transformation', () => {
       .insert()
       .returnOne(USERS[0]);
     expect(insertReturn.id).toBeGreaterThan(0);
+    expect(insertReturn.email).toEqual(USERS[0].email);
     const expectedUser = Object.assign({}, USERS[0], { id: insertReturn.id });
     expect(insertReturn).toEqual(expectedUser);
   });

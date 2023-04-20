@@ -16,21 +16,17 @@ export class AnyColumnsMappingUpdateQuery<
   TB extends keyof DB & string,
   QB extends UpdateQueryBuilder<DB, TB, TB, UpdateResult>,
   UpdatingObject extends object,
-  SelectedObject extends object,
-  ReturnColumns extends Readonly<SelectionColumn<DB, TB>[]> | ['*'],
+  UpdateReturnColumns extends Readonly<SelectionColumn<DB, TB>[]> | ['*'],
   ReturnCount,
-  UpdateReturnsSelectedObjectWhenProvided extends boolean,
-  DefaultUpdateReturn
+  UpdateReturn
 > extends MappingUpdateQuery<
   DB,
   TB,
   QB,
   UpdatingObject,
-  SelectedObject,
-  ReturnColumns,
+  UpdateReturnColumns,
   ReturnCount,
-  UpdateReturnsSelectedObjectWhenProvided,
-  DefaultUpdateReturn
+  UpdateReturn
 > {
   constructor(
     db: Kysely<DB>,
@@ -40,14 +36,12 @@ export class AnyColumnsMappingUpdateQuery<
         UpdateTransforms<
           DB,
           TB,
-          SelectedObject,
           UpdatingObject,
-          ReturnColumns,
-          UpdateReturnsSelectedObjectWhenProvided,
-          DefaultUpdateReturn
+          UpdateReturnColumns,
+          UpdateReturn
         >
     >,
-    returnColumns: Readonly<ReturnColumns>
+    returnColumns: Readonly<UpdateReturnColumns>
   ) {
     super(db, qb, transforms, returnColumns);
   }
@@ -65,11 +59,9 @@ export class AnyColumnsMappingUpdateQuery<
     TB,
     QB,
     UpdatingObject,
-    SelectedObject,
-    ReturnColumns,
+    UpdateReturnColumns,
     ReturnCount,
-    UpdateReturnsSelectedObjectWhenProvided,
-    DefaultUpdateReturn
+    UpdateReturn
   > {
     return new SubsettingMappingUpdateQuery(
       this.db,

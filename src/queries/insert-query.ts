@@ -17,7 +17,7 @@ export class MappingInsertQuery<
   TB extends keyof DB & string,
   QB extends InsertQueryBuilder<DB, TB, InsertResult>,
   InsertedObject extends object,
-  ReturnColumns extends Readonly<SelectionColumn<DB, TB>[]> | ['*'],
+  InsertReturnColumns extends Readonly<SelectionColumn<DB, TB>[]> | ['*'],
   InsertReturn
 > {
   #returningQB: InsertQueryBuilder<DB, TB, any> | null = null;
@@ -26,9 +26,15 @@ export class MappingInsertQuery<
     protected readonly db: Kysely<DB>,
     protected readonly qb: QB,
     protected readonly transforms: Readonly<
-      InsertTransforms<DB, TB, InsertedObject, ReturnColumns, InsertReturn>
+      InsertTransforms<
+        DB,
+        TB,
+        InsertedObject,
+        InsertReturnColumns,
+        InsertReturn
+      >
     >,
-    protected readonly returnColumns: Readonly<ReturnColumns>
+    protected readonly returnColumns: Readonly<InsertReturnColumns>
   ) {}
 
   /**
@@ -43,7 +49,7 @@ export class MappingInsertQuery<
     TB,
     NextQB,
     InsertedObject,
-    ReturnColumns,
+    InsertReturnColumns,
     InsertReturn
   > {
     return new MappingInsertQuery(
@@ -65,7 +71,7 @@ export class MappingInsertQuery<
    */
   returnAll(
     objs: InsertedObject[]
-  ): Promise<ReturnColumns extends [] ? void : InsertReturn[]>;
+  ): Promise<InsertReturnColumns extends [] ? void : InsertReturn[]>;
 
   async returnAll(objs: InsertedObject[]): Promise<InsertReturn[] | void> {
     if (this.returnColumns.length === 0) {
@@ -94,7 +100,7 @@ export class MappingInsertQuery<
    */
   returnOne(
     obj: InsertedObject
-  ): Promise<ReturnColumns extends [] ? void : InsertReturn>;
+  ): Promise<InsertReturnColumns extends [] ? void : InsertReturn>;
 
   async returnOne(obj: InsertedObject): Promise<InsertReturn | void> {
     if (this.returnColumns.length === 0) {

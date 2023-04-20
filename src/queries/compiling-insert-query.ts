@@ -12,13 +12,13 @@ export class CompilingMappingInsertQuery<
   TB extends keyof DB & string,
   QB extends InsertQueryBuilder<DB, TB, any>,
   InsertedObject extends object,
-  ReturnColumns extends Readonly<SelectionColumn<DB, TB>[]> | ['*'],
+  InsertReturnColumns extends Readonly<SelectionColumn<DB, TB>[]> | ['*'],
   InsertReturn
 > extends CompilingValuesQuery<
   DB,
   TB,
   QB,
-  ReturnColumns,
+  InsertReturnColumns,
   {},
   Insertable<DB[TB]>
 > {
@@ -27,9 +27,15 @@ export class CompilingMappingInsertQuery<
     qb: QB,
     columnsToInsert: Readonly<(keyof Insertable<DB[TB]> & string)[]>,
     protected readonly transforms: Readonly<
-      InsertTransforms<DB, TB, InsertedObject, ReturnColumns, InsertReturn>
+      InsertTransforms<
+        DB,
+        TB,
+        InsertedObject,
+        InsertReturnColumns,
+        InsertReturn
+      >
     >,
-    returnColumns: Readonly<ReturnColumns>
+    returnColumns: Readonly<InsertReturnColumns>
   ) {
     super(db, returnColumns);
     const parameterizedValues = this.getParameterizedObject(columnsToInsert);
@@ -50,7 +56,7 @@ export class CompilingMappingInsertQuery<
    */
   returnOne(
     obj: InsertedObject
-  ): Promise<ReturnColumns extends [] ? void : InsertReturn>;
+  ): Promise<InsertReturnColumns extends [] ? void : InsertReturn>;
 
   async returnOne(obj: InsertedObject): Promise<InsertReturn | void> {
     if (this.returnColumns.length === 0) {

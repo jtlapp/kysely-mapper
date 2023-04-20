@@ -37,25 +37,20 @@ describe('table mapper transform type checks', () => {
     });
   });
 
-  ignore('detects invalid update return transform configurations', async () => {
-    function createTestMapper<
-      UpdateReturnsSelectedObjectWhenProvided extends boolean
-    >(
-      updateReturnsSelectedObjectWhenProvided: UpdateReturnsSelectedObjectWhenProvided
-    ) {
-      return new TableMapper(db, 'users', {
-        keyColumns: ['id'],
-        updateReturnsSelectedObjectWhenProvided,
-      });
-    }
+  ignore('detects invalid update return transform return', async () => {
+    const mapper = new TableMapper(db, 'users', { keyColumns: ['id'] });
 
-    createTestMapper(true).withTransforms({
+    mapper.withTransforms({
       selectTransform: (_user) => new User(1, 'John', 'Doe', 'jdoe', 'x@y.z'),
-      updateTransform: (user: User) => user,
-      // @ts-expect-error - invalid update return transform
-      updateReturnTransform: (_user, _returns) => ({ noId: 1 }),
+      updateTransform: (user: User) => ({
+        id: user.id,
+        name: `${user.firstName} ${user.lastName}`,
+        handle: user.handle,
+        email: user.email,
+      }),
+      updateReturnTransform: (_user, returns) => returns,
     });
-    (await createTestMapper(true)
+    (await mapper
       .update({ id: 1 })
       // @ts-expect-error - ensure that return type is User
       .returnOne(new User(1, 'John', 'Doe', 'jdoe', 'jdoe@abc.def')))!.name;

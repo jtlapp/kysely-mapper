@@ -23,8 +23,8 @@ afterAll(() => destroyDB(db));
 describe('updating with transformation', () => {
   function createVariableUpdateReturnMapper(db: Kysely<Database>) {
     return new TableMapper(db, 'users', {
-      returnColumns: ['id', 'handle'],
-      updateReturnsSelectedObjectWhenProvided: true,
+      insertReturnColumns: ['id', 'handle'],
+      updateReturnColumns: ['id', 'handle'],
     }).withTransforms({
       selectTransform: (row) => {
         const names = row.name.split(' ');
@@ -67,7 +67,8 @@ describe('updating with transformation', () => {
 
   it('transforms users for update without transforming return', async () => {
     const mapper = new TableMapper(db, 'users', {
-      returnColumns: ['id'],
+      insertReturnColumns: ['id'],
+      updateReturnColumns: ['id'],
     }).withTransforms({
       updateTransform: (source: UpdatingUser) => ({
         name: `${source.firstName} ${source.lastName}`,
@@ -116,7 +117,8 @@ describe('updating with transformation', () => {
 
   it('transforms update return into object without transforming update', async () => {
     const updateReturnTransformMapper = new TableMapper(db, 'users', {
-      returnColumns: ['id'],
+      insertReturnColumns: ['id'],
+      updateReturnColumns: ['id'],
     }).withTransforms({
       updateReturnTransform: (source, returns) =>
         new ReturnedUser(
@@ -165,7 +167,8 @@ describe('updating with transformation', () => {
 
   it('transforms update return into primitive without transforming update', async () => {
     const updateReturnTransformMapper = new TableMapper(db, 'users', {
-      returnColumns: ['id'],
+      insertReturnColumns: ['id'],
+      updateReturnColumns: ['id'],
     }).withTransforms({
       insertReturnTransform: (_source, returns) => returns.id,
       updateReturnTransform: (_source, returns) => returns.id,
@@ -192,7 +195,8 @@ describe('updating with transformation', () => {
 
   it('transforms update and update return', async () => {
     const updateAndReturnTransformMapper = new TableMapper(db, 'users', {
-      returnColumns: ['id'],
+      insertReturnColumns: ['id'],
+      updateReturnColumns: ['id'],
     }).withTransforms({
       updateTransform: (source: UpdatingUser) => ({
         name: `${source.firstName} ${source.lastName}`,
