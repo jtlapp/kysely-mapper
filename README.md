@@ -114,27 +114,29 @@ You may want to return more than the assigned ID on insertion, or you may want t
 ```ts
 const table = new TableMapper(db, 'users', {
   keyColumns: ['id'],
-  returnColumns: ['id', 'modified'],
+  insertReturnColumns: ['id', 'modified'],
+  updateReturnColumns: ['modified'],
 });
 result = table.insert().returnOne(user1);
 // result is { id: 123, modified: Date("1/2/2023") }
 result = table
   .update({ name: 'Jane Smith' })
   .returnOne({ email: 'js2@abc.def' });
-// result is { id: 542, modified: Date("2/4/2023") }
+// result is { modified: Date("1/2/2023") }
 ```
 
-Notice that insert and update return the same columns whenever they return columns. If you call `run()` on insert or either `run()` or `returnCount()` on update, the query requests no return columns from the database, and none are returned to the caller.
+If you call `run()` on insert or either `run()` or `returnCount()` on update, the query requests no return columns from the database, and none are returned to the caller.
 
-Set `returnColumns` to `['*']` to return all columns. Its default value is `[]`, returning no columns.
+Set return columns to `['*']` to return all columns or `[]` to return no columns. By default, inserts return the key columns and updates return no columns.
 
 You can also control which columns are returned from selections:
 
 ```ts
 const table = new TableMapper(db, 'users', {
   keyColumns: ['id'],
-  returnColumns: ['id', 'modified'],
-  selectedColumns: ['id', 'name', 'birthyear'], // excludes 'modified'
+  selectedColumns: ['id', 'name', 'birthyear'],
+  insertReturnColumns: ['id', 'modified'],
+  updateReturnColumns: ['modified'],
 });
 user = await table.select(123).returnOne();
 // user is { id: 123, name: 'Jane Doe', birthyear: 1970 }
@@ -190,10 +192,15 @@ const table = new TableMapper(db, 'users', {
 });
 ```
 
-This table mapper creates a new `User` from an inserted `User` and the auto-incremented return ID. It could instead have set the ID in the inserted `User` and returned that object, or it could have simply returned the ID instead of an object.
+This table mapper creates a new `User` from an inserted `User` and the auto-incremented return ID. It could instead have set the ID in the inserted `User` and returned that object, or it could have simply returned the ID instead of an object. For example, the following returns the ID on insertion:
 
-TODO: I think the following means that insert and update returns need different types.
-The above table mapper cannot be used with updates that return values via `returnOne()` or `returnAll()`; it can only be used with `run()` or `returnCount()`. This is because, except in special circumstances described later, `insertReturnTransform` and `updateReturnTransform` must return an object of the same type. `updateReturnTransform` is not defined here, leaving updates to return an object containing the return columns. In this case, when you attempt to access values returned from an update, TypeScript assumes you're accessing a `User` when you are not. To avoid this confusion, it's best to define both `insertReturnTransform` and `updateReturnTransform` when you define either.
+```ts
+const table = new TableMapper(db, 'users', {
+  keyColumns: ['id'],
+}).withTransforms({
+  insertReturnTransform: (_user: User, returns) => returns.id,
+});
+```
 
 ## License
 
