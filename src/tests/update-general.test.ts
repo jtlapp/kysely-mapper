@@ -224,6 +224,25 @@ describe('general update', () => {
       })
       .returnAll();
     expect(readUsers.length).toEqual(2);
+
+    const update = await userMapperReturningNothing
+      .update({ name: 'Sue' })
+      .returnOne({ email: 'new2.email@xyz.pdq' });
+    expect(update).toBeUndefined();
+
+    const readUser = await userMapperReturningID
+      .select({
+        email: 'new2.email@xyz.pdq',
+      })
+      .returnOne();
+    expect(readUser!.id).toEqual(1);
+
+    ignore('type errors', () => {
+      // @ts-expect-error - check return types
+      updates[0].id;
+      // @ts-expect-error - check return types
+      update!.id;
+    });
   });
 
   it('updates configured to return all columns', async () => {

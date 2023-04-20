@@ -78,13 +78,20 @@ describe('inserting a single object without transformation', () => {
   });
 
   it('inserts one explicitly returning no columns', async () => {
-    const success = await userMapperReturningNothing.insert().run(USERS[0]);
-    expect(success).toBe(true);
+    const insertReturn = await userMapperReturningNothing
+      .insert()
+      .returnOne(USERS[0]);
+    expect(insertReturn).toBe(undefined);
 
     const readUser0 = await userMapperReturningAll
       .select('email', '=', USERS[0].email!)
       .returnOne();
     expect(readUser0?.email).toEqual(USERS[0].email);
+
+    ignore('type errors', () => {
+      // @ts-expect-error - check return type
+      insertReturn.id;
+    });
   });
 
   it('inserts one returning configured return columns', async () => {

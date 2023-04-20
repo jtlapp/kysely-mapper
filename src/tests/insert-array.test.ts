@@ -175,6 +175,11 @@ describe('inserting an array of objects without transformation', () => {
     for (let i = 0; i < USERS.length; i++) {
       expect(readUsers[i].handle).toEqual(USERS[i].handle);
     }
+
+    ignore("can't access columns when returning nothing", () => {
+      // @ts-expect-error - can't access columns when returning nothing
+      insertReturns[0].id;
+    });
   });
 
   it('inserts multiple configured to return all columns', async () => {
@@ -189,6 +194,8 @@ describe('inserting an array of objects without transformation', () => {
         Object.assign({}, user, { id: insertReturns[i].id })
       )
     );
+    // Ensure that returned objects can be accessed as expected.
+    ((_: string) => {})(insertReturns[0].name);
   });
 
   ignore('detects inserting an array of objects type errors', async () => {
