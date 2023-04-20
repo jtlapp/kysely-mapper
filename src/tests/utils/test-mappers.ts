@@ -48,16 +48,9 @@ export function createInsertTransformMapper(db: Kysely<Database>) {
   });
 }
 
-export function createVariableReturnTypeMapper<
-  InsertReturnsSelectedObject extends boolean
->(
-  db: Kysely<Database>,
-  insertReturnsSelectedObject: InsertReturnsSelectedObject
-) {
+export function createVariableReturnTypeMapper(db: Kysely<Database>) {
   return new TableMapper(db, 'users', {
     returnColumns: ['id', 'handle'],
-    insertReturnsSelectedObject,
-    // Hardcoded true to prevent inferencing when insertReturnsSelectedObject is false
     updateReturnsSelectedObjectWhenProvided: true,
   }).withTransforms({
     insertReturnTransform: (source, results) => {

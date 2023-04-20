@@ -36,9 +36,7 @@ describe('table mapper transform type checks', () => {
   });
 
   ignore('detects invalid insert return transform configurations', () => {
-    class TestMapper<
-      InsertReturnsSelectedObject extends boolean
-    > extends TableMapper<
+    class TestMapper extends TableMapper<
       Database,
       'users',
       ['id'],
@@ -47,14 +45,13 @@ describe('table mapper transform type checks', () => {
       User,
       Updateable<Users>,
       bigint,
-      ['id'],
-      InsertReturnsSelectedObject
+      ['id']
     > {}
-    new TestMapper<false>(db, 'users', {
+    new TestMapper(db, 'users', {
       // @ts-expect-error - invalid insert return transform
       insertReturnTransform: (_user) => ({ noId: 1 }),
     });
-    new TestMapper<true>(db, 'users', {
+    new TestMapper(db, 'users', {
       // @ts-expect-error - invalid insert return transform
       insertReturnTransform: (user) => user,
     });

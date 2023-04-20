@@ -169,9 +169,9 @@ describe('uniform table mapper', () => {
           email: user.email,
         };
       },
-      updateReturnTransform: (user, _returns) => {
+      updateReturnTransform: (user, returns) => {
         if (!(user instanceof MappedUser)) {
-          return _returns;
+          return returns;
         }
         return new MappedUser(
           user.serialNo,

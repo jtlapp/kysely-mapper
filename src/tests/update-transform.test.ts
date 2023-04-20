@@ -186,10 +186,7 @@ describe('updating with transformation', () => {
   });
 
   it('variably transforms update and update return for returnOne()', async () => {
-    const updateAndReturnTransformMapper = createVariableReturnTypeMapper(
-      db,
-      false
-    );
+    const updateAndReturnTransformMapper = createVariableReturnTypeMapper(db);
 
     const insertReturns = await updateAndReturnTransformMapper
       .insert()
@@ -251,10 +248,7 @@ describe('updating with transformation', () => {
   });
 
   it('variably transforms update and update return for returnAll()', async () => {
-    const updateAndReturnTransformMapper = createVariableReturnTypeMapper(
-      db,
-      false
-    );
+    const updateAndReturnTransformMapper = createVariableReturnTypeMapper(db);
 
     const insertReturns = await updateAndReturnTransformMapper
       .insert()

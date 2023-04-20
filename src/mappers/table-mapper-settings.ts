@@ -12,8 +12,6 @@ import { SelectableColumnTuple, SelectionColumn } from '../lib/type-utils';
  *  update, except when explicitly requesting no columns. `['*']` returns
  *  all columns; `[]` returns none and is the default. May specify aliases.
  *  Defaults to `KeyColumns`.
- * @typeparam InsertReturnsSelectedObject Whether insert queries return
- *  `SelectedObject` or `DefaultInsertReturn`.
  * @typeparam UpdateReturnsSelectedObjectWhenProvided Whether update queries
  *  return `SelectedObject` when the updating object is a `SelectedObject`;
  *  update queries otherwise return `DefaultUpdateReturn`.
@@ -26,7 +24,6 @@ export interface TableMapperSettings<
   ReturnColumns extends
     | Readonly<SelectionColumn<DB, TB>[]>
     | ['*'] = KeyColumns,
-  InsertReturnsSelectedObject extends boolean = false,
   UpdateReturnsSelectedObjectWhenProvided extends boolean = false
 > {
   /** Tuple of the columns that make up the table's key. May be `[]`. */
@@ -37,11 +34,6 @@ export interface TableMapperSettings<
    * May contain aliases.
    */
   selectedColumns?: SelectedColumns;
-
-  /**
-   * Whether insert queries return `SelectedObject` or `DefaultInsertReturn`.
-   */
-  insertReturnsSelectedObject?: InsertReturnsSelectedObject;
 
   /**
    * Whether update queries return `SelectedObject` when the updating object

@@ -12,10 +12,8 @@ export class CompilingMappingInsertQuery<
   TB extends keyof DB & string,
   QB extends InsertQueryBuilder<DB, TB, any>,
   InsertedObject extends object,
-  SelectedObject extends object,
   ReturnColumns extends Readonly<SelectionColumn<DB, TB>[]> | ['*'],
-  InsertReturnsSelectedObject extends boolean,
-  DefaultInsertReturn
+  InsertReturn
 > extends CompilingValuesQuery<
   DB,
   TB,
@@ -29,15 +27,7 @@ export class CompilingMappingInsertQuery<
     qb: QB,
     columnsToInsert: Readonly<(keyof Insertable<DB[TB]> & string)[]>,
     protected readonly transforms: Readonly<
-      InsertTransforms<
-        DB,
-        TB,
-        SelectedObject,
-        InsertedObject,
-        ReturnColumns,
-        InsertReturnsSelectedObject,
-        DefaultInsertReturn
-      >
+      InsertTransforms<DB, TB, InsertedObject, ReturnColumns, InsertReturn>
     >,
     returnColumns: Readonly<ReturnColumns>
   ) {
@@ -50,9 +40,8 @@ export class CompilingMappingInsertQuery<
    * Inserts the provided object into the table as a row, first transforming
    * it into a row via `insertTransform` (if defined). Also retrieves the
    * columns specified in `returnColumns`, returning them to the caller as
-   * either `DefaultInsertReturn` or `SelectedObject`, depending on whether
-   * `InsertReturnsSelectedObject` is `true`, after transformation by
-   * `insertReturnTransform`. If `returnColumns` is empty, returns `undefined`.
+   * `InsertReturn`, after transformation by `insertReturnTransform`.
+   * If `returnColumns` is empty, returns `undefined`.
    *
    * On the first execution, compiles and discards the underlying Kysely
    * query builder. Subsequent executions reuse the compiled query.
@@ -61,17 +50,9 @@ export class CompilingMappingInsertQuery<
    */
   returnOne(
     obj: InsertedObject
-  ): Promise<
-    ReturnColumns extends []
-      ? void
-      : InsertReturnsSelectedObject extends true
-      ? SelectedObject
-      : DefaultInsertReturn
-  >;
+  ): Promise<ReturnColumns extends [] ? void : InsertReturn>;
 
-  async returnOne(
-    obj: InsertedObject
-  ): Promise<SelectedObject | DefaultInsertReturn | void> {
+  async returnOne(obj: InsertedObject): Promise<InsertReturn | void> {
     if (this.returnColumns.length === 0) {
       await this.run(obj);
       return;

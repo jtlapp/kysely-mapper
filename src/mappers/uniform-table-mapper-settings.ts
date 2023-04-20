@@ -26,7 +26,6 @@ export interface UniformTableMapperSettings<
     KeyColumns,
     SelectedColumns,
     ReturnColumns,
-    true,
     true
   > {
   /** Indicates whether the provided object is an instance of `MappedObject`. */

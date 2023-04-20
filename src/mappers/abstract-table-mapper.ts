@@ -53,12 +53,10 @@ import { TableMapperTransforms } from './table-mapper-transforms';
  *  update, except when explicitly requesting no columns. `['*']` returns
  *  all columns; `[]` returns none and is the default. May specify aliases.
  *  Defaults to `KeyColumns`.
- * @typeparam InsertReturnsSelectedObject Whether insert queries return
- *  `SelectedObject` or `DefaultInsertReturn`.
  * @typeparam UpdateReturnsSelectedObjectWhenProvided Whether update queries
  *  return `SelectedObject` when the updating object is a `SelectedObject`;
  *  update queries otherwise return `DefaultUpdateReturn`.
- * @typeparam DefaultInsertReturn Type returned from inserts unless
+ * @typeparam InsertReturn Type returned from inserts unless
  *  configured to return `SelectedObject`. Defaults to an object whose
  *  properties are the columns of `ReturnColumns`.
  * @typeparam DefaultUpdateReturn Type returned from updates except for
@@ -82,9 +80,8 @@ export abstract class AbstractTableMapper<
   ReturnColumns extends
     | Readonly<SelectionColumn<DB, TB>[]>
     | ['*'] = Readonly<KeyColumns>,
-  InsertReturnsSelectedObject extends boolean = false,
   UpdateReturnsSelectedObjectWhenProvided extends boolean = false,
-  DefaultInsertReturn = ReturnColumns extends ['*']
+  InsertReturn = ReturnColumns extends ['*']
     ? Selectable<DB[TB]>
     : Selection<DB, TB, ReturnColumns[number]>,
   DefaultUpdateReturn = ReturnColumns extends ['*']
@@ -116,9 +113,8 @@ export abstract class AbstractTableMapper<
     UpdatingObject,
     ReturnCount,
     ReturnColumns,
-    InsertReturnsSelectedObject,
     UpdateReturnsSelectedObjectWhenProvided,
-    DefaultInsertReturn,
+    InsertReturn,
     DefaultUpdateReturn
   > = {};
 
@@ -139,7 +135,6 @@ export abstract class AbstractTableMapper<
         KeyColumns,
         SelectedColumns,
         ReturnColumns,
-        InsertReturnsSelectedObject,
         UpdateReturnsSelectedObjectWhenProvided
       >
     > = {}
@@ -219,10 +214,8 @@ export abstract class AbstractTableMapper<
     TB,
     InsertQueryBuilder<DB, TB, InsertResult>,
     InsertedObject,
-    SelectedObject,
     ReturnColumns,
-    InsertReturnsSelectedObject,
-    DefaultInsertReturn
+    InsertReturn
   > {
     return new AnyColumnsMappingInsertQuery(
       this.db,
@@ -258,9 +251,8 @@ export abstract class AbstractTableMapper<
       UpdatingObject,
       ReturnCount,
       ReturnColumns,
-      InsertReturnsSelectedObject,
       UpdateReturnsSelectedObjectWhenProvided,
-      DefaultInsertReturn,
+      InsertReturn,
       DefaultUpdateReturn,
       this,
       Parameters,
@@ -290,9 +282,8 @@ export abstract class AbstractTableMapper<
       UpdatingObject,
       ReturnCount,
       ReturnColumns,
-      InsertReturnsSelectedObject,
       UpdateReturnsSelectedObjectWhenProvided,
-      DefaultInsertReturn,
+      InsertReturn,
       DefaultUpdateReturn,
       this,
       Parameters,
@@ -324,9 +315,8 @@ export abstract class AbstractTableMapper<
       UpdatingObject,
       ReturnCount,
       ReturnColumns,
-      InsertReturnsSelectedObject,
       UpdateReturnsSelectedObjectWhenProvided,
-      DefaultInsertReturn,
+      InsertReturn,
       DefaultUpdateReturn,
       this,
       Parameters,
@@ -366,9 +356,8 @@ export abstract class AbstractTableMapper<
       UpdatingObject,
       ReturnCount,
       ReturnColumns,
-      InsertReturnsSelectedObject,
       UpdateReturnsSelectedObjectWhenProvided,
-      DefaultInsertReturn,
+      InsertReturn,
       DefaultUpdateReturn,
       this,
       Parameters,

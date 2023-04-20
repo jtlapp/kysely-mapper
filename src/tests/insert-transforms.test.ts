@@ -144,7 +144,7 @@ describe('inserting with transformation', () => {
   });
 
   it('returns SelectedObject when updates can return rows', async () => {
-    const transformMapper = createVariableReturnTypeMapper(db, true);
+    const transformMapper = createVariableReturnTypeMapper(db);
 
     // test returnOne()
     const names1 = userRow1.name.split(' ');

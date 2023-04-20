@@ -17,9 +17,8 @@ export interface ParameterizableMappingQueryFactory<
   UpdatingObject extends object,
   ReturnCount,
   ReturnColumns extends Readonly<SelectionColumn<DB, TB>[]> | ['*'],
-  InsertReturnsSelectedObject extends boolean,
   UpdateReturnsSelectedObjectWhenProvided extends boolean,
-  DefaultInsertReturn,
+  InsertReturn,
   DefaultUpdateReturn,
   M extends AbstractTableMapper<
     DB,
@@ -31,9 +30,8 @@ export interface ParameterizableMappingQueryFactory<
     UpdatingObject,
     ReturnCount,
     ReturnColumns,
-    InsertReturnsSelectedObject,
     UpdateReturnsSelectedObjectWhenProvided,
-    DefaultInsertReturn,
+    InsertReturn,
     DefaultUpdateReturn
   >,
   Parameters extends ParametersObject<Parameters>,

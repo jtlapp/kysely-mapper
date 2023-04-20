@@ -23,12 +23,10 @@ import {
  *  update, except when explicitly requesting no columns. `['*']` returns
  *  all columns; `[]` returns none and is the default. May specify aliases.
  *  Defaults to `KeyColumns`.
- * @typeparam InsertReturnsSelectedObject Whether insert queries return
- *  `SelectedObject` or `DefaultInsertReturn`.
  * @typeparam UpdateReturnsSelectedObjectWhenProvided Whether update queries
  *  return `SelectedObject` when the updating object is a `SelectedObject`;
  *  update queries otherwise return `DefaultUPdateReturn`.
- * @typeparam DefaultInsertReturn Type returned from inserts unless
+ * @typeparam InsertReturn Type returned from inserts unless
  *  configured to return `SelectedObject`. Defaults to an object whose
  *  properties are the columns of `ReturnColumns`.
  * @typeparam DefaultUpdateReturn Type returned from updates except for
@@ -52,24 +50,15 @@ export interface TableMapperTransforms<
   ReturnColumns extends
     | Readonly<SelectionColumn<DB, TB>[]>
     | ['*'] = KeyColumns,
-  InsertReturnsSelectedObject extends boolean = false,
   UpdateReturnsSelectedObjectWhenProvided extends boolean = false,
-  DefaultInsertReturn = ReturnColumns extends ['*']
+  InsertReturn = ReturnColumns extends ['*']
     ? Selectable<DB[TB]>
     : Selection<DB, TB, ReturnColumns[number]>,
   DefaultUpdateReturn = ReturnColumns extends ['*']
     ? Selectable<DB[TB]>
     : Selection<DB, TB, ReturnColumns[number]>
 > extends CountTransform<ReturnCount>,
-    InsertTransforms<
-      DB,
-      TB,
-      SelectedObject,
-      InsertedObject,
-      ReturnColumns,
-      InsertReturnsSelectedObject,
-      DefaultInsertReturn
-    >,
+    InsertTransforms<DB, TB, InsertedObject, ReturnColumns, InsertReturn>,
     SelectTransform<DB, TB, SelectedColumns, SelectedObject>,
     UpdateTransforms<
       DB,
@@ -92,11 +81,9 @@ export interface CountTransform<ReturnCount> {
 export interface InsertTransforms<
   DB,
   TB extends keyof DB & string,
-  SelectedObject extends object,
   InsertedObject extends object,
   ReturnColumns extends Readonly<SelectionColumn<DB, TB>[]> | ['*'],
-  InsertReturnsSelectedObject extends boolean,
-  DefaultInsertReturn
+  InsertReturn
 > {
   /**
    * Transformation to apply to inserted objects before insertion.
@@ -107,11 +94,8 @@ export interface InsertTransforms<
   /**
    * Transformation to apply to column values returned from inserts before
    * returning values to the client. When inferring type parameters, specify
-   * a type for the `source` parameter. If you are returning an instance of
-   * `SelectedObject`, be sure to set the `InsertReturnsSelectedObject`
-   * setting to `true`. `source` is the object that was provided for
-   * insertion, and `returns` are the values returned from the insert. It's
-   * best to also define `updateReturnTransform` when defining this transform.
+   * a type for the `source` parameter. `source` is the object that was provided
+   * for insertion, and `returns` are the values returned from the insert.
    */
   insertReturnTransform?: (
     source: InsertedObject,
@@ -123,9 +107,7 @@ export interface InsertTransforms<
           ReturnColumns extends ['*'] ? never : ReturnColumns[number],
           ReturnColumns
         >
-  ) => InsertReturnsSelectedObject extends true
-    ? SelectedObject
-    : DefaultInsertReturn;
+  ) => InsertReturn;
 }
 
 export interface SelectTransform<
@@ -172,8 +154,6 @@ export interface UpdateTransforms<
    * to set the `UpdateReturnsSelectedObjectWhenProvided` setting to `true`.
    * `source` is the object that contained the valiues with which the table
    * row was updated, and `returns` are the values returned from the update.
-   * It's best to also define `insertReturnTransform` when defining this
-   * transform.
    */
   updateReturnTransform?: (
     source: UpdatingObject,

@@ -52,7 +52,10 @@ export class UniformTableMapper<
   ReturnCount,
   ReturnColumns,
   true,
-  true
+  MappedObject,
+  MappedObject | ReturnColumns extends ['*']
+    ? Selectable<DB[TB]>
+    : Selection<DB, TB, ReturnColumns[number]>
 > {
   declare settings: UniformTableMapperSettings<
     DB,
@@ -72,7 +75,10 @@ export class UniformTableMapper<
     ReturnCount,
     ReturnColumns,
     true,
-    true
+    MappedObject,
+    MappedObject | ReturnColumns extends ['*']
+      ? Selectable<DB[TB]>
+      : Selection<DB, TB, ReturnColumns[number]>
   >;
 
   /**
@@ -106,16 +112,7 @@ export class UniformTableMapper<
    * @param transforms The transforms to use.
    * @returns A new uniform table mapper that uses the provided transforms.
    */
-  withTransforms<
-    MappedObject extends object,
-    ReturnCount = bigint,
-    DefaultInsertReturn = ReturnColumns extends ['*']
-      ? Selectable<DB[TB]>
-      : Selection<DB, TB, ReturnColumns[number]>,
-    DefaultUpdateReturn = ReturnColumns extends ['*']
-      ? Selectable<DB[TB]>
-      : Selection<DB, TB, ReturnColumns[number]>
-  >(
+  withTransforms<MappedObject extends object, ReturnCount = bigint>(
     transforms: Readonly<
       TableMapperTransforms<
         DB,
@@ -128,9 +125,10 @@ export class UniformTableMapper<
         ReturnCount,
         ReturnColumns,
         true,
-        true,
-        DefaultInsertReturn,
-        DefaultUpdateReturn
+        MappedObject,
+        MappedObject | ReturnColumns extends ['*']
+          ? Selectable<DB[TB]>
+          : Selection<DB, TB, ReturnColumns[number]>
       >
     >
   ) {
@@ -196,9 +194,7 @@ function _prepareTransforms<
   SelectedColumns extends Readonly<SelectionColumn<DB, TB>[]> | ['*'],
   MappedObject extends object,
   ReturnCount,
-  ReturnColumns extends Readonly<SelectionColumn<DB, TB>[]> | ['*'],
-  DefaultInsertReturn,
-  DefaultUpdateReturn
+  ReturnColumns extends Readonly<SelectionColumn<DB, TB>[]> | ['*']
 >(
   keyColumns: KeyColumns,
   isMappedObject: (obj: any) => boolean,
@@ -213,9 +209,10 @@ function _prepareTransforms<
     ReturnCount,
     ReturnColumns,
     true,
-    true,
-    DefaultInsertReturn,
-    DefaultUpdateReturn
+    MappedObject,
+    MappedObject | ReturnColumns extends ['*']
+      ? Selectable<DB[TB]>
+      : Selection<DB, TB, ReturnColumns[number]>
   >
 ) {
   // Remove falsy key values from inserted object, by default
@@ -287,6 +284,9 @@ function _prepareTransforms<
     ReturnCount,
     ReturnColumns,
     true,
-    true
+    MappedObject,
+    MappedObject | ReturnColumns extends ['*']
+      ? Selectable<DB[TB]>
+      : Selection<DB, TB, ReturnColumns[number]>
   >;
 }
