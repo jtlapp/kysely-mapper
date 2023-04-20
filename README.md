@@ -204,10 +204,8 @@ const table = new TableMapper(db, 'users', {
 });
 ```
 
+TBD
+
 ## License
 
 MIT License. Copyright &copy; 2023 Joseph T. Lapp
-
-```
-
-```
