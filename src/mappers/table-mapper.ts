@@ -27,9 +27,8 @@ import { AbstractTableMapper } from './abstract-table-mapper';
  * @typeparam UpdateReturnsSelectedObjectWhenProvided Whether update queries
  *  return `SelectedObject` when the updating object is a `SelectedObject`;
  *  update queries otherwise return `DefaultUpdateReturn`.
- * @typeparam InsertReturn Type returned from inserts unless
- *  configured to return `SelectedObject`. Defaults to an object whose
- *  properties are the columns of `ReturnColumns`.
+ * @typeparam InsertReturn Type returned from inserts. Defaults to an object
+ *  whose properties are the columns of `ReturnColumns`.
  * @typeparam DefaultUpdateReturn Type returned from updates except for
  *  situations that return `SelectedObject`. Defaults to an object whose
  *  properties are the columns of `ReturnColumns`.
