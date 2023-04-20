@@ -1,12 +1,9 @@
-import { Kysely } from 'kysely';
+import { Kysely, Updateable } from 'kysely';
 
 import { TableMapper } from '../mappers/table-mapper';
 import { createDB, resetDB, destroyDB } from './utils/test-setup';
 import { Database } from './utils/test-tables';
-import {
-  createVariableReturnTypeMapper,
-  createInsertTransformMapper,
-} from './utils/test-mappers';
+import { createInsertTransformMapper } from './utils/test-mappers';
 import {
   userRow1,
   userRow2,
@@ -61,16 +58,18 @@ describe('inserting with transformation', () => {
 
   it('transforms insertion return into object without transforming insertion', async () => {
     const insertReturnTransformMapper = new TableMapper(db, 'users', {
-      returnColumns: ['id'],
+      returnColumns: ['id', 'name'],
     }).withTransforms({
-      insertReturnTransform: (source, returns) =>
-        new ReturnedUser(
+      insertReturnTransform: (source, returns) => {
+        const names = returns.name.split(' ');
+        return new ReturnedUser(
           returns.id,
-          source.name.split(' ')[0],
-          source.name.split(' ')[1],
+          names[0],
+          names[1],
           source.handle,
           source.email || null
-        ),
+        );
+      },
       countTransform: (count) => Number(count),
     });
 
@@ -83,6 +82,14 @@ describe('inserting with transformation', () => {
       .insert()
       .returnAll([userRow2, userRow3]);
     expect(insertReturns).toEqual([insertReturnedUser2, insertReturnedUser3]);
+
+    // test that updates return table rows
+    const updatedUser = await insertReturnTransformMapper
+      .update({ id: insertReturn.id })
+      .returnOne({ name: 'Updated Name' });
+    expect(updatedUser).toEqual({ id: insertReturn.id, name: 'Updated Name' });
+    // ensure return type can be accessed as a row
+    ((_: string) => {})(updatedUser!.name);
   });
 
   it('transforms insertion return into primitive without transforming insertion', async () => {
@@ -143,8 +150,41 @@ describe('inserting with transformation', () => {
     ((_: string) => {})(insertReturns[0].firstName);
   });
 
-  it('returns SelectedObject when updates can return rows', async () => {
-    const transformMapper = createVariableReturnTypeMapper(db);
+  it('returns SelectedObject with updates returning rows', async () => {
+    const transformMapper = new TableMapper(db, 'users', {
+      returnColumns: ['id', 'name'],
+    }).withTransforms({
+      insertReturnTransform: (source, results) => {
+        const names = results.name.split(' ');
+        return SelectedUser.create(results.id, {
+          firstName: names[0],
+          lastName: names[1],
+          handle: source.handle,
+          email: source.email || null,
+        });
+      },
+      updateTransform: (
+        source: SelectedUser | Updateable<Database['users']>
+      ) => {
+        if (source instanceof SelectedUser) {
+          return {
+            name: `${source.firstName} ${source.lastName}`,
+            handle: source.handle,
+            email: source.email,
+          };
+        }
+        return source;
+      },
+      selectTransform: (row) => {
+        const names = row.name.split(' ');
+        return SelectedUser.create(row.id, {
+          firstName: names[0],
+          lastName: names[1],
+          handle: row.handle,
+          email: row.email,
+        });
+      },
+    });
 
     // test returnOne()
     const names1 = userRow1.name.split(' ');
@@ -193,5 +233,16 @@ describe('inserting with transformation', () => {
       .select('id', '>', insertReturn.id)
       .returnAll();
     expect(readUsers).toEqual([expectedUser2, expectedUser3]);
+
+    // test that updates return rows
+    const updateReturn = await transformMapper
+      .update({ id: 1 })
+      .returnOne(expectedUser2);
+    expect(updateReturn).toEqual({
+      id: 1,
+      name: `${expectedUser2.firstName} ${expectedUser2.lastName}`,
+    });
+    // ensure return type can be accessed as a row
+    ((_: string) => {})(updateReturn!.name);
   });
 });
