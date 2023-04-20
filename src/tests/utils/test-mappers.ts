@@ -10,9 +10,12 @@ export function createUserMapperReturningDefault(db: Kysely<Database>) {
   return new TableMapper(db, 'users');
 }
 
-// TODO: make sure I support `[] as const`
+const noColumns = [] as const;
 export function createUserMapperReturningNothing(db: Kysely<Database>) {
-  return new TableMapper(db, 'users', { keyColumns: [] }).withTransforms({
+  return new TableMapper(db, 'users', {
+    keyColumns: noColumns,
+    updateReturnColumns: noColumns,
+  }).withTransforms({
     countTransform,
   });
 }

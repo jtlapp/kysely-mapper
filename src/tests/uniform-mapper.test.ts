@@ -289,10 +289,10 @@ describe('uniform table mapper', () => {
       ) {}
     }
 
-    // TODO: make sure works with `[] as const`
+    const noColumns = [] as const;
     const userMapper = new UniformTableMapper(db, 'users', {
-      keyColumns: [],
-    }).withTransforms(new DefaultUniformTransforms([]));
+      keyColumns: noColumns,
+    }).withTransforms(new DefaultUniformTransforms(noColumns));
 
     // test inserting a user
     const insertedUser = new MappedUser(

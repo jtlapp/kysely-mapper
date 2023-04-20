@@ -10,7 +10,7 @@ import { ParameterizableMappingQuery } from '../queries/parameterizable-query';
 export interface ParameterizableMappingQueryFactory<
   DB,
   TB extends keyof DB & string,
-  KeyColumns extends Readonly<SelectableColumnTuple<DB[TB]>> | [],
+  KeyColumns extends Readonly<SelectableColumnTuple<DB[TB]>> | Readonly<[]>,
   SelectedColumns extends Readonly<SelectionColumn<DB, TB>[]> | ['*'],
   SelectedObject extends object,
   InsertedObject extends object,

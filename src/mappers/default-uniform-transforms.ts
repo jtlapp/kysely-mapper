@@ -13,7 +13,7 @@ import { TableMapperTransforms } from './table-mapper-transforms';
 export class DefaultUniformTransforms<
   DB,
   TB extends keyof DB & string,
-  KeyColumns extends Readonly<SelectableColumnTuple<DB[TB]>> | [],
+  KeyColumns extends Readonly<SelectableColumnTuple<DB[TB]>> | Readonly<[]>,
   SelectedColumns extends Readonly<SelectionColumn<DB, TB>[]> | ['*'],
   InsertReturnColumns extends Readonly<SelectionColumn<DB, TB>[]> | ['*'],
   UpdateReturnColumns extends Readonly<SelectionColumn<DB, TB>[]> | ['*']

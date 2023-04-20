@@ -24,7 +24,7 @@ type AnyWhereInterface = WhereInterface<any, any>;
 export function applyQueryFilter<
   DB,
   TB extends keyof DB & string,
-  KeyColumns extends Readonly<SelectableColumnTuple<DB[TB]>> | [],
+  KeyColumns extends Readonly<SelectableColumnTuple<DB[TB]>> | Readonly<[]>,
   QB extends AnyWhereInterface,
   RE extends ReferenceExpression<DB, TB>
 >(

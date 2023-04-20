@@ -29,11 +29,10 @@ type RequiredTransforms =
  *  the table rows on inserts, updates, and selects. Updates may also be given
  *  as columns of the table.
  * @typeparam KeyColumns Tuple of the names of the table's key columns.
- *  Defaults to `['id']`. By default, falsy key values are assumed to require
- *  generation and `insertTransform` removes them from the insertion.
+ *  Defaults to `[]`, indicating no key columns. Supports up to 4 columns.
  * @typeparam SelectedColumns Columns to return from selection queries.
  *  Defaults to `['*']`, returning all columns. May specify aliases.
- * @typeparam ReturnCount Type of count query results.
+ * @typeparam Type of the count of the number of affected rows.
  * @typeparam InsertReturnColumns Columns to return from the table on insert
  *  queries that return columns. `['*']` returns all columns; `[]` returns
  *  none. May specify aliases. Defaults to `KeyColumns`.
@@ -45,7 +44,7 @@ export class UniformTableMapper<
   DB,
   TB extends keyof DB & string,
   MappedObject extends object,
-  KeyColumns extends Readonly<SelectableColumnTuple<DB[TB]>> | [] = [
+  KeyColumns extends Readonly<SelectableColumnTuple<DB[TB]>> | Readonly<[]> = [
     'id' & SelectableColumn<DB[TB]>
   ],
   SelectedColumns extends Readonly<SelectionColumn<DB, TB>[]> | ['*'] = ['*'],
@@ -172,7 +171,7 @@ export class UniformTableMapper<
 function _prepareSettings<
   DB,
   TB extends keyof DB & string,
-  KeyColumns extends Readonly<SelectableColumnTuple<DB[TB]>> | [],
+  KeyColumns extends Readonly<SelectableColumnTuple<DB[TB]>> | Readonly<[]>,
   SelectedColumns extends Readonly<SelectionColumn<DB, TB>[]> | ['*'],
   InsertReturnColumns extends Readonly<SelectionColumn<DB, TB>[]> | ['*'],
   UpdateReturnColumns extends Readonly<SelectionColumn<DB, TB>[]> | ['*']

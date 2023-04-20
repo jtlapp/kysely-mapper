@@ -24,7 +24,9 @@ export type KeyTuple<
   ? [Selectable<T>[KA[0]], Selectable<T>[KA[1]], Selectable<T>[KA[2]]]
   : KA[1] extends string
   ? [Selectable<T>[KA[0]], Selectable<T>[KA[1]]]
-  : [Selectable<T>[KA[0]]];
+  : KA[0] extends string
+  ? [Selectable<T>[KA[0]]]
+  : never;
 
 /**
  * Require specified properties of a type, leaving the rest optional.

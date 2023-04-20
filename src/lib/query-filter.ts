@@ -34,7 +34,7 @@ import { KeyTuple, SelectableColumnTuple } from './type-utils';
 export type QueryFilter<
   DB,
   TB extends keyof DB & string,
-  KeyColumns extends Readonly<SelectableColumnTuple<DB[TB]>> | [],
+  KeyColumns extends Readonly<SelectableColumnTuple<DB[TB]>> | Readonly<[]>,
   RE extends ReferenceExpression<DB, TB>
 > =
   | (KeyColumns extends [string]
