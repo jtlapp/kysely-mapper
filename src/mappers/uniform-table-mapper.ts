@@ -1,17 +1,25 @@
-import { Kysely, Selectable, Selection, Updateable } from 'kysely';
+import { Kysely } from 'kysely';
 
 import { AbstractTableMapper } from './abstract-table-mapper';
 import {
+  RequireSome,
   SelectableColumn,
   SelectableColumnTuple,
-  SelectedRow,
   SelectionColumn,
 } from '../lib/type-utils';
-import { UniformTableMapperSettings } from './uniform-table-mapper-settings';
+import { TableMapperSettings } from './table-mapper-settings';
 import { TableMapperTransforms } from './table-mapper-transforms';
+import { DefaultUniformTransforms } from './default-uniform-transforms';
 
 /** Default key columns */
 export const DEFAULT_KEY = ['id'] as const;
+
+type RequiredTransforms =
+  | 'insertTransform'
+  | 'insertReturnTransform'
+  | 'updateTransform'
+  | 'updateReturnTransform'
+  | 'selectTransform';
 
 /**
  * A mapper for a table representing a store of objects.
@@ -45,10 +53,7 @@ export class UniformTableMapper<
   InsertReturnColumns extends
     | Readonly<SelectionColumn<DB, TB>[]>
     | ['*'] = Readonly<KeyColumns>,
-  UpdateReturnColumns extends Readonly<SelectionColumn<DB, TB>[]> | ['*'] = [],
-  UpdateReturn = UpdateReturnColumns extends ['*']
-    ? Selectable<DB[TB]>
-    : Selection<DB, TB, UpdateReturnColumns[number]>
+  UpdateReturnColumns extends Readonly<SelectionColumn<DB, TB>[]> | ['*'] = []
 > extends AbstractTableMapper<
   DB,
   TB,
@@ -61,9 +66,9 @@ export class UniformTableMapper<
   InsertReturnColumns,
   UpdateReturnColumns,
   MappedObject,
-  UpdateReturn
+  MappedObject
 > {
-  declare settings: UniformTableMapperSettings<
+  declare settings: TableMapperSettings<
     DB,
     TB,
     KeyColumns,
@@ -71,19 +76,22 @@ export class UniformTableMapper<
     InsertReturnColumns,
     UpdateReturnColumns
   >;
-  declare transforms: TableMapperTransforms<
-    DB,
-    TB,
-    KeyColumns,
-    SelectedColumns,
-    MappedObject,
-    MappedObject,
-    MappedObject,
-    ReturnCount,
-    InsertReturnColumns,
-    UpdateReturnColumns,
-    MappedObject,
-    UpdateReturn
+  declare transforms: RequireSome<
+    TableMapperTransforms<
+      DB,
+      TB,
+      KeyColumns,
+      SelectedColumns,
+      MappedObject,
+      MappedObject,
+      MappedObject,
+      ReturnCount,
+      InsertReturnColumns,
+      UpdateReturnColumns,
+      MappedObject,
+      MappedObject
+    >,
+    RequiredTransforms
   >;
 
   /**
@@ -96,7 +104,7 @@ export class UniformTableMapper<
   constructor(
     db: Kysely<DB>,
     tableName: TB,
-    settings: UniformTableMapperSettings<
+    settings: TableMapperSettings<
       DB,
       TB,
       KeyColumns,
@@ -106,11 +114,14 @@ export class UniformTableMapper<
     >
   ) {
     super(db, tableName, _prepareSettings(settings));
-    this.transforms = _prepareTransforms(
-      this.keyColumns,
-      this.settings.isMappedObject,
-      {}
-    );
+  }
+
+  /**
+   * Returns a new uniform table mapper that uses default transformations.
+   * @returns A new uniform table mapper that uses default transforms.
+   */
+  withDefaultTransforms() {
+    return this.withTransforms(new DefaultUniformTransforms(this.keyColumns));
   }
 
   /**
@@ -120,19 +131,22 @@ export class UniformTableMapper<
    */
   withTransforms<MappedObject extends object, ReturnCount = bigint>(
     transforms: Readonly<
-      TableMapperTransforms<
-        DB,
-        TB,
-        KeyColumns,
-        SelectedColumns,
-        MappedObject,
-        MappedObject,
-        MappedObject,
-        ReturnCount,
-        InsertReturnColumns,
-        UpdateReturnColumns,
-        MappedObject,
-        UpdateReturn
+      RequireSome<
+        TableMapperTransforms<
+          DB,
+          TB,
+          KeyColumns,
+          SelectedColumns,
+          MappedObject,
+          MappedObject,
+          MappedObject,
+          ReturnCount,
+          InsertReturnColumns,
+          UpdateReturnColumns,
+          MappedObject,
+          MappedObject
+        >,
+        RequiredTransforms
       >
     >
   ) {
@@ -144,15 +158,10 @@ export class UniformTableMapper<
       SelectedColumns,
       ReturnCount,
       InsertReturnColumns,
-      UpdateReturnColumns,
-      UpdateReturn
+      UpdateReturnColumns
     >(this.db, this.tableName, this.settings);
 
-    transformingTableMapper.transforms = _prepareTransforms(
-      this.keyColumns,
-      this.settings.isMappedObject,
-      transforms
-    );
+    transformingTableMapper.transforms = transforms;
     return transformingTableMapper;
   }
 }
@@ -168,7 +177,7 @@ function _prepareSettings<
   InsertReturnColumns extends Readonly<SelectionColumn<DB, TB>[]> | ['*'],
   UpdateReturnColumns extends Readonly<SelectionColumn<DB, TB>[]> | ['*']
 >(
-  settings: UniformTableMapperSettings<
+  settings: TableMapperSettings<
     DB,
     TB,
     KeyColumns,
@@ -183,98 +192,12 @@ function _prepareSettings<
     keyColumns,
     insertReturnColumns: keyColumns,
     ...settings,
-  } as UniformTableMapperSettings<
+  } as TableMapperSettings<
     DB,
     TB,
     KeyColumns,
     SelectedColumns,
     InsertReturnColumns,
     UpdateReturnColumns
-  >;
-}
-
-/**
- * Provides default transforms.
- */
-function _prepareTransforms<
-  DB,
-  TB extends keyof DB & string,
-  KeyColumns extends Readonly<SelectableColumnTuple<DB[TB]>> | [],
-  SelectedColumns extends Readonly<SelectionColumn<DB, TB>[]> | ['*'],
-  MappedObject extends object,
-  ReturnCount,
-  InsertReturnColumns extends Readonly<SelectionColumn<DB, TB>[]> | ['*'],
-  UpdateReturnColumns extends Readonly<SelectionColumn<DB, TB>[]> | ['*'],
-  UpdateReturn
->(
-  keyColumns: KeyColumns,
-  isMappedObject: (obj: any) => boolean,
-  transforms: TableMapperTransforms<
-    DB,
-    TB,
-    KeyColumns,
-    SelectedColumns,
-    MappedObject,
-    MappedObject,
-    MappedObject,
-    ReturnCount,
-    InsertReturnColumns,
-    UpdateReturnColumns,
-    MappedObject,
-    UpdateReturn
-  >
-) {
-  // Remove falsy key values from inserted object, by default
-  const insertTransform = (obj: MappedObject) => {
-    const insertedValues = { ...obj };
-    keyColumns.forEach((column) => {
-      if (!obj[column as unknown as keyof MappedObject]) {
-        delete insertedValues[column as unknown as keyof MappedObject];
-      }
-    });
-    return insertedValues;
-  };
-
-  // Add returned values to inserted object, by default
-  const insertReturnTransform = (
-    obj: MappedObject,
-    returns: InsertReturnColumns extends []
-      ? never
-      : SelectedRow<
-          DB,
-          TB,
-          InsertReturnColumns extends ['*']
-            ? never
-            : InsertReturnColumns[number],
-          InsertReturnColumns
-        >
-  ) => ({ ...obj, ...returns });
-
-  // Use insert transform by default; or if none is provided, remove falsy
-  // key values from inserted object if the object is a `MappedObject`.
-  const updateTransform =
-    transforms.updateTransform !== undefined
-      ? transforms.updateTransform
-      : (obj: MappedObject | Updateable<DB[TB]>) =>
-          isMappedObject(obj) ? insertTransform(obj as any) : obj;
-
-  return {
-    insertTransform,
-    insertReturnTransform,
-    updateTransform,
-    ...transforms,
-  } as TableMapperTransforms<
-    DB,
-    TB,
-    KeyColumns,
-    SelectedColumns,
-    MappedObject,
-    MappedObject,
-    MappedObject,
-    ReturnCount,
-    InsertReturnColumns,
-    UpdateReturnColumns,
-    MappedObject,
-    UpdateReturn
   >;
 }

@@ -4,6 +4,7 @@ import { createDB, resetDB, destroyDB } from './utils/test-setup';
 import { Database } from './utils/test-tables';
 import { USERS, insertedUser1 } from './utils/test-objects';
 import { UniformTableMapper } from '../mappers/uniform-table-mapper';
+import { DefaultUniformTransforms } from '../mappers/default-uniform-transforms';
 
 let db: Kysely<Database>;
 
@@ -24,19 +25,11 @@ describe('uniform table mapper', () => {
       ) {}
     }
 
-    const userMapper = new UniformTableMapper<
-      Database,
-      'users',
-      MappedUser,
-      ['id'],
-      ['*'],
-      bigint,
-      ['id'],
-      ['id', 'name']
-    >(db, 'users', {
-      isMappedObject: (obj) => obj instanceof MappedUser,
+    const keyColumns = ['id'] as const;
+    const userMapper = new UniformTableMapper(db, 'users', {
+      keyColumns,
       updateReturnColumns: ['id', 'name'],
-    });
+    }).withDefaultTransforms();
 
     // test updating a non-existent user
     const userWithID = new MappedUser(
@@ -86,7 +79,7 @@ describe('uniform table mapper', () => {
       .returnOne();
     expect(selectedUser2).toEqual(insertedUser2);
 
-    // test updating a user, with returned object
+    // test updating a user, with returned row
     const updatingUser = new MappedUser(
       selectedUser1!.id,
       'Xana',
@@ -96,6 +89,7 @@ describe('uniform table mapper', () => {
     const updateReturn = await userMapper
       .update({ id: updatingUser.id })
       .returnOne(updatingUser);
+    updateReturn?.id; // ensure 'id' is accessible
     updateReturn?.name; // ensure 'name' is accessible
     expect(updateReturn).toEqual(updatingUser);
     const selectedUser3 = await userMapper
@@ -103,7 +97,7 @@ describe('uniform table mapper', () => {
       .returnOne();
     expect(selectedUser3).toEqual(updatingUser);
 
-    // test updating a user, without returned object
+    // test updating a user, without returned row
     const updatingUser2 = new MappedUser(
       selectedUser3!.id,
       'Freddy',
@@ -119,17 +113,23 @@ describe('uniform table mapper', () => {
       .returnOne();
     expect(selectedUser4).toEqual(updatingUser2);
 
-    // test updating multiple users returning select columns
+    // test updating multiple users returning rows
+    const updatingUser3 = new MappedUser(
+      selectedUser1!.id,
+      'Everyone',
+      selectedUser1!.handle,
+      selectedUser1!.email
+    );
     const updateReturn3 = await userMapper
       .update()
-      .returnAll({ name: 'Everyone' });
-    expect(updateReturn3).toEqual([{ id: 1 }, { id: 10 }]);
+      .columns(['name', 'handle', 'email'])
+      .returnAll(updatingUser3);
+    expect(updateReturn3).toEqual([
+      { ...updatingUser3, id: 1 },
+      { ...updatingUser3, id: 10 },
+    ]);
     updateReturn3[0].id; // ensure 'id' is accessible
-    const updateReturn4 = await userMapper
-      .update()
-      .returnOne({ name: 'Everyone' });
-    expect(updateReturn4).toEqual({ id: 1 });
-    updateReturn4?.id; // ensure 'id' is accessible
+    updateReturn3[0].name; // ensure 'name' is accessible
 
     // test deleting a user
     const deleted = await userMapper.delete({ id: insertReturn1.id }).run();
@@ -152,7 +152,6 @@ describe('uniform table mapper', () => {
     }
 
     const userMapper = new UniformTableMapper(db, 'users', {
-      isMappedObject: (obj) => obj instanceof MappedUser,
       updateReturnColumns: ['id'],
     }).withTransforms({
       insertTransform: (user: MappedUser) => ({
@@ -179,11 +178,8 @@ describe('uniform table mapper', () => {
         };
       },
       updateReturnTransform: (user, returns) => {
-        if (!(user instanceof MappedUser)) {
-          return returns;
-        }
         return new MappedUser(
-          user.serialNo,
+          returns.id,
           user.firstName,
           user.lastName,
           user.handle,
@@ -237,7 +233,7 @@ describe('uniform table mapper', () => {
     expect(selectedUser1).toEqual(insertReturn);
     expect(selectedUser1?.serialNo).toEqual(insertReturn.serialNo);
 
-    // test updating a user, with returned object
+    // test updating a user
     const updatingUser = new MappedUser(
       selectedUser1!.serialNo,
       selectedUser1!.firstName,
@@ -257,30 +253,20 @@ describe('uniform table mapper', () => {
     expect(selectedUser2?.serialNo).toEqual(selectedUser1!.serialNo);
     expect(selectedUser2?.handle).toEqual(selectedUser1!.handle + '2');
 
-    // test updating a column with returns
-    const updateColumnReturns = await userMapper
-      .update('id', '=', insertReturn.serialNo)
-      .returnAll({
-        name: 'Foo Foo',
-      });
-    updateColumnReturns[0].id; // ensure 'id' is accessible
-    expect(updateColumnReturns).toEqual([{ id: selectedUser1!.serialNo }]);
-    const selectedUser4 = await userMapper
-      .select({ id: insertReturn.serialNo })
-      .returnOne();
-    expect(selectedUser4?.firstName).toEqual('Foo');
-
-    // test updating multiple users returning select columns
-    const updateReturn3 = await userMapper
-      .update()
-      .returnAll({ name: 'Everyone' });
-    expect(updateReturn3).toEqual([{ id: 1 }]);
-    updateReturn3[0].id; // ensure 'id' is accessible
-    const updateReturn4 = await userMapper
-      .update()
-      .returnOne({ name: 'Everyone' });
-    expect(updateReturn4).toEqual({ id: 1 });
-    updateReturn4?.id; // ensure 'id' is accessible
+    // test updating multiple users
+    const updatingUser3 = new MappedUser(
+      selectedUser1!.serialNo,
+      'Every',
+      'One',
+      selectedUser1!.handle,
+      selectedUser1!.email
+    );
+    const updateReturn3 = await userMapper.update().returnAll(updatingUser3);
+    expect(updateReturn3).toEqual([updatingUser3]);
+    updateReturn3[0].serialNo; // ensure 'serialNo' is accessible
+    const updateReturn4 = await userMapper.update().returnOne(updatingUser3);
+    expect(updateReturn4).toEqual(updatingUser3);
+    updateReturn4?.serialNo; // ensure 'serialNo' is accessible
 
     // test deleting a user
     const deleted = await userMapper
@@ -293,125 +279,6 @@ describe('uniform table mapper', () => {
     expect(selectedUser3).toBeNull();
   });
 
-  it('inserts/updates/deletes a mapped object class w/ default update transforms', async () => {
-    class MappedUser {
-      constructor(
-        public id: number,
-        public firstName: string,
-        public lastName: string,
-        public handle: string,
-        public email: string | null
-      ) {}
-    }
-
-    const userMapper = new UniformTableMapper(db, 'users', {
-      isMappedObject: (obj) => obj instanceof MappedUser,
-      updateReturnColumns: ['id'],
-    }).withTransforms({
-      insertTransform: (user: MappedUser) => ({
-        name: `${user.firstName} ${user.lastName}`,
-        handle: user.handle,
-        email: user.email,
-      }),
-      insertReturnTransform: (user, returns) =>
-        new MappedUser(
-          returns.id,
-          user.firstName,
-          user.lastName,
-          user.handle,
-          user.email
-        ),
-      selectTransform: (row) => {
-        const names = row.name.split(' ');
-        return new MappedUser(
-          row.id,
-          names[0],
-          names[1],
-          row.handle,
-          row.email
-        );
-      },
-    });
-
-    // test updating a non-existent user
-    const updateReturn1 = await userMapper
-      .update({ id: 1 })
-      .returnOne(
-        new MappedUser(
-          1,
-          insertedUser1.firstName,
-          insertedUser1.lastName,
-          insertedUser1.handle,
-          insertedUser1.email
-        )
-      );
-    expect(updateReturn1).toEqual(null);
-
-    // test inserting a user
-    const insertedUser = new MappedUser(
-      0,
-      insertedUser1.firstName,
-      insertedUser1.lastName,
-      insertedUser1.handle,
-      insertedUser1.email
-    );
-    const insertReturn = (await userMapper.insert().returnOne(insertedUser))!;
-    insertReturn?.firstName; // ensure 'firstName' is accessible
-    expect(insertReturn).not.toBeNull();
-    expect(insertReturn.id).toBeGreaterThan(0);
-
-    // test getting a user by ID
-    const selectedUser1 = await userMapper
-      .select({ id: insertReturn.id })
-      .returnOne();
-    selectedUser1?.firstName; // ensure 'firstName' is accessible
-    expect(selectedUser1).toEqual(insertReturn);
-    expect(selectedUser1?.id).toEqual(insertReturn.id);
-
-    // test updating a user
-    const updatingUser = new MappedUser(
-      selectedUser1!.id,
-      selectedUser1!.firstName,
-      'Xana',
-      selectedUser1!.handle,
-      selectedUser1!.email
-    );
-    const updateReturn = await userMapper
-      .update({ id: updatingUser.id })
-      .returnOne(updatingUser);
-    updateReturn?.firstName; // ensure 'firstName' is accessible
-    expect(updateReturn).toEqual(updatingUser);
-    const selectedUser2 = await userMapper
-      .select({ id: insertReturn.id })
-      .returnOne();
-    expect(selectedUser2).toEqual(updatingUser);
-
-    // test updating a user, without returned object
-    const updatingUser2 = new MappedUser(
-      selectedUser2!.id,
-      'Super',
-      'Man',
-      selectedUser2!.handle,
-      selectedUser2!.email
-    );
-    const updateReturn2 = await userMapper
-      .update({ id: updatingUser2.id })
-      .run(updatingUser2);
-    expect(updateReturn2).toBe(true);
-    const selectedUser3 = await userMapper
-      .select({ id: insertReturn.id })
-      .returnOne();
-    expect(selectedUser3).toEqual(updatingUser2);
-
-    // test deleting a user
-    const deleted = await userMapper.delete({ id: insertReturn.id }).run();
-    expect(deleted).toEqual(true);
-    const selectedUser4 = await userMapper
-      .select({ id: insertReturn.id })
-      .returnOne();
-    expect(selectedUser4).toBeNull();
-  });
-
   it('supports queries with no key columns', async () => {
     class MappedUser {
       constructor(
@@ -422,10 +289,10 @@ describe('uniform table mapper', () => {
       ) {}
     }
 
+    // TODO: make sure works with `[] as const`
     const userMapper = new UniformTableMapper(db, 'users', {
-      isMappedObject: (obj) => obj instanceof MappedUser,
       keyColumns: [],
-    });
+    }).withTransforms(new DefaultUniformTransforms([]));
 
     // test inserting a user
     const insertedUser = new MappedUser(

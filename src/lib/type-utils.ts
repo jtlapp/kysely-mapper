@@ -27,6 +27,14 @@ export type KeyTuple<
   : [Selectable<T>[KA[0]]];
 
 /**
+ * Require specified properties of a type, leaving the rest optional.
+ * @typeparam T Type to require properties from.
+ * @typeparam K Keys of the properties to require.
+ */
+export type RequireSome<T, K extends keyof T> = Omit<T, K> &
+  Required<Pick<T, K>>;
+
+/**
  * Shorthand type for a selectable column, restricted to a column name.
  */
 export type SelectableColumn<T> = keyof Selectable<T> & string;
