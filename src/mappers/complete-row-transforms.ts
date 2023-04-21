@@ -14,7 +14,6 @@ export class CompleteRowTransforms<
   DB,
   TB extends keyof DB & string,
   KeyColumns extends Readonly<SelectableColumnTuple<DB[TB]>> | Readonly<[]>,
-  SelectedColumns extends Readonly<SelectionColumn<DB, TB>[]> | ['*'],
   InsertReturnColumns extends Readonly<SelectionColumn<DB, TB>[]> | ['*'],
   UpdateReturnColumns extends Readonly<SelectionColumn<DB, TB>[]> | ['*']
 > implements
@@ -23,7 +22,7 @@ export class CompleteRowTransforms<
         DB,
         TB,
         KeyColumns,
-        SelectedColumns,
+        ['*'],
         Selectable<DB[TB]>,
         Selectable<DB[TB]>,
         Selectable<DB[TB]>,
@@ -85,15 +84,8 @@ export class CompleteRowTransforms<
   /**
    * Returns selected rows to the caller as selected objects, unchanged.
    */
-  selectTransform(
-    row: SelectedRow<
-      DB,
-      TB,
-      SelectedColumns extends ['*'] ? never : SelectedColumns[number],
-      SelectedColumns
-    >
-  ) {
-    return row as Selectable<DB[TB]>;
+  selectTransform(row: Selectable<DB[TB]>) {
+    return row;
   }
 
   /**
