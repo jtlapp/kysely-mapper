@@ -357,6 +357,15 @@ const table = new TableMapper(db, 'users', {
 
 The transforms are only compatible with with table mappers that select all columns, as the above does because `selectedColumns` defaults to `['*']`.
 
+The resulting table mapper has these properties:
+
+- Upon insertion, key columns with falsy values are removed from the query; when you want the table to generate a key, set the key value to `null`, 0, or an empty string `""`.
+- The row returned from an insertion is the row provided for insertion merged with the columns returned from the insertion.
+- Select queries return entire rows.
+- The caller provides an entire row when updating, setting all columns, unless you restrict columns by calling `columns()`.
+- The row returned from an update is the row provided with the update merged with the columns returned from the update.
+- Counts of the number of affected rows have type `number`.
+
 ## Parameterizing and Compiling Queries
 
 TBD
