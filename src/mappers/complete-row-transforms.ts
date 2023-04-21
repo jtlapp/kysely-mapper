@@ -8,9 +8,9 @@ import { TableMapperTransforms } from './table-mapper-transforms';
 
 /**
  * Default transforms for a table mapper that only receives and returns
- * instances of `Selectable<DB[TB]>`.
+ * instances of a complete table row, given by type `Selectable<DB[TB]>`.
  */
-export class DefaultUniformTransforms<
+export class CompleteRowTransforms<
   DB,
   TB extends keyof DB & string,
   KeyColumns extends Readonly<SelectableColumnTuple<DB[TB]>> | Readonly<[]>,
@@ -36,7 +36,7 @@ export class DefaultUniformTransforms<
     >
 {
   /**
-   * Constructs a default uniform transforms object.
+   * Constructs an object providing transforms for complete table rows.
    */
   constructor(readonly keyColumns: KeyColumns) {}
 

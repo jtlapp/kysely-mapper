@@ -39,7 +39,8 @@ import { TableMapperTransforms } from './table-mapper-transforms';
 
 /**
  * Abstract base class for table mappers. It is abstract because it does not
- * provide a way to specify query input and output transforms.
+ * provide a way to specify query input and output transforms. Custom table
+ * mappers should extend this class with means for providing transforms.
  * @typeparam DB Interface whose fields are table names defining tables.
  * @typeparam TB Name of the table.
  * @typeparam KeyColumns Tuple of the names of the table's key columns.

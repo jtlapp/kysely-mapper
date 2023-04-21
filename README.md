@@ -22,7 +22,7 @@ pnpm add kysely kysely-mapper
 
 ## Introduction
 
-This package provides two concrete classes for mapping tables: `TableMapper` and `UniformTableMapper`. `TableMapper` is a generic mapping utility that makes few assumptions about mapping requirements. `UniformTableMapper` provides a configuration that assumes queries all insert, update, select, and return the same type of object. You can use either of these classes or design your own, such as by subclassing `AbstractTableMapper`.
+This package provides three classes for mapping tables: `AbstractTableMapper`, `TableMapper` and `CompleteRowTransforms`. `AbstractTableMapper` is a base class for constructing your own kinds of table mappers. `TableMapper` is a generic mapping utility that implements `AbstractTableMapper` and should suffice for most of your needs. `CompleteRowTransforms` provides default mappings for a table mapper whose queries input and output entire rows of the underlying table.
 
 For the examples that follow, assume we have the following 'users' table:
 
@@ -33,7 +33,7 @@ For the examples that follow, assume we have the following 'users' table:
 
 ## Introduction to Querying
 
-If we don't configure `TableMapper` at all, objects provided to the queries are those passed to Kysely, and objects returned by Kysely are those provided to the client. Consider:
+Let's begin by looking at how we query instances of `TableMapper`. If we don't configure `TableMapper`, no mapping occurs: objects provided to the queries are passed directly to Kysely, and objects returned by Kysely are passed directly back to the caller. Consider:
 
 ```ts
 const db = new Kysely<Database>({ ... });
@@ -337,7 +337,7 @@ user = await table.update(user.id).returnOne({ name: 'Janice Smith' });
 await table.update({ name: 'Joe Smith' }).run({ name: 'Joseph Smith' });
 ```
 
-## Introduction to UniformTableMapper
+## Introduction to CompleteRowTransforms
 
 TBD
 
