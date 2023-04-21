@@ -7,10 +7,10 @@ import {
 import { TableMapperTransforms } from './table-mapper-transforms';
 
 /**
- * Default transforms for a table mapper that only receives and returns
- * instances of a complete table row, given by type `Selectable<DB[TB]>`.
+ * Transforms for a table mapper that only receives and returns
+ * entire table rows, given by type `Selectable<DB[TB]>`.
  */
-export class CompleteRowTransforms<
+export class EntireRowTransforms<
   DB,
   TB extends keyof DB & string,
   KeyColumns extends Readonly<SelectableColumnTuple<DB[TB]>> | Readonly<[]>,
@@ -35,7 +35,7 @@ export class CompleteRowTransforms<
     >
 {
   /**
-   * Constructs an object providing transforms for complete table rows.
+   * Constructs an object providing transforms for entire table rows.
    */
   constructor(readonly keyColumns: KeyColumns) {}
 

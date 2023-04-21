@@ -4,7 +4,7 @@ import { createDB, resetDB, destroyDB } from './utils/test-setup';
 import { Database } from './utils/test-tables';
 import { USERS, insertedUser1 } from './utils/test-objects';
 import { TableMapper } from '../mappers/table-mapper';
-import { CompleteRowTransforms } from '../mappers/complete-row-transforms';
+import { EntireRowTransforms } from '../mappers/entire-row-transforms';
 
 let db: Kysely<Database>;
 
@@ -29,7 +29,7 @@ describe('mappers that input and output the same type of object', () => {
     const userMapper = new TableMapper(db, 'users', {
       keyColumns,
       updateReturnColumns: ['id', 'name'],
-    }).withTransforms(new CompleteRowTransforms(keyColumns));
+    }).withTransforms(new EntireRowTransforms(keyColumns));
 
     // test updating a non-existent user
     const userWithID = new MappedUser(

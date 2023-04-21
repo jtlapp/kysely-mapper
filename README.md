@@ -26,7 +26,7 @@ pnpm add kysely kysely-mapper
 
 ## Introduction
 
-This package provides three classes for mapping tables: `AbstractTableMapper`, `TableMapper` and `CompleteRowTransforms`. `AbstractTableMapper` is a base class for constructing your own kinds of table mappers. `TableMapper` is a generic mapping utility that implements `AbstractTableMapper` and should suffice for most of your needs. `CompleteRowTransforms` provides default mappings for a table mapper whose queries input and output entire rows of the underlying table.
+This package provides three classes for mapping tables: `AbstractTableMapper`, `TableMapper` and `EntireRowTransforms`. `AbstractTableMapper` is a base class for constructing your own kinds of table mappers. `TableMapper` is a generic mapping utility that implements `AbstractTableMapper` and should suffice for most of your needs. `EntireRowTransforms` provides default mappings for a table mapper whose queries input and output entire rows of the underlying table.
 
 For the examples that follow, assume we have the following '**users**' table:
 
@@ -341,9 +341,21 @@ user = await table.update(user.id).returnOne({ name: 'Janice Smith' });
 await table.update({ name: 'Joe Smith' }).run({ name: 'Joseph Smith' });
 ```
 
-### Introduction to CompleteRowTransforms
+### Introduction to EntireRowTransforms
 
-TBD
+`EntireRowTransforms` is a class that provides transforms for defining a table mapper whose queries all receive and return entire rows of the table. Use it when you want to read and write entire rows but also respect the expected insert and update return columns. The class exists merely for your convenience.
+
+Here is how you create a table mapper that uses these transforms:
+
+```ts
+const table = new TableMapper(db, 'users', {
+  keyColumns: ['id'],
+  insertReturnColumns: ['id', 'modified'],
+  updateReturnColumns: ['modified'],
+}).withTransforms(new EntireRowTransforms(keyColumns));
+```
+
+The transforms are only compatible with with table mappers that select all columns, as the above does because `selectedColumns` defaults to `['*']`.
 
 ## Parameterizing and Compiling Queries
 
