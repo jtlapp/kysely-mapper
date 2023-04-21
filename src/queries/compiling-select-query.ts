@@ -11,7 +11,7 @@ export class CompilingMappingSelectQuery<
   DB,
   TB extends keyof DB & string,
   SelectedColumns extends Readonly<SelectionColumn<DB, TB>[]> | ['*'],
-  SelectedObject extends object,
+  SelectedObject,
   QB extends SelectQueryBuilder<DB, TB, any>,
   Parameters extends ParametersObject<Parameters>
 > implements ParameterizableMappingQuery

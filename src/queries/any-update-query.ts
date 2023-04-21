@@ -15,7 +15,7 @@ export class AnyColumnsMappingUpdateQuery<
   DB,
   TB extends keyof DB & string,
   QB extends UpdateQueryBuilder<DB, TB, TB, UpdateResult>,
-  UpdatingObject extends object,
+  UpdatingObject,
   UpdateReturnColumns extends Readonly<SelectionColumn<DB, TB>[]> | ['*'],
   ReturnCount,
   UpdateReturn

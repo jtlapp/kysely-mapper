@@ -18,7 +18,7 @@ export class MappingUpdateQuery<
   DB,
   TB extends keyof DB & string,
   QB extends UpdateQueryBuilder<DB, TB, TB, UpdateResult>,
-  UpdatingObject extends object,
+  UpdatingObject,
   UpdateReturnColumns extends Readonly<SelectionColumn<DB, TB>[]> | ['*'],
   ReturnCount,
   UpdateReturn
@@ -192,7 +192,7 @@ export class MappingUpdateQuery<
   ): UpdateQueryBuilder<DB, TB, TB, UpdateResult> {
     const transformedObj =
       this.transforms.updateTransform === undefined
-        ? obj
+        ? (obj as Updateable<DB[TB]>)
         : this.transforms.updateTransform(obj);
     return this.setColumnValues(qb, transformedObj);
   }

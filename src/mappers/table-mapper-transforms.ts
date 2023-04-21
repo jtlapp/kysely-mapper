@@ -37,14 +37,14 @@ export interface TableMapperTransforms<
     | Readonly<SelectableColumnTuple<DB[TB]>>
     | Readonly<[]> = [],
   SelectedColumns extends Readonly<SelectionColumn<DB, TB>[]> | ['*'] = ['*'],
-  SelectedObject extends object = SelectedRow<
+  SelectedObject = SelectedRow<
     DB,
     TB,
     SelectedColumns extends ['*'] ? never : SelectedColumns[number],
     SelectedColumns
   >,
-  InsertedObject extends object = Insertable<DB[TB]>,
-  UpdatingObject extends object = Updateable<DB[TB]>,
+  InsertedObject = Insertable<DB[TB]>,
+  UpdatingObject = Updateable<DB[TB]>,
   ReturnCount = bigint,
   InsertReturnColumns extends
     | Readonly<SelectionColumn<DB, TB>[]>
@@ -78,7 +78,7 @@ export interface CountTransform<ReturnCount> {
 export interface InsertTransforms<
   DB,
   TB extends keyof DB & string,
-  InsertedObject extends object,
+  InsertedObject,
   InsertReturnColumns extends Readonly<SelectionColumn<DB, TB>[]> | ['*'],
   InsertReturn
 > {
@@ -113,7 +113,7 @@ export interface SelectTransform<
   DB,
   TB extends keyof DB & string,
   SelectedColumns extends Readonly<SelectionColumn<DB, TB>[]> | ['*'],
-  SelectedObject extends object
+  SelectedObject
 > {
   /**
    * Transformation to apply to selected objects after retrieval from the
@@ -133,7 +133,7 @@ export interface SelectTransform<
 export interface UpdateTransforms<
   DB,
   TB extends keyof DB & string,
-  UpdatingObject extends object,
+  UpdatingObject,
   UpdateReturnColumns extends Readonly<SelectionColumn<DB, TB>[]> | ['*'],
   UpdateReturn
 > {

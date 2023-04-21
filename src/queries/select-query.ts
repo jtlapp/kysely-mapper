@@ -12,7 +12,7 @@ export class MappingSelectQuery<
   DB,
   TB extends keyof DB & string,
   SelectedColumns extends Readonly<SelectionColumn<DB, TB>[]> | ['*'],
-  SelectedObject extends object,
+  SelectedObject,
   QB extends SelectQueryBuilder<DB, TB, any>
 > implements ParameterizableMappingQuery
 {

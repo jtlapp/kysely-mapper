@@ -67,14 +67,14 @@ export abstract class AbstractTableMapper<
     | Readonly<SelectableColumnTuple<DB[TB]>>
     | Readonly<[]> = [],
   SelectedColumns extends Readonly<SelectionColumn<DB, TB>[]> | ['*'] = ['*'],
-  SelectedObject extends object = SelectedRow<
+  SelectedObject = SelectedRow<
     DB,
     TB,
     SelectedColumns extends ['*'] ? never : SelectedColumns[number],
     SelectedColumns
   >,
-  InsertedObject extends object = Insertable<DB[TB]>,
-  UpdatingObject extends object = Updateable<DB[TB]>,
+  InsertedObject = Insertable<DB[TB]>,
+  UpdatingObject = Updateable<DB[TB]>,
   ReturnCount = bigint,
   InsertReturnColumns extends
     | Readonly<SelectionColumn<DB, TB>[]>

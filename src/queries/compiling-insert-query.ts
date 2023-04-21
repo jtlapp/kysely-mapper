@@ -11,7 +11,7 @@ export class CompilingMappingInsertQuery<
   DB,
   TB extends keyof DB & string,
   QB extends InsertQueryBuilder<DB, TB, any>,
-  InsertedObject extends object,
+  InsertedObject,
   InsertReturnColumns extends Readonly<SelectionColumn<DB, TB>[]> | ['*'],
   InsertReturn
 > extends CompilingValuesQuery<

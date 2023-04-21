@@ -38,14 +38,14 @@ export class TableMapper<
     | Readonly<SelectableColumnTuple<DB[TB]>>
     | Readonly<[]> = [],
   SelectedColumns extends Readonly<SelectionColumn<DB, TB>[]> | ['*'] = ['*'],
-  SelectedObject extends object = SelectedRow<
+  SelectedObject = SelectedRow<
     DB,
     TB,
     SelectedColumns extends ['*'] ? never : SelectedColumns[number],
     SelectedColumns
   >,
-  InsertedObject extends object = Insertable<DB[TB]>,
-  UpdatingObject extends object = Updateable<DB[TB]>,
+  InsertedObject = Insertable<DB[TB]>,
+  UpdatingObject = Updateable<DB[TB]>,
   ReturnCount = bigint,
   InsertReturnColumns extends
     | Readonly<SelectionColumn<DB, TB>[]>
@@ -77,14 +77,14 @@ export class TableMapper<
    * @returns A new table mapper that uses the provided transforms.
    */
   withTransforms<
-    SelectedObject extends object = SelectedRow<
+    SelectedObject = SelectedRow<
       DB,
       TB,
       SelectedColumns extends ['*'] ? never : SelectedColumns[number],
       SelectedColumns
     >,
-    InsertedObject extends object = Insertable<DB[TB]>,
-    UpdatingObject extends object = Updateable<DB[TB]>,
+    InsertedObject = Insertable<DB[TB]>,
+    UpdatingObject = Updateable<DB[TB]>,
     ReturnCount = bigint,
     InsertReturn = InsertReturnColumns extends ['*']
       ? Selectable<DB[TB]>

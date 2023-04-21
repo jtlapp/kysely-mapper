@@ -13,7 +13,7 @@ export class SubsettingMappingInsertQuery<
   DB,
   TB extends keyof DB & string,
   QB extends InsertQueryBuilder<DB, TB, InsertResult>,
-  InsertedObject extends object,
+  InsertedObject,
   InsertReturnColumns extends Readonly<SelectionColumn<DB, TB>[]> | ['*'],
   InsertReturn
 > extends MappingInsertQuery<
