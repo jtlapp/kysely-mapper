@@ -38,7 +38,8 @@ import { TableMapperSettings } from './table-mapper-settings';
 import { TableMapperTransforms } from './table-mapper-transforms';
 
 /**
- * A mapper providing access to a single table.
+ * Abstract base class for table mappers. It is abstract because it does not
+ * provide a way to specify query input and output transforms.
  * @typeparam DB Interface whose fields are table names defining tables.
  * @typeparam TB Name of the table.
  * @typeparam KeyColumns Tuple of the names of the table's key columns.
@@ -125,7 +126,7 @@ export abstract class AbstractTableMapper<
   > = {};
 
   /**
-   * Constructs a new table mapper.
+   * Constructs a new abstract table mapper.
    * @param db The Kysely database.
    * @param tableName The name of the table.
    * @param options Options governing mapper behavior. Default to selecting

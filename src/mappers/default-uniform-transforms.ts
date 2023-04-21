@@ -35,6 +35,9 @@ export class DefaultUniformTransforms<
       >
     >
 {
+  /**
+   * Constructs a default uniform transforms object.
+   */
   constructor(readonly keyColumns: KeyColumns) {}
 
   /**

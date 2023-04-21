@@ -1,4 +1,4 @@
-import { Kysely } from 'kysely';
+import { Kysely, Selectable } from 'kysely';
 
 import { AbstractTableMapper } from './abstract-table-mapper';
 import {
@@ -22,7 +22,11 @@ type RequiredTransforms =
   | 'selectTransform';
 
 /**
- * A mapper for a table representing a store of objects.
+ * A table mapper whose queries all input and output the same kind of object,
+ * which is given by type parameter `MappedObject`. It defaults to having a
+ * primary key column of 'id', and the default query input/output transforms
+ * assume an object of type `Selectable<DB[TB]>`. When providing custom
+ * transforms, all transforms but `countTransform` must be supplied.
  * @typeparam DB The database type.
  * @typeparam TB The name of the table.
  * @typeparam MappedObject The type of the objects that are mapped to and from
@@ -43,7 +47,7 @@ type RequiredTransforms =
 export class UniformTableMapper<
   DB,
   TB extends keyof DB & string,
-  MappedObject extends object,
+  MappedObject = Selectable<DB[TB]>,
   KeyColumns extends Readonly<SelectableColumnTuple<DB[TB]>> | Readonly<[]> = [
     'id' & SelectableColumn<DB[TB]>
   ],
@@ -94,6 +98,7 @@ export class UniformTableMapper<
   >;
 
   /**
+   * Constructs a new uniform table mapper.
    * @param db The Kysely database instance.
    * @param tableName The name of the table.
    * @param options Options governing table mapper behavior. Defaults to a key
@@ -128,7 +133,7 @@ export class UniformTableMapper<
    * @param transforms The transforms to use.
    * @returns A new uniform table mapper that uses the provided transforms.
    */
-  withTransforms<MappedObject extends object, ReturnCount = bigint>(
+  withTransforms<MappedObject, ReturnCount = bigint>(
     transforms: Readonly<
       RequireSome<
         TableMapperTransforms<

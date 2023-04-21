@@ -9,7 +9,8 @@ import { TableMapperTransforms } from './table-mapper-transforms';
 import { AbstractTableMapper } from './abstract-table-mapper';
 
 /**
- * A mapper providing access to a single table.
+ * Table mapper that defaults to passing through all query inputs and output
+ * unchanged, allowing the selective overloading of transforms.
  * @typeparam DB Interface whose fields are table names defining tables.
  * @typeparam TB Name of the table.
  * @typeparam KeyColumns Tuple of the names of the table's key columns.
@@ -72,6 +73,7 @@ export class TableMapper<
   UpdateReturn
 > {
   /**
+   * Constructs a new table mapper.
    * Returns a new table mapper that uses the provided transformations.
    * @param transforms The transforms to use.
    * @returns A new table mapper that uses the provided transforms.
