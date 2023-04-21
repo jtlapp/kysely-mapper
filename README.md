@@ -26,10 +26,10 @@ This package provides two concrete classes for mapping tables: `TableMapper` and
 
 For the examples that follow, assume we have the following 'users' table:
 
-- **id**: auto-incrementing integer primary key
+- **id**: auto-incrementing integer, primary key
 - **name**: text
 - **birth_year**: integer
-- **modified**: date or null
+- **modified**: date, maintained by a database trigger
 
 ## Introduction to TableMapper Queries
 
@@ -154,13 +154,13 @@ user = await table.select(123).returnOne();
 // user is { id: 123, name: 'Jane Doe', birthYear: 1970 }
 ```
 
-`selectedColumns` defaults to `['*']`, which selects all columns.
+`selectedColumns` defaults to `['*']`, which selects all columns. The utility does not provide a way to specify the selected columns on a per-query basis, but if you're using the utlity, it's likely because you want all selections returning the same kind of object.
 
-Unlike traditional ORMs, you can create multiple table mappers for any given database table, each configured differently as best suits each table and usage.
+Unlike traditional ORMs, you can create multiple table mappers for any given database table, each configured differently as best suits each table and usage. For example, you could have different table mappers selecting different columns, returning different objects.
 
 ## Introduction to TableMapper Mapping
 
-The query methods don't provide much (if any) value over writing pure Kysely. The real value of this utility is it's ability to centrally define how objects are mapped to and from the database tables. The query methods then perform these mappings automatically.
+The query methods don't provide much (if any) value over writing pure Kysely. The real value of this utility is it's ability to centrally define how objects are mapped to and from database tables. The query methods then perform these mappings automatically.
 
 Each mapping is implemented by a custom 'transform' function. The following transform functions are available for customization:
 
