@@ -1,4 +1,4 @@
-# kysely-params
+# kysely-mapper
 
 Flexible Kysely-based utility for mapping between tables and objects
 
@@ -145,7 +145,7 @@ If you call `run()` on insert or either `run()` or `returnCount()` on update, th
 
 Set return columns to `['*']` to return all columns or `[]` to return no columns. By default, inserts return the key columns and updates return no columns.
 
-You can also control which columns selections return, and you can specify aliases for any returned columns:
+You can also control the columns that selections return, and you can specify aliases for any returned columns:
 
 ```ts
 const table = new TableMapper(db, 'users', {
