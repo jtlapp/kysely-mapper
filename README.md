@@ -31,7 +31,7 @@ For the examples that follow, assume we have the following 'users' table:
 - **birth_year**: integer
 - **modified**: date, maintained by a database trigger
 
-## Introduction to Querying
+### Introduction to Querying
 
 Let's begin by looking at how we query instances of `TableMapper`. If we don't configure `TableMapper`, no mapping occurs: objects provided to the queries are passed directly to Kysely, and objects returned by Kysely are passed directly back to the caller. Consider:
 
@@ -158,7 +158,7 @@ user = await table.select(123).returnOne();
 
 Unlike traditional ORMs, you can create multiple table mappers for any given database table, each configured differently as best suits the usage. For example, you could have different table mappers selecting different columns, returning different objects.
 
-## Introduction to Mapping
+### Introduction to Mapping
 
 The query methods don't provide much (if any) value over writing pure Kysely. The real value of this utility is it's ability to centrally define how objects are mapped to and from database tables. The query methods then perform these mappings automatically.
 
@@ -337,7 +337,19 @@ user = await table.update(user.id).returnOne({ name: 'Janice Smith' });
 await table.update({ name: 'Joe Smith' }).run({ name: 'Joseph Smith' });
 ```
 
-## Introduction to CompleteRowTransforms
+### Introduction to CompleteRowTransforms
+
+TBD
+
+## Parameterizing and Compiling Queries
+
+TBD
+
+## Quick Reference
+
+TBD
+
+## API Reference
 
 TBD
 
