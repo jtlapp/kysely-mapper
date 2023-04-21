@@ -28,7 +28,7 @@ For the examples that follow, assume we have the following 'users' table:
 
 - **id**: auto-incrementing integer primary key
 - **name**: text
-- **birthyear**: integer
+- **birth_year**: integer
 - **modified**: date or null
 
 ## Introduction to TableMapper Queries
@@ -40,10 +40,10 @@ const db = new Kysely<Database>({ ... });
 const table = new TableMapper(db, 'users');
 users = await table.select().returnAll();
 user = await table.select().returnOne();
-// user is { id: 123, name: 'Jane Smith', birthyear: 1970, modified: Date('1/2/2023') }
+// user is { id: 123, name: 'Jane Smith', birth_year: 1970, modified: Date('1/2/2023') }
 ```
 
-The first selection returns all rows from the 'users' table, representing each row as an object with fields `id`, `name`, and `birthyear`. The second selection returns just the first user. If we want to return specific rows, we can supply a filter:
+The first selection returns all rows from the 'users' table, representing each row as an object with fields `id`, `name`, and `birth_year`. The second selection returns just the first user. If we want to return specific rows, we can supply a filter:
 
 ```ts
 users = await table.select({ name: 'Jane Smith' }).returnAll();
@@ -51,22 +51,31 @@ users = await table.select('name', '=', 'Jane Smith').returnAll();
 users = await table
   .select({
     name: 'Jane Smith',
-    birthyear: 1970,
+    birth_year: 1970,
   })
   .returnAll();
 users = await table
   .select(({ and, cmpr }) => and([ // kysely expression
     cmpr('name', '=' 'Jane Smith'),
-    cmpr('birthyear', '=', 1970),
+    cmpr('birth_year', '=', 1970),
   ]))
   .returnAll();
 users = await table
   .select({
     name: ['Jane Smith', 'John Doe', 'Suzie Cue'], // any of these names
-    birthyear: 1970,
+    birth_year: 1970,
   })
   .returnAll();
 users = await table.select(sql`name = ${targetName}`).returnAll();
+```
+
+Call `modify()` to refine the underlying Kysely query builder:
+
+```ts
+users = await table
+  .select({ name: 'Jane Smith' })
+  .modify((qb) => qb.orderBy('birth_year', 'desc'))
+  .returnAll();
 ```
 
 We can insert, update, and delete rows as follows:
@@ -98,11 +107,12 @@ This also allows us to select users by ID by providing the ID alone as the query
 
 ```ts
 user = await table.select(123).returnOne();
+user = await table.select([123]).returnOne(); // a tuple key
 user = await table.select({ id: 123 }).returnOne();
-user = await table.select('id', '=', 123).returnOne();
+user = await table.select('id', '=', 123).returnOne(); // kysely binary op
 ```
 
-Tables with composite or compound keys can specify them in tuple filters:
+Tables with composite or compound keys can specify them as tuples:
 
 ```ts
 const table = new TableMapper(db, 'line_items', {
@@ -131,35 +141,35 @@ If you call `run()` on insert or either `run()` or `returnCount()` on update, th
 
 Set return columns to `['*']` to return all columns or `[]` to return no columns. By default, inserts return the key columns and updates return no columns.
 
-You can also control which columns are returned from selections:
+You can also control which columns selections return, and you can specify aliases:
 
 ```ts
 const table = new TableMapper(db, 'users', {
   keyColumns: ['id'],
-  selectedColumns: ['id', 'name', 'birthyear'],
+  selectedColumns: ['id', 'name', 'birth_year as birthYear'],
   insertReturnColumns: ['id', 'modified'],
   updateReturnColumns: ['modified'],
 });
 user = await table.select(123).returnOne();
-// user is { id: 123, name: 'Jane Doe', birthyear: 1970 }
+// user is { id: 123, name: 'Jane Doe', birthYear: 1970 }
 ```
 
-The default value of `selectedColumns` is `['*']`, selecting all columns.
+`selectedColumns` defaults to `['*']`, which selects all columns.
 
-Unlike traditional ORMs, you can create multiple table mappers for any given database table, each configured differently.
+Unlike traditional ORMs, you can create multiple table mappers for any given database table, each configured differently as best suits each table and usage.
 
 ## Introduction to TableMapper Mapping
 
-The query methods don't provide much (if any) value over writing pure Kysely. The real value of this utility is it's ability to centrally define how objects are mapped to and from the database. The query methods then perform these mappings automatically.
+The query methods don't provide much (if any) value over writing pure Kysely. The real value of this utility is it's ability to centrally define how objects are mapped to and from the database tables. The query methods then perform these mappings automatically.
 
 Each mapping is implemented by a custom 'transform' function. The following transform functions are available for customization:
 
-- Transform the object provided for insertion into the columns to insert.
-- Transform the columns returned from an insertion, along with the corresponding inserted object, into the object to return to the caller.
-- Transform the columns returned from a selection into the object to return to the caller.
-- Transform the object that supplies update values into the columns to update.
-- Transform the columns returned from an update, along with the object that supplied the update values, into the object to return to the caller.
-- Transform the count of the number of affected rows from the `bigint` that Kysely returns into the type required by the caller (e.g. `number` or `string`).
+- `insertTransform` &mdash; Transform the object provided for insertion into the columns to insert.
+- `insertReturnTransform` &mdash; Transform the columns returned from an insertion, along with the corresponding inserted object, into the object to return to the caller.
+- `selectTransform` &mdash; Transform the columns returned from a selection into the object to return to the caller.
+- `updateTransform` &mdash; Transform the object that supplies update values into the columns to update.
+- `udpateReturnTransform` &mdash; Transform the columns returned from an update, along with the object that supplied the update values, into the object to return to the caller.
+- `countTransform` &mdash; Transform the count of the number of affected rows from the `bigint` that Kysely returns into the type required by the caller (e.g. `number` or `string`).
 
 We'll start with an example of a table mapper that both inserts and selects objects of class `User`. `User` differs from a row of the 'users' table by virtue of splitting the name into first and last names and leaving out the modification date:
 
@@ -169,7 +179,7 @@ class User {
     readonly id: number,
     readonly firstName: string,
     readonly lastName: string,
-    readonly birthyear: number
+    readonly birth_year: number
   ) {}
 }
 ```
@@ -182,19 +192,19 @@ const table = new TableMapper(db, 'users', {
 }).withTransforms({
   insertTransform: (user: User) => ({
     name: `${user.firstName} ${user.lastName}`,
-    birthyear: user.birthyear,
+    birth_year: user.birth_year,
   }),
   insertReturnTransform: (user: User, returns) =>
-    new User(returns.id, user.firstName, user.lastName, user.birthyear),
+    new User(returns.id, user.firstName, user.lastName, user.birth_year),
   selectTransform: (row) => {
     const names = row.name.split(' ');
-    return new User(row.id, names[0], names[1], row.birthyear);
+    return new User(row.id, names[0], names[1], row.birth_year);
   },
   countTransform: (count) => Number(count),
 });
 ```
 
-This table mapper creates a new `User` from an inserted `User` and the auto-incremented return ID. It could instead have set the ID in the inserted `User` and returned that object, or it could have simply returned the ID instead of an object. For example, the following returns the ID on insertion:
+This table mapper creates a new `User` from an inserted `User` and the auto-incremented return ID. It could instead have set the ID in the inserted `User` and returned that object, or it could have simply returned the ID instead of an object. Choose any behavior you want. For example, the following returns the ID to the caller on insertion:
 
 ```ts
 const table = new TableMapper(db, 'users', {
@@ -204,7 +214,7 @@ const table = new TableMapper(db, 'users', {
 });
 ```
 
-TBD
+TBD: mention `.columns()`
 
 ## License
 
