@@ -1,8 +1,8 @@
-import { Kysely } from 'kysely';
+import { Kysely, Updateable } from 'kysely';
 
 import { TableMapper } from '../mappers/table-mapper';
 import { createDB, resetDB, destroyDB } from './utils/test-setup';
-import { Database } from './utils/test-tables';
+import { Database, Users } from './utils/test-tables';
 import {
   userObject1,
   userRow1,
@@ -185,5 +185,45 @@ describe('updating with transformation', () => {
     ]);
     // Ensure the returned value is accessible as a ReturnedUser
     ((_: string) => {})(updateReturn[0].firstName);
+  });
+
+  it('transforms a union of updating object types', async () => {
+    const mapper = new TableMapper(db, 'users', {
+      keyColumns: ['id'],
+    }).withTransforms({
+      updateTransform: (source: UpdatingUser | Updateable<Users>) =>
+        source instanceof UpdatingUser
+          ? {
+              name: `${source.firstName} ${source.lastName}`,
+              handle: source.handle,
+              email: source.email,
+            }
+          : source,
+    });
+    const insertReturn = await mapper.insert().returnOne(userRow1);
+
+    // test with UpdatingUser
+    await mapper
+      .update({ id: insertReturn.id })
+      .columns(['name'])
+      .run(UpdatingUser.create(0, userObject1));
+    const readUser1 = await mapper.select(insertReturn.id).returnOne();
+    expect(readUser1).toEqual({
+      id: insertReturn.id,
+      name: `${userObject1.firstName} ${userObject1.lastName}`,
+      email: userRow1.email,
+      handle: userRow1.handle,
+    });
+
+    // test with Updateable<Users>
+    const newName = 'Suzanne Smith Something';
+    await mapper.update({ id: insertReturn.id }).run({ name: newName });
+    const readUser2 = await mapper.select(insertReturn.id).returnOne();
+    expect(readUser2).toEqual({
+      id: insertReturn.id,
+      name: newName,
+      email: userRow1.email,
+      handle: userRow1.handle,
+    });
   });
 });
