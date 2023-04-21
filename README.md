@@ -93,7 +93,7 @@ updateCount = await table
   .returnCount({ email: 'js2@abc.def' });
 ```
 
-However, if we want to return the auto-incremented ID on insertion, we have to configure `TableMapper` to tell it which columns to return. Since the ID is the table's primary key, we can simply set the primary key, and `TableMapper` will return the column by default:
+However, if we want to return the auto-incremented ID on insertion, we have to configure `TableMapper` to tell it which columns to return. Since the ID is the table's primary key, we can simply assign this primary key, and `TableMapper` will return the column by default:
 
 ```ts
 const table = new TableMapper(db, 'users', { keyColumns: ['id'] });
@@ -112,13 +112,13 @@ user = await table.select({ id: 123 }).returnOne();
 user = await table.select('id', '=', 123).returnOne(); // kysely binary op
 ```
 
-Tables with composite or compound keys can specify them as tuples:
+Tables with composite or compound keys can specify them as tuples (in brackets):
 
 ```ts
 const table = new TableMapper(db, 'line_items', {
   keyColumns: ['customer_id', 'product_id'],
 });
-item = await table.select([customerId, productId]).returnOne();
+item = await table.select([customerId, productId]).returnOne(); // notice the brackets
 ```
 
 You may want to return more than the assigned ID on insertion, or you may want to return columns that automatically update on each update query. You can control which values are returned from update and insert queries as follows (regardless of whether you provide `keyColumns`):
@@ -141,7 +141,7 @@ If you call `run()` on insert or either `run()` or `returnCount()` on update, th
 
 Set return columns to `['*']` to return all columns or `[]` to return no columns. By default, inserts return the key columns and updates return no columns.
 
-You can also control which columns selections return, and you can specify aliases:
+You can also control which columns selections return, and you can specify aliases for any returned columns:
 
 ```ts
 const table = new TableMapper(db, 'users', {
@@ -179,7 +179,7 @@ class User {
     readonly id: number,
     readonly firstName: string,
     readonly lastName: string,
-    readonly birth_year: number
+    readonly birthYear: number
   ) {}
 }
 ```
@@ -192,10 +192,10 @@ const table = new TableMapper(db, 'users', {
 }).withTransforms({
   insertTransform: (user: User) => ({
     name: `${user.firstName} ${user.lastName}`,
-    birth_year: user.birth_year,
+    birth_year: user.birthYear,
   }),
   insertReturnTransform: (user: User, returns) =>
-    new User(returns.id, user.firstName, user.lastName, user.birth_year),
+    new User(returns.id, user.firstName, user.lastName, user.birthYear),
   selectTransform: (row) => {
     const names = row.name.split(' ');
     return new User(row.id, names[0], names[1], row.birth_year);
@@ -204,14 +204,19 @@ const table = new TableMapper(db, 'users', {
 });
 ```
 
-This table mapper creates a new `User` from an inserted `User` and the auto-incremented return ID. It could instead have set the ID in the inserted `User` and returned that object, or it could have simply returned the ID instead of an object. Choose any behavior you want. For example, the following returns the ID to the caller on insertion:
+TBD: examples of use
+
+This table mapper creates a new `User` from an inserted `User` and the auto-incremented return ID. It could instead have set the ID in the inserted `User` and returned that object, or it could have simply returned the ID instead of an object. Choose any behavior you want. For example, the following returns just the ID to the caller on insertion:
 
 ```ts
 const table = new TableMapper(db, 'users', {
   keyColumns: ['id'],
 }).withTransforms({
+  // ...
   insertReturnTransform: (_user: User, returns) => returns.id,
 });
+id = await table.insert().returnOne(user);
+// id is 123 (the generated auto-increment integer)
 ```
 
 TBD: mention `.columns()`
