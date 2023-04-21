@@ -31,7 +31,7 @@ For the examples that follow, assume we have the following 'users' table:
 - **birth_year**: integer
 - **modified**: date, maintained by a database trigger
 
-## Introduction to TableMapper Queries
+## Introduction to Querying
 
 If we don't configure `TableMapper` at all, objects provided to the queries are those passed to Kysely, and objects returned by Kysely are those provided to the client. Consider:
 
@@ -130,11 +130,11 @@ const table = new TableMapper(db, 'users', {
   updateReturnColumns: ['modified'],
 });
 result = table.insert().returnOne(user1);
-// result is { id: 123, modified: Date("1/2/2023") }
+// result is { id: 123, modified: Date("4/18/2023") }
 result = table
   .update({ name: 'Jane Smith' })
   .returnOne({ email: 'js2@abc.def' });
-// result is { modified: Date("1/2/2023") }
+// result is { modified: Date("4/18/2023") }
 ```
 
 If you call `run()` on insert or either `run()` or `returnCount()` on update, the query requests no return columns from the database, and none are returned to the caller.
@@ -158,7 +158,7 @@ user = await table.select(123).returnOne();
 
 Unlike traditional ORMs, you can create multiple table mappers for any given database table, each configured differently as best suits the usage. For example, you could have different table mappers selecting different columns, returning different objects.
 
-## Introduction to TableMapper Mapping
+## Introduction to Mapping
 
 The query methods don't provide much (if any) value over writing pure Kysely. The real value of this utility is it's ability to centrally define how objects are mapped to and from database tables. The query methods then perform these mappings automatically.
 
@@ -177,37 +177,66 @@ We'll start with an example of a table mapper that both inserts and selects obje
 class User {
   constructor(
     readonly id: number,
-    readonly firstName: string,
-    readonly lastName: string,
-    readonly birthYear: number
+    firstName: string,
+    lastName: string,
+    birthYear: number,
+    readonly modified?: Date
   ) {}
 }
 ```
 
-Suppose we also want to return the number of affected rows as a `number` instead of a `bigint`. We define the following custom table mapper:
+We define the following custom table mapper:
 
 ```ts
 const table = new TableMapper(db, 'users', {
   keyColumns: ['id'],
+  selectedColumns: ['id', 'name', 'birth_year as birthYear, modified'],
+  insertReturnColumns: ['id', 'modified'],
+  updateReturnColumns: ['modified'],
 }).withTransforms({
-  insertTransform: (user: User) => ({
-    name: `${user.firstName} ${user.lastName}`,
-    birth_year: user.birthYear,
+  insertTransform: (source: User) => ({
+    name: `${source.firstName} ${source.lastName}`,
+    birth_year: source.birthYear,
   }),
-  insertReturnTransform: (user: User, returns) =>
-    new User(returns.id, user.firstName, user.lastName, user.birthYear),
+  insertReturnTransform: (source: User, returns) =>
+    new User(
+      returns.id,
+      source.firstName,
+      source.lastName,
+      source.birthYear,
+      returns.modified
+    ),
   selectTransform: (row) => {
     const names = row.name.split(' ');
-    return new User(row.id, names[0], names[1], row.birth_year);
+    return new User(row.id, names[0], names[1], row.birthYear, row.modified);
   },
-  countTransform: (count) => Number(count),
 });
 ```
 
-TBD: infers and enforces types
-TBD: examples of use
+This table mapper creates a new `User` from an inserted `User` and the auto-incremented return ID, and it has selections return instances of `User`:
 
-This table mapper creates a new `User` from an inserted `User` and the auto-incremented return ID. It could instead have set the ID in the inserted `User` and returned that object, or it could have simply returned the ID instead of an object. Choose any behavior you want. For example, the following returns just the ID to the caller on insertion:
+```ts
+user = await table.insert().returnOne(new User(0, 'Jane', 'Smith', 1970));
+// user is User {
+//   id: 123,
+//   firstName: 'Jane',
+//   lastName: 'Smith',
+//   birthYear: 1970,
+//   modified: Date("4/21/2023")
+// }
+user = await table.select(user.id).returnOne();
+// user is User {
+//   id: 123,
+//   firstName: 'Jane',
+//   lastName: 'Smith',
+//   birthYear: 1970,
+//   modified: Date("4/21/2023")
+// }
+```
+
+The table mapper infers the types of the inputs and outputs of each transform, allowing the query methods to enforce these types on their inputs and outputs, as appropriate.
+
+We could instead have implemented a table mapper that set the new ID in the inserted `User` object and returned that object, or we could have simply returned the new ID instead of an object. You can choose any behavior you want. For example, the following returns just the new ID to the caller after insertion:
 
 ```ts
 const table = new TableMapper(db, 'users', {
@@ -220,7 +249,97 @@ id = await table.insert().returnOne(user);
 // id is 123 (the generated auto-increment integer)
 ```
 
-TBD: mention `.columns()`
+Returning to the original implementation, suppose we also want to update rows from provided `User` instances, return `User` instances updated with the latest modification date, and return the number of affected rows as a `number` instead of as a `bigint`. We now have the following table mapper:
+
+```ts
+const table = new TableMapper(db, 'users', {
+  keyColumns: ['id'],
+  selectedColumns: ['id', 'name', 'birth_year as birthYear, modified'],
+  insertReturnColumns: ['id', 'modified'],
+  updateReturnColumns: ['modified'],
+}).withTransforms({
+  insertTransform: (source: User) => ({
+    name: `${source.firstName} ${source.lastName}`,
+    birth_year: source.birthYear,
+  }),
+  insertReturnTransform: (source: User, returns) =>
+    new User(
+      returns.id,
+      source.firstName,
+      source.lastName,
+      source.birthYear,
+      returns.modified
+    ),
+  selectTransform: (row) => {
+    const names = row.name.split(' ');
+    return new User(row.id, names[0], names[1], row.birthYear, row.modified);
+  },
+  updateTransform: (source: User) => ({
+    name: `${source.firstName} ${source.lastName}`,
+    birth_year: source.birthYear,
+  }),
+  updateReturnTransform: (source: User, returns) =>
+    new User(
+      source.id,
+      source.firstName,
+      source.lastName,
+      source.birthYear,
+      returns.modified
+    ),
+  countTransform: (count) => Number(count),
+});
+```
+
+`insertTransform` and `updateTransform` are identical in this implementation and could have been a shared function. Now we can update and delete as follows:
+
+```ts
+user = await table.insert().returnOne(new User(0, 'Jane', 'Smith', 1970));
+user.firstName = 'Janice';
+user = await table.update(user.id).returnOne(user);
+// user is User {
+//   id: 123,
+//   firstName: 'Janice',
+//   lastName: 'Smith',
+//   birthYear: 1970,
+//   modified: Date("4/21/2023")
+// }
+deleteCount = await table.delete('name', 'like', '%Smith').returnCount();
+// deleteCount has type number
+```
+
+For performance reasons, you may not want to update all columns on every update query, preferring to instead update only the columns that need to change. You can accomplish this by calling the `columns()` method to specify the columns to update:
+
+```ts
+user = await table.insert().returnOne(new User(0, 'Jane', 'Smith', 1970));
+user.firstName = 'Janice';
+user = await table.update(user.id).columns(['name']).returnOne(user);
+```
+
+Mind you, `updateTransform` will still run in its entirety, but only the specified subset of its return values will be used in the update. The `columns()` method is also available on insertion for fine control over when to use database defaults, with the same caveat applying to `insertTransform`.
+
+For greater flexibility, we could have had the update source be a union of types:
+
+```ts
+updateTransform: (source: User | Updateable<Database['users']>) =>
+  source instanceof User
+    ? {
+        name: `${source.firstName} ${source.lastName}`,
+        birth_year: source.birthYear,
+      }
+    : source;
+```
+
+Now we can also update as follows:
+
+```ts
+user = await table.insert().returnOne(new User(0, 'Jane', 'Smith', 1970));
+user = await table.update(user.id).returnOne({ name: 'Janice Smith' });
+await table.update({ name: 'Joe Smith' }).run({ name: 'Joseph Smith' });
+```
+
+## Introduction to UniformTableMapper
+
+TBD
 
 ## License
 
