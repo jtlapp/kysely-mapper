@@ -156,7 +156,7 @@ user = await table.select(123).returnOne();
 
 `selectedColumns` defaults to `['*']`, which selects all columns. The utility does not provide a way to specify the selected columns on a per-query basis, but if you're using the utlity, it's likely because you want all selections returning the same kind of object.
 
-Unlike traditional ORMs, you can create multiple table mappers for any given database table, each configured differently as best suits each table and usage. For example, you could have different table mappers selecting different columns, returning different objects.
+Unlike traditional ORMs, you can create multiple table mappers for any given database table, each configured differently as best suits the usage. For example, you could have different table mappers selecting different columns, returning different objects.
 
 ## Introduction to TableMapper Mapping
 
