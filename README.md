@@ -2,7 +2,7 @@
 
 Flexible Kysely-based utility for mapping between tables and objects
 
-** CURRENTY UNDER DEVELOPMENT. NOT READY FOR USE. **
+**CURRENTY UNDER DEVELOPMENT. NOT READY FOR USE.**
 
 ## Overview
 
@@ -28,7 +28,7 @@ pnpm add kysely kysely-mapper
 
 This package provides three classes for mapping tables: `AbstractTableMapper`, `TableMapper` and `CompleteRowTransforms`. `AbstractTableMapper` is a base class for constructing your own kinds of table mappers. `TableMapper` is a generic mapping utility that implements `AbstractTableMapper` and should suffice for most of your needs. `CompleteRowTransforms` provides default mappings for a table mapper whose queries input and output entire rows of the underlying table.
 
-For the examples that follow, assume we have the following 'users' table:
+For the examples that follow, assume we have the following '**users**' table:
 
 - **id**: auto-incrementing integer, primary key
 - **name**: text
@@ -346,6 +346,10 @@ await table.update({ name: 'Joe Smith' }).run({ name: 'Joseph Smith' });
 TBD
 
 ## Parameterizing and Compiling Queries
+
+TBD
+
+## Usage in Repository Classes
 
 TBD
 
