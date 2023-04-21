@@ -60,23 +60,6 @@ describe('general update', () => {
       .update({ id: 1 })
       .returnOne(updateValues);
     expect(update).toBeNull();
-
-    const compilation = userMapperReturningID
-      .update({ id: 1 })
-      .columns(['handle', 'name', 'email'])
-      .compile();
-
-    const success2 = await compilation.run({}, updateValues);
-    expect(success2).toBe(false);
-
-    const updateCount2 = await compilation.returnCount({}, updateValues);
-    expect(updateCount2).toEqual(0);
-
-    const updates2 = await compilation.returnAll({}, updateValues);
-    expect(updates2.length).toEqual(0);
-
-    const update2 = await compilation.returnOne({}, updateValues);
-    expect(update2).toBeNull();
   });
 
   it('updates something returning non-zero update count', async () => {

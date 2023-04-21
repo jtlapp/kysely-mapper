@@ -204,6 +204,7 @@ const table = new TableMapper(db, 'users', {
 });
 ```
 
+TBD: infers and enforces types
 TBD: examples of use
 
 This table mapper creates a new `User` from an inserted `User` and the auto-incremented return ID. It could instead have set the ID in the inserted `User` and returned that object, or it could have simply returned the ID instead of an object. Choose any behavior you want. For example, the following returns just the ID to the caller on insertion:

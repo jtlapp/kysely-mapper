@@ -177,68 +177,6 @@ describe('inserting a single object without transformation', () => {
     expect(insertReturn).toEqual(expectedUser);
   });
 
-  it('compiles a non-returning insert query without transformation', async () => {
-    const compilation = userMapperReturningNothing
-      .insert()
-      .columns(['name', 'handle'])
-      .compile();
-
-    // test run()
-    const success1 = await compilation.run(USERS[1]);
-    expect(success1).toBe(true);
-
-    // test returnOne()
-    const success2 = await compilation.returnOne(USERS[2]);
-    expect(success2).toBeUndefined();
-
-    const readUsers = await userMapperReturningAll.select().returnAll();
-    expect(readUsers.length).toEqual(2);
-    expect(readUsers[0].handle).toEqual(USERS[1].handle);
-    expect(readUsers[0].email).toEqual(null);
-    expect(readUsers[1].handle).toEqual(USERS[2].handle);
-    expect(readUsers[1].email).toEqual(null);
-  });
-
-  it('compiles a returning insert query without transformation', async () => {
-    const compilation = userMapperReturningAll
-      .insert()
-      .columns(['name', 'handle', 'email'])
-      .compile();
-
-    // test returnOne()
-    const insertReturn = await compilation.returnOne(USERS[0]);
-    expect(insertReturn).toEqual({ ...USERS[0], id: 1 });
-    // Ensure that the provided columns are accessible
-    ((_: string) => {})(insertReturn!.name);
-
-    // test run()
-    const success1 = await compilation.run(USERS[1]);
-    expect(success1).toBe(true);
-
-    // test that non-specified columns are not inserted
-    const success2 = await compilation.run({ ...USERS[2], id: 100 });
-    expect(success2).toBe(true);
-
-    const readUsers = await userMapperReturningAll.select().returnAll();
-    expect(readUsers.length).toEqual(3);
-    expect(readUsers[0].handle).toEqual(USERS[0].handle);
-    expect(readUsers[1].handle).toEqual(USERS[1].handle);
-    expect(readUsers[2].handle).toEqual(USERS[2].handle);
-    expect(readUsers[2].id).toEqual(3);
-
-    ignore('check compile-time types', () => {
-      compilation.returnOne({
-        name: 'xyz',
-        handle: 'pdq',
-        email: 'abc@def.hij',
-        // @ts-expect-error - only insertable columns are allowed
-        notThere: 32,
-      });
-      // @ts-expect-error - only expected columns are returned
-      insertReturn!.notThere;
-    });
-  });
-
   ignore('detects type errors inserting a single object', async () => {
     // @ts-expect-error - inserted object must have all required columns
     userMapperReturningAll.insert().returnOne({});

@@ -32,6 +32,27 @@ beforeEach(() => resetDB(db));
 afterAll(() => destroyDB(db));
 
 describe('compiled updates', () => {
+  it('updates nothing returning zero update count', async () => {
+    const updateValues = { email: 'new.email@xyz.pdq' };
+
+    const compilation = userMapperReturningID
+      .update({ id: 1 })
+      .columns(['handle', 'name', 'email'])
+      .compile();
+
+    const success2 = await compilation.run({}, updateValues);
+    expect(success2).toBe(false);
+
+    const updateCount2 = await compilation.returnCount({}, updateValues);
+    expect(updateCount2).toEqual(0);
+
+    const updates2 = await compilation.returnAll({}, updateValues);
+    expect(updates2.length).toEqual(0);
+
+    const update2 = await compilation.returnOne({}, updateValues);
+    expect(update2).toBeNull();
+  });
+
   it('compilations accept readonly updating objects', async () => {
     const compilation = userMapperReturningNothing
       .update('id', '=', 1)
