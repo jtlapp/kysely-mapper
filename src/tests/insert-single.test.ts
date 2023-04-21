@@ -8,6 +8,7 @@ import {
   createUserMapperReturningID,
   createUserMapperReturningAll,
   createUserMapperReturningNothing,
+  createUserMapperReturningDifferently,
 } from './utils/test-mappers';
 import { USERS, POSTS } from './utils/test-objects';
 import { ignore } from './utils/test-utils';
@@ -133,6 +134,36 @@ describe('inserting a single object without transformation', () => {
       insertReturn2.title;
       // @ts-expect-error - check return types
       insertReturn2.userId;
+    });
+  });
+
+  it('inserts multiple returning differently for inserts and updates', async () => {
+    const mapper = createUserMapperReturningDifferently(db);
+
+    const insertReturn = await mapper.insert().returnOne(USERS[0]);
+    expect(insertReturn).toEqual({
+      id: 1,
+      handle: USERS[0].handle,
+    });
+    // Ensure that returned objects can be accessed as expected.
+    ((_: number) => {})(insertReturn.id);
+    ((_: string) => {})(insertReturn.handle);
+
+    const newHandle = 'newHandle';
+    const updateReturn = await mapper
+      .update(1)
+      .returnOne({ handle: newHandle });
+    expect(updateReturn).toEqual({
+      name: USERS[0].name,
+    });
+    // Ensure that returned objects can be accessed as expected.
+    ((_: string) => {})(updateReturn!.name);
+
+    ignore('type errors', () => {
+      // @ts-expect-error - check return types
+      insertReturn.name;
+      // @ts-expect-error - check return types
+      updateReturn!.id;
     });
   });
 

@@ -37,6 +37,14 @@ export function createUserMapperReturningIDAndHandleAsH(db: Kysely<Database>) {
   }).withTransforms({ countTransform });
 }
 
+export function createUserMapperReturningDifferently(db: Kysely<Database>) {
+  return new TableMapper(db, 'users', {
+    keyColumns: ['id'],
+    insertReturnColumns: ['id', 'handle'],
+    updateReturnColumns: ['name'],
+  }).withTransforms({ countTransform });
+}
+
 export function createUserMapperReturningAll(db: Kysely<Database>) {
   return new TableMapper(db, 'users', {
     insertReturnColumns: ['*'],

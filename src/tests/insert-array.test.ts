@@ -8,6 +8,7 @@ import {
   createUserMapperReturningID,
   createUserMapperReturningAll,
   createUserMapperReturningNothing,
+  createUserMapperReturningDifferently,
 } from './utils/test-mappers';
 import { USERS, POSTS } from './utils/test-objects';
 import { ignore } from './utils/test-utils';
@@ -179,6 +180,38 @@ describe('inserting an array of objects without transformation', () => {
     ignore("can't access columns when returning nothing", () => {
       // @ts-expect-error - can't access columns when returning nothing
       insertReturns[0].id;
+    });
+  });
+
+  it('inserts multiple returning differently for inserts and updates', async () => {
+    const mapper = createUserMapperReturningDifferently(db);
+
+    const insertReturns = await mapper.insert().returnAll(USERS);
+    expect(insertReturns.length).toEqual(3);
+    expect(insertReturns[0]).toEqual({
+      id: insertReturns[0].id,
+      handle: USERS[0].handle,
+    });
+    // Ensure that returned objects can be accessed as expected.
+    ((_: number) => {})(insertReturns[0].id);
+    ((_: string) => {})(insertReturns[0].handle);
+
+    const newHandle = 'newHandle';
+    const updateReturns = await mapper
+      .update(1)
+      .returnAll({ handle: newHandle });
+    expect(updateReturns.length).toEqual(1);
+    expect(updateReturns[0]).toEqual({
+      name: USERS[0].name,
+    });
+    // Ensure that returned objects can be accessed as expected.
+    ((_: string) => {})(updateReturns[0].name);
+
+    ignore('type errors', () => {
+      // @ts-expect-error - check return types
+      insertReturns[0].name;
+      // @ts-expect-error - check return types
+      updateReturns[0].id;
     });
   });
 
