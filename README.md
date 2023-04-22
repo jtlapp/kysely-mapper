@@ -109,8 +109,12 @@ user = await table.select().returnOne();
 The first selection returns all rows from the 'users' table, representing each row as an object with fields `id`, `name`, and `birth_year`. The second selection returns just the first user. If we want to return specific rows, we can supply a query filter:
 
 ```ts
+users = await table.select().returnAll(); // returns all users
+
 users = await table.select({ name: 'Jane Smith' }).returnAll();
 users = await table.select('name', '=', 'Jane Smith').returnAll();
+users = await table.select(sql`name = ${findName}`).returnAll();
+
 users = await table
   .select({
     name: 'Jane Smith',
@@ -123,13 +127,13 @@ users = await table
     cmpr('birth_year', '=', 1970),
   ]))
   .returnAll();
+
 users = await table
   .select({
     name: ['Jane Smith', 'John Doe', 'Suzie Cue'], // any of these names
     birth_year: 1970,
   })
   .returnAll();
-users = await table.select(sql`name = ${findName}`).returnAll();
 ```
 
 Call `modify()` to refine the underlying Kysely query builder:
