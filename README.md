@@ -562,16 +562,16 @@ export class UserRepo {
     return {
       // prettier-ignore
       deleteByID: table.parameterize<{ id: number }>(
-        ({ mapper, param }) => mapper.delete(param("id"))
+        ({ mapper, param }) => mapper.delete(param('id'))
       ),
       // prettier-ignore
       selectByID: table.parameterize<{ id: number }>(
-        ({ mapper, param }) => mapper.select(param("id"))
+        ({ mapper, param }) => mapper.select(param('id'))
       ),
       // prettier-ignore
       updateByID: table.parameterize<{ id: number }>(
         ({ mapper, param }) =>
-          mapper.update(param("id")).columns(["name", "email"])
+          mapper.update(param('id')).columns(['name', 'email'])
       ),
       insert: table.insert().columns(['name', 'email']).compile(),
     };
