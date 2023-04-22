@@ -610,23 +610,9 @@ The resulting table mapper has these properties:
 
 ## Quick Reference
 
-<!-- prettier-ignore -->
-| TableMapper Setting | Description |
-| --- | --- |
-| `keyColumns` | Tuple of the columns that make up the table's key. Defaults to `[]`, indicating that no columns are keys. |
-| `selectedColumns` | Array of columns to return from selection queries. Defaults to `[*]`, selecting all columns. May contain aliases. |
-| `insertReturnColumns` | Array of columns to return from insert queries that return columns. `['*']` returns all columns; `[]` returns none. May specify aliases. Defaults to `keyColumns`. |
-| `updateReturnColumns` | Array of columns to return from update queries that return columns. `['*']` returns all columns; `[]` returns none and is the default. May specify aliases. |
+Here are some quick-reference charts that should help make this utility easy to learn. Hopefully, the charts also reveal both the simplicity and flexibility of the solution.
 
-<!-- prettier-ignore -->
-| TableMapper Setting | Description |
-| --- | --- |
-| `insertTransform` | TBD |
-| `insertReturnTransform` | TBD |
-| `updateTransform` | TBD |
-| `updateReturnTransform` | TBD |
-| `selectTransform` | TBD |
-| `countTransform` | TBD |
+`TableMapper` has the following constructor and methods:
 
 <!-- prettier-ignore -->
 | Method of TableMapper | Description |
@@ -640,16 +626,51 @@ The resulting table mapper has these properties:
 | `ref(column)` | Returns a reference to a column with a dynamically-generated name. (Shorthand for `db.dynamic.ref(column)`.) |
 | `parameterize<Params>(`<br/>`({ mapper, param }) =>`<br/>`new query)` | Returns a compiling query with a parameterized filter. Its argument is a factory method that returns a parameterized, compilable query. |
 
+The `TableMapper` constructor takes a settings object, all of whose properties are optional:
+
+<!-- prettier-ignore -->
+| TableMapper Setting | Description |
+| --- | --- |
+| `keyColumns` | Tuple of the columns that make up the table's key. Defaults to `[]`, indicating that no columns are keys. |
+| `selectedColumns` | Array of columns to return from selection queries. Defaults to `[*]`, selecting all columns. May contain aliases. |
+| `insertReturnColumns` | Array of columns to return from insert queries that return columns. `['*']` returns all columns; `[]` returns none. May specify aliases. Defaults to `keyColumns`. |
+| `updateReturnColumns` | Array of columns to return from update queries that return columns. `['*']` returns all columns; `[]` returns none and is the default. May specify aliases. |
+
+The `tableMapper.withTransforms` method takes a transforms object, all of whose properties are optional:
+
+<!-- prettier-ignore -->
+| TableMapper Transform | Description |
+| --- | --- |
+| `insertTransform` | TBD |
+| `insertReturnTransform` | TBD |
+| `updateTransform` | TBD |
+| `updateReturnTransform` | TBD |
+| `selectTransform` | TBD |
+| `countTransform` | TBD |
+
+The argument to `update()`, `select()`, and `delete()` is an optional query filter. When no query filter is provided, all rows are selected. The following query filters are available:
+
+<!-- prettier-ignore -->
+| Query Filter | Description |
+| --- | --- |
+| TBD | TBD |
+
+The queries that `TableFilter` methods return all have similar methods, as this chart summarizes:
+
 <!-- prettier-ignore -->
 | Method of Query | insert() | update(filter?) | select(filter?) | delete(filter?) |
 |  --- |  --- |  --- |  --- |  --- |
-| `modify` | ((kysely-QB) =><br/> new kysely QB) => insert query | ((kysely-QB) =><br/> new kysely QB) => update query | ((kysely-QB) =><br/> new kysely QB) => select query | ((kysely-QB) =><br/> new kysely QB) => delete query |
+| `modify` | ((kysely-QB) =><br/> new kysely QB) => new insert query | ((kysely-QB) =><br/> new kysely QB) => new update query | ((kysely-QB) =><br/> new kysely QB) => select query | ((kysely-QB) =><br/> new kysely QB) => delete query |
 | `columns` | (columns-to-insert array) =><br/> compilable insert query | (columns-to-update array) =><br/> compilable update query | N/A | N/A |
 | `run` | (values) =><br/> true (always) | (values) =><br/> boolean (whether any updated) | N/A | () =><br/> boolean (whether any deleted) |
 | `returnCount` | N/A | (values) =><br/> return count | N/A | () =><br/> return count |
 | `returnOne` | (values) =><br/> insert return | (values) =><br/> update return | () =><br/> selected object | N/A |
 | `returnAll` | (values[]) =><br/> (insert return)[] | (values) =><br/> (update return)[] | () => (<br/>selected object)[] | N/A |
 | `compile` | after calling `columns`: () =><br/> compiling insert query | after calling `columns`: () =><br/> compiling update query | () =><br/> compiling select query | () =><br/> compiling delete query |
+
+`modify` returns an instance of the kind of query on which it was called. All select and delete queries are compilable, but to get a compilable version of an insert or update query you must call `columns`.
+
+`tableMapper.parameterize()` and `query.compile()` both return compiling queries, which compile on their first execution. These queries have similar methods, as shown in this chart:
 
 <!-- prettier-ignore -->
 | Method of Compiling Query | Compiling Insert Query | Compiling Update Query | Compiling Select Query | Compiling Delete Query |
