@@ -30,18 +30,12 @@ This package provides three classes for mapping tables: `AbstractTableMapper`, `
 
 Most of the examples in this document assume the following '**users**' table:
 
-- **id**: auto-incrementing integer, primary key
-- **name**: text
-- **birth_year**: integer
-- **modified**: date, maintained by a database trigger
-
-| 'users' table |
-| **Column Name** | **Type** |
-| --- | --- |
-| id | auto-incrementing integer, primary key |
-| name | text |
-| birth_year | integer |
-| modified | date, maintained by a database trigger |
+| **Users Table Column** | **Column Type**                        |
+| ---------------------- | -------------------------------------- |
+| id                     | auto-incrementing integer, primary key |
+| name                   | text                                   |
+| birth_year             | integer                                |
+| modified               | date, maintained by a database trigger |
 
 We first configure a table mapper by specifying key columns, selected columns, insert return columns, and update return columns, where they differ from the defaults. We also specify any needed transformations between objects and table row columns. For example:
 
