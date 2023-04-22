@@ -47,7 +47,7 @@ user = await table.select().returnOne();
 // user is { id: 123, name: 'Jane Smith', birth_year: 1970, modified: Date('1/2/2023') }
 ```
 
-The first selection returns all rows from the 'users' table, representing each row as an object with fields `id`, `name`, and `birth_year`. The second selection returns just the first user. If we want to return specific rows, we can supply a filter:
+The first selection returns all rows from the 'users' table, representing each row as an object with fields `id`, `name`, and `birth_year`. The second selection returns just the first user. If we want to return specific rows, we can supply a query filter:
 
 ```ts
 users = await table.select({ name: 'Jane Smith' }).returnAll();
@@ -70,7 +70,7 @@ users = await table
     birth_year: 1970,
   })
   .returnAll();
-users = await table.select(sql`name = ${targetName}`).returnAll();
+users = await table.select(sql`name = ${findName}`).returnAll();
 ```
 
 Call `modify()` to refine the underlying Kysely query builder:
@@ -338,7 +338,7 @@ Now we can also update as follows:
 ```ts
 user = await table.insert().returnOne(new User(0, 'Jane', 'Smith', 1970));
 user = await table.update(user.id).returnOne({ name: 'Janice Smith' });
-await table.update({ name: 'Joe Smith' }).run({ name: 'Joseph Smith' });
+await table.update({ name: 'Joe Mack' }).run({ name: 'Joseph Mack' });
 ```
 
 ### Introduction to EntireRowTransforms
@@ -348,27 +348,93 @@ await table.update({ name: 'Joe Smith' }).run({ name: 'Joseph Smith' });
 Here is how you create a table mapper that uses these transforms:
 
 ```ts
+const KEY_COLUMNS = ['id'];
+
 const table = new TableMapper(db, 'users', {
-  keyColumns: ['id'],
+  keyColumns: KEY_COLUMNS,
   insertReturnColumns: ['id', 'modified'],
   updateReturnColumns: ['modified'],
-}).withTransforms(new EntireRowTransforms(keyColumns));
+}).withTransforms(new EntireRowTransforms(KEY_COLUMNS));
 ```
 
 The transforms are only compatible with with table mappers that select all columns, as the above does because `selectedColumns` defaults to `['*']`.
 
 The resulting table mapper has these properties:
 
-- Upon insertion, key columns with falsy values are removed from the query; when you want the table to generate a key, set the key value to `null`, 0, or an empty string `""`.
+- Upon insertion, key columns with falsy values are removed from the query; when you want the table to generate a key, set the key value to `null`, 0, or an empty string `""`. You can further restrict inserted columns by calling `columns`()` on the query.
 - The row returned from an insertion is the row provided for insertion merged with the columns returned from the insertion.
 - Select queries return entire rows.
-- The caller provides an entire row when updating, setting all columns, unless you restrict columns by calling `columns()`.
+- The caller provides an entire row when updating, setting all columns, unless you restrict columns by calling `columns()` on the query.
 - The row returned from an update is the row provided with the update merged with the columns returned from the update.
 - Counts of the number of affected rows have type `number`.
 
-## Parameterizing and Compiling Queries
+## Introduction to Compiling Queries
 
-TBD
+Table mappers are also able to produce parameterized, compiling queries that compile the underlying Kysely query builder on the first execution and use this compilation for subsequent executions. You can provide parameters for values that can vary from execution to execution, particularly in query filters that define "where" clauses. Inserted and updating objects are always fully parameterized, so these too can vary from execution to execution.
+
+Any mapped query can be compiled by calling its `compile()` method, and the resulting compilation can be called via the methods available to the uncompiled query. However, you must call `columns()` on insert and update queries prior to compilation:
+
+```ts
+const compilingInsert = table
+  .insert()
+  .columns(['name', 'birth_year']) // columns to insert
+  .compile();
+await compilingInsert.run(userToInsert);
+
+const compilingUpdate = table
+  .update({ name: 'Joe Mack' }) // columns to update
+  .columns(['name'])
+  .compile();
+user = await compilingUpdate.returnOne({}, { name: 'Joseph Mack' });
+
+const compilingSelect = table.select({ name: 'Joseph Mack' }).compile();
+users = await compilingSelect.returnAll({});
+
+const compilingDelete = table.delete({ name: 'Joseph Mack' }).compile();
+count = await compilingDelete.returnCount({});
+```
+
+We have to call `columns()` on insertions and updates to tell the utility what columns to set, because Kysely normally gets this information from the values object itself. The utility compiles the query prior to receiving the values object, so that the values object can vary by execution within the same compiled query. This requires the columns to be known in advance of executing the query.
+
+Except for insertions, the methods of compiling queries all take an additional argument, which is `{}` in each case above. This is an object that provides parameter values. When we create a compiling query by calling `compile()`, we are not parameterizing anything but the values for inserting or updating. The second argument of these methods provides these values. Given that there are no additional parameters to provide, the parameters object will be empty.
+
+If we want to parameterize the query filter, we call `parameterize()` on the table mapper instead of calling `compile()` on the query. We also provide `parameterize()` with a type parameter that defines the available parameters as the properties of an object. The following examples all use the same type parameters, `Params`:
+
+```ts
+interface Params {
+  findName: string;
+}
+
+const compilingUpdate = table.parameterize<Params>(({ mapper, param }) =>
+  mapper.update({ name: param('findName') }).columns(['name'])
+);
+user = await compilingUpdate.returnOne(
+  { findName: 'Joe Mack' },
+  { name: 'Joseph Mack' }
+);
+
+const compilingSelect = table.parameterize<Params>(({ mapper, param }) =>
+  mapper.select({ name: param('findName') })
+);
+users = await compilingSelect.returnAll({ findName: 'Joe Mack' });
+
+const compilingDelete = table.parameterize<Params>(({ mapper, param }) =>
+  mapper.delete({ name: param('findName') })
+);
+count = await compilingDelete.returnCount({ findName: 'Joe Mack' });
+```
+
+No example is shown for insertion, because not having query filters, there is nothing further to parameterize.
+
+In these examples, the parameter is called `findName` to make it clear that parameters are names you make up, rather than having to be column names. However, we can use column names as parameter names if we want, because the parameters used to insert values are in their own namespace.
+
+We hand `parameterize()` a factory function that returns a compilable query. To make this query, the function receives a reference to the table mapper (`mapper`) and a `param()` function. Construct the query from `mapper`, replacing the filter right-hand-values you wish to parameterize with calls to `param()`. Provide `param()` with the parameter name, which must be a property of the parameters type (here, `Params`). The parameter must have a type in the type parameter that is permitted for the right-hand-value it provides. The factory function must must call `columns()` on update queries before returning the query.
+
+`parameterize()` returns a compiling query that can be repeatedly called with different parameters (unless it's an insertion) and different values (for insertions and updates). The compiling query compiles on its first execution, caches the compilation, discards the underlying Kysely query builder to free memory, and uses the cached compilation on subsequent executions. (Insertions and updates may actually cache two compilations on the first execution &mdash; one for queries that return values and one for queries that don't).
+
+Kysely queries are fast, and the present utility doesn't do much additional work on top of Kysely, so you are not likely to need compiling queries to improve query speed. However, query builders do use memory, increase garbage collection, and consume clock cycles that could be used elsewhere. Compiling queries allow you to minimize resource usage for the kinds of applications that can benefit.
+
+Compilation adds a bit of complication to your queries. It is best to implement the application without this compilation until you find that you need it. You may discover that you never needed the additional complication. The compilation facility exists to help you feel comfortable using the tool for any kind of application.
 
 ## Usage in Repository Classes
 
