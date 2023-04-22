@@ -613,7 +613,7 @@ The resulting table mapper has these properties:
 <!-- prettier-ignore -->
 | Method of Query | insert() | update(filter?) | select(filter?) | delete(filter?) |
 |  --- |  --- |  --- |  --- |  --- |
-| `modify` | (kyselyQB) =><br/> kysely query builder | (kyselyQB) =><br/> kysely query builder | (kyselyQB) =><br/> kysely query builder | (kyselyQB) =><br/> kysely query builder |
+| `modify` | ((kyselyQB) => kysely QB) => insert query | ((kyselyQB) => kysely QB) => update query | ((kyselyQB) => kysely QB) => select query | ((kyselyQB) => kysely QB) => delete query |
 | `columns` | (columns-to-insert array) =><br/> compilable insert query | (columns-to-update array) =><br/> compilable update query | N/A | N/A |
 | `run` | (values) =><br/> true (always) | (values) =><br/> boolean (whether any updated) | N/A | () =><br/> boolean (whether any deleted) |
 | `returnCount` | N/A | (values) =><br/> return count | N/A | () =><br/> return count |
