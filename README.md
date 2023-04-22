@@ -470,7 +470,114 @@ Compilation adds a bit of complication to your queries. It's best to implement t
 
 ## Usage in Repository Classes
 
-TBD
+We typically want to use table mappers in repository classes that represent database tables with application-specific interfaces. We also typically want to create instances of these classes with dependency injection, passing in dependencies rather than hard-coding them. Table mappers depend on instances of the `Kysely` class and present a complication for dependency injection. This section documents a simple solution to this complication.
+
+The `TableMapper` class has many type parameters, and we would rather not have to specify them. When we create a table mapper, passing in its various column settings and transforms, TypeScript can infer all of the type parameters from these settings and transforms. However, we require an instance of `Kysely` to create the table mapper. If we want to define the table mapper prior to creating it, such as to make it a property of a repository class, and if we only receive the `Kysely` instance at repository construction, we may be inclined to specify all of the type parameters in our definition.
+
+A better solution is to provide a method on the repository class that returns a table mapper and then define the table mapper property as the return type of this method. This provides the best of both worlds: we infer all of the type parameters and have a property based on the inferred types. Here is an example:
+
+```ts
+export class UserRepo {
+  readonly #table: ReturnType<UserRepo['getMapper']>;
+
+  constructor(readonly db: Kysely<Database>) {
+    this.#table = this.getMapper(db);
+  }
+
+  async getByID(id: number): Promise<User | null> {
+    return this.#table.select(id).returnOne();
+  }
+
+  async deleteById(id: number): Promise<boolean> {
+    return this.#table.delete(id).run();
+  }
+
+  async store(user: User): Promise<User | null> {
+    return user.id
+      ? (await this.#table.update(user.id).run(user))
+        ? user
+        : null
+      : this.#table.insert().returnOne(user);
+  }
+
+  private getMapper(db: Kysely<Database>) {
+    return new TableMapper(db, 'users', {
+      keyColumns: ['id'],
+    }).withTransforms({
+      insertTransform: (source: User) => {
+        const insertion = { ...source } as any;
+        delete insertion['id'];
+        return insertion;
+      },
+      insertReturnTransform: (source: User, returns) =>
+        new User({ ...source, id: returns.id }),
+      selectTransform: (row) => new User({ ...row }),
+      countTransform: (count) => Number(count),
+    });
+  }
+}
+```
+
+We can do something similar when using compiling queries. There's no need to keep the table mapper around if all queries are compiling, as we only need the compiled queries:
+
+```ts
+export class UserRepo {
+  readonly #queries: ReturnType<UserRepo['getQueries']>;
+
+  constructor(readonly db: Kysely<Database>) {
+    this.#queries = this.getQueries(db);
+  }
+
+  async deleteById(id: number): Promise<boolean> {
+    return this.#queries.deleteByID.run({ id });
+  }
+
+  async getByID(id: number): Promise<User | null> {
+    return this.#queries.selectByID.returnOne({ id });
+  }
+
+  async store(user: User): Promise<User | null> {
+    return user.id
+      ? (await this.#queries.updateByID.run({ id: user.id }, user))
+        ? user
+        : null
+      : this.#queries.insert.returnOne(user);
+  }
+
+  private getQueries(db: Kysely<Database>) {
+    const table = new TableMapper(db, 'users', {
+      keyColumns: ['id'],
+    }).withTransforms({
+      insertTransform: (user: User) => {
+        const insertion = { ...user } as any;
+        delete insertion['id'];
+        return insertion;
+      },
+      insertReturnTransform: (user: User, returns) =>
+        new User({ ...user, id: returns.id }),
+      selectTransform: (row) => new User({ ...row }),
+      countTransform: (count) => Number(count),
+    });
+
+    return {
+      // prettier-ignore
+      deleteByID: table.parameterize<{ id: number }>(
+        ({ mapper, param }) => mapper.delete(param("id"))
+      ),
+      // prettier-ignore
+      selectByID: table.parameterize<{ id: number }>(
+        ({ mapper, param }) => mapper.select(param("id"))
+      ),
+      // prettier-ignore
+      updateByID: table.parameterize<{ id: number }>(
+        ({ mapper, param }) =>
+          mapper.update(param("id")).columns(["name", "email"])
+      ),
+      insert: table.insert().columns(['name', 'email']).compile(),
+    };
+  }
+}
+```
 
 ## EntireRowTransforms
 
