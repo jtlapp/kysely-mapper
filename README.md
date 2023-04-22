@@ -569,9 +569,9 @@ export class UserRepo {
       // prettier-ignore
       updateByID: table.parameterize<{ id: number }>(
         ({ mapper, param }) =>
-          mapper.update(param('id')).columns(['name', 'email'])
+          mapper.update(param('id')).columns(['name', 'birth_year'])
       ),
-      insert: table.insert().columns(['name', 'email']).compile(),
+      insert: table.insert().columns(['name', 'birth_year']).compile(),
     };
   }
 }
