@@ -12,7 +12,7 @@ Unconfigured, the utility does no mapping and only serves as a shorthand for acc
 
 All queries are based on [Kysely](https://github.com/kysely-org/kysely) and give you access to the underlying query builders for further modification. The utility also supports compiling its object-mapping queries, parameterized for variation from run to run.
 
-For your convenience, here is [link to the quick reference](https://github.com/jtlapp/kysely-mapper#quick-reference).
+[Link to the Quick Reference](https://github.com/jtlapp/kysely-mapper#quick-reference)
 
 ## Installation
 
@@ -612,7 +612,7 @@ The resulting table mapper has these properties:
 
 ## Quick Reference
 
-Here are some quick-reference charts that should help make this utility easy to learn. Hopefully, the charts also reveal both the simplicity and flexibility of the solution.
+Here are some quick-reference charts that should help make this utility easy to learn. Hopefully, the charts also reveal both the simplicity and the flexibility of the solution.
 
 `TableMapper` has the following constructor and methods:
 
