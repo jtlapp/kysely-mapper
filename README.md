@@ -620,7 +620,7 @@ The resulting table mapper has these properties:
 | `select(filter?)` | Returns a select query that selects rows matching the optionally provided filter. |
 | `delete(filter?)` | Returns a delete query that deletes rows matching the optionally provided filter. |
 | `ref(column)` | Returns a reference to a column with a dynamically-generated name. (Shorthand for `db.dynamic.ref(column)`.) |
-| `parameterize<Params>(<br/>({ mapper, param }) => new query)` | Returns a compiling query with a parameterized filter. Its argument is a factory method that returns a parameterized, compilable query. |
+| `parameterize<Params>`(<br/>`({ mapper, param }) => new query)` | Returns a compiling query with a parameterized filter. Its argument is a factory method that returns a parameterized, compilable query. |
 
 <!-- prettier-ignore -->
 | Method of Query | insert() | update(filter?) | select(filter?) | delete(filter?) |
