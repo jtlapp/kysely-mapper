@@ -657,7 +657,7 @@ The argument to `update()`, `select()`, and `delete()` is an optional query filt
 | :---: | --- |
 | *none* | All rows match when there is no filter argument. |
 | `string` or `number` | Value of the row's primary key, matching rows with this key value. Only available if the row has a single-column primary key. |
-| [key1, key2, ...] | Tuple of the row's single or compound key, matching rows with this key combination. Only available if the row has at least one key column. |
+| [key1, key2, ...] | Tuple of the row's single or compound key, matching rows with this key combination. Values match according to the order of columns in `keyColumns`. Only available if the row has at least one key column. |
 | object | Object of fields, matching rows whose columns match the values of the object's properties. Non-array property values are compared by equality, while array properties match via `where ... in ...` expressions. `{}` matches all rows.
 | left-hand-side, operation, right-hand-side | Providing three arguments matches via a Kysely binary operation (e.g. `'total', '>', '100'`). |
 | kysely where expression factory | Function that builds a Kysely where expression. (e.g. `({ any, cmpr }) => any(cmpr('status', '!=', 'down'), cmpr('service', '=', 'messaging')`). |
