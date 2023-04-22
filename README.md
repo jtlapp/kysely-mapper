@@ -611,7 +611,7 @@ The resulting table mapper has these properties:
 ## Quick Reference
 
 <!-- prettier-ignore -->
-| Method of Query | insert() | update(filter) | select(filter) | delete(filter) |
+| Method of Query | insert() | update(filter?) | select(filter?) | delete(filter?) |
 |  --- |  --- |  --- |  --- |  --- |
 | `modify` | (kyselyQB) => kysely query builder | (kyselyQB) => kysely query builder | (kyselyQB) => kysely query builder | (kyselyQB) => kysely query builder |
 | `columns` | (columns-to-insert array) => compilable insert query | (columns-to-update array) => compilable update query | N/A | N/A |
