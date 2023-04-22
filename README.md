@@ -37,6 +37,7 @@ Most of the examples in this document assume the following '**users**' table:
 
 | 'users' table |
 | **Column Name** | **Type** |
+| --- | --- |
 | id | auto-incrementing integer, primary key |
 | name | text |
 | birth_year | integer |
