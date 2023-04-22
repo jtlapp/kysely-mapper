@@ -69,8 +69,9 @@ export interface TableMapperTransforms<
 
 export interface CountTransform<ReturnCount> {
   /**
-   * Transformation to apply to bigint count results before returning
-   * the count to the client. `count` is the count returned by the query.
+   * Transformation to apply to bigint count results indicating the number of
+   * rows affected, before returning the count to the client. `count` is the
+   * count returned by the query.
    */
   countTransform?: (count: bigint) => ReturnCount;
 }

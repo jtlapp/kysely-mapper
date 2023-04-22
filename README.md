@@ -641,12 +641,12 @@ The `tableMapper.withTransforms` method takes a transforms object, all of whose 
 <!-- prettier-ignore -->
 | TableMapper Transform | Description |
 | --- | --- |
-| `insertTransform` | TBD |
-| `insertReturnTransform` | TBD |
-| `updateTransform` | TBD |
-| `updateReturnTransform` | TBD |
-| `selectTransform` | TBD |
-| `countTransform` | TBD |
+| `insertTransform` | (source-object) => table columns object<br/> Transforms the source object into the table column-values to insert. The default assumes the source object contains only table columns. |
+| `insertReturnTransform` | (source-object, returns) => insert return<br/> Transforms the source object and the returned column-values into the value to return from the insert query. The default returns an object containing the returned columns, unless there are no `insertReturnColumns`, in which case the return type is `void`. |
+| `updateTransform` | (source-object) => table columns object<br/> Transforms the source object into the table column-values to update. The default assumes the source object contains only table columns. |
+| `updateReturnTransform` | (source-object, returns) => update return<br/> Transforms the source object and the returned column-values into the value to return from the udpate query. The default returns an object containing the returned columns, unless there are no `updateReturnColumns`, in which case the return type is `void`. |
+| `selectTransform` | (selected-row) => selected object<br/> Transforms a selected row of column-values into the object to return from the select query. The default returns the selected row. |
+| `countTransform` | (count: bigint) => return count<br/> Transforms the number of affected rows into the value to return from `returnCount` methods. Returns a `bigint` by default. |
 
 The argument to `update()`, `select()`, and `delete()` is an optional query filter. When no query filter is provided, all rows are selected. The following query filters are available:
 
@@ -668,7 +668,7 @@ The queries that `TableFilter` methods return all have similar methods, as this 
 | `returnAll` | (values[]) =><br/> (insert return)[] | (values) =><br/> (update return)[] | () => (<br/>selected object)[] | N/A |
 | `compile` | after calling `columns`: () =><br/> compiling insert query | after calling `columns`: () =><br/> compiling update query | () =><br/> compiling select query | () =><br/> compiling delete query |
 
-`modify` returns an instance of the kind of query on which it was called. All select and delete queries are compilable, but to get a compilable version of an insert or update query you must call `columns`.
+`modify` returns an instance of the kind of query on which it was called. All select and delete queries are compilable, but you must call `columns` to get a compilable version of an insert or update query.
 
 `tableMapper.parameterize()` and `query.compile()` both return compiling queries, which compile on their first execution. These queries have similar methods, as shown in this chart:
 
