@@ -613,21 +613,21 @@ The resulting table mapper has these properties:
 <!-- prettier-ignore -->
 | Method of Query | insert() | update(filter?) | select(filter?) | delete(filter?) |
 |  --- |  --- |  --- |  --- |  --- |
-| `modify` | (kyselyQB) => kysely query builder | (kyselyQB) => kysely query builder | (kyselyQB) => kysely query builder | (kyselyQB) => kysely query builder |
-| `columns` | (columns-to-insert array) => compilable insert query | (columns-to-update array) => compilable update query | N/A | N/A |
-| `run` | (values) => boolean success | (values) => boolean success | N/A | () => boolean success |
-| `returnCount` | N/A | (values) => return count | N/A | () => return count |
-| `returnOne` | (values) => insert return | (values) => update return | () => selected object | N/A |
-| `returnAll` | (values[]) => (insert return)[] | (values) => (update return)[] | () => (selected object)[] | N/A |
-| `compile` | after calling `columns`: () => compiling insert query | after calling `columns`: () => compiling update query | () => compiling select query | () => compiling delete query |
+| `modify` | (kyselyQB) =><br/> kysely query builder | (kyselyQB) =><br/> kysely query builder | (kyselyQB) =><br/> kysely query builder | (kyselyQB) =><br/> kysely query builder |
+| `columns` | (columns-to-insert array) =><br/> compilable insert query | (columns-to-update array) =><br/> compilable update query | N/A | N/A |
+| `run` | (values) =><br/> boolean success | (values) =><br/> boolean success | N/A | () =><br/> boolean success |
+| `returnCount` | N/A | (values) =><br/> return count | N/A | () =><br/> return count |
+| `returnOne` | (values) =><br/> insert return | (values) =><br/> update return | () =><br/> selected object | N/A |
+| `returnAll` | (values[]) =><br/> (insert return)[] | (values) =><br/> (update return)[] | () =><br/> (selected object)[] | N/A |
+| `compile` | after calling `columns`: () =><br/> compiling insert query | after calling `columns`: () =><br/> compiling update query | () =><br/> compiling select query | () =><br/> compiling delete query |
 
 <!-- prettier-ignore -->
 | Method of Query | Compiling Insert Query | Compiling Update Query | Compiling Select Query | Compiling Delete Query |
 |  --- |  --- |  --- |  --- |  --- |
-| `run` | (values) => boolean success | (params, values) => boolean success | N/A | (params) => boolean success |
-| `returnCount` | N/A | (params, values) => return count | N/A | (params) => return count |
-| `returnOne` | (values) => insert return | (params, values) => update return | (params) => selected object | N/A |
-| `returnAll` | (values[]) => (insert return)[] | (params, values) => (update return)[] | (params) => (selected object)[] | N/A |
+| `run` | (values) =><br/> boolean success | (params, values) =><br/> boolean success | N/A | (params) =><br/> boolean success |
+| `returnCount` | N/A | (params, values) =><br/> return count | N/A | (params) =><br/> return count |
+| `returnOne` | (values) =><br/> insert return | (params, values) =><br/> update return | (params) =><br/> selected object | N/A |
+| `returnAll` | (values[]) =><br/> (insert return)[] | (params, values) =><br/> (update return)[] | (params) =><br/> (selected object)[] | N/A |
 
 ## API Reference
 
