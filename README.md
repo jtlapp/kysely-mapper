@@ -615,7 +615,7 @@ The resulting table mapper has these properties:
 |  --- |  --- |  --- |  --- |  --- |
 | `modify` | (kyselyQB) => kysely query builder | (kyselyQB) => kysely query builder | (kyselyQB) => kysely query builder | (kyselyQB) => kysely query builder |
 | `columns` | (columns-to-insert array) => compilable insert query | (columns-to-update array) => compilable update query | N/A | N/A |
-| `run` | (values) => boolean | (values) => boolean | N/A | () => boolean |
+| `run` | (values) => boolean success | (values) => boolean success | N/A | () => boolean success |
 | `returnCount` | N/A | (values) => return count | N/A | () => return count |
 | `returnOne` | (values) => insert return | (values) => update return | () => selected object | N/A |
 | `returnAll` | (values[]) => (insert return)[] | (values) => (update return)[] | () => (selected object)[] | N/A |
@@ -624,7 +624,7 @@ The resulting table mapper has these properties:
 <!-- prettier-ignore -->
 | Method of Query | Compiling Insert Query | Compiling Update Query | Compiling Select Query | Compiling Delete Query |
 |  --- |  --- |  --- |  --- |  --- |
-| `run` | (values) => boolean | (params, values) => boolean | N/A | (params) => boolean |
+| `run` | (values) => boolean success | (params, values) => boolean success | N/A | (params) => boolean success |
 | `returnCount` | N/A | (params, values) => return count | N/A | (params) => return count |
 | `returnOne` | (values) => insert return | (params, values) => update return | (params) => selected object | N/A |
 | `returnAll` | (values[]) => (insert return)[] | (params, values) => (update return)[] | (params) => (selected object)[] | N/A |
