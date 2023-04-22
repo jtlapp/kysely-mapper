@@ -615,7 +615,7 @@ The resulting table mapper has these properties:
 |  --- |  --- |  --- |  --- |  --- |
 | `modify` | (kyselyQB) =><br/> kysely query builder | (kyselyQB) =><br/> kysely query builder | (kyselyQB) =><br/> kysely query builder | (kyselyQB) =><br/> kysely query builder |
 | `columns` | (columns-to-insert array) =><br/> compilable insert query | (columns-to-update array) =><br/> compilable update query | N/A | N/A |
-| `run` | (values) =><br/> true (always) | (values) =><br/> boolean (whether any updated) | N/A | () =><br/> boolean (whether any deleted) |
+| `run` | (values) =><br/> true (always) | (values) =><br/> boolean (any updated?) | N/A | () =><br/> boolean (any deleted?) |
 | `returnCount` | N/A | (values) =><br/> return count | N/A | () =><br/> return count |
 | `returnOne` | (values) =><br/> insert return | (values) =><br/> update return | () =><br/> selected object | N/A |
 | `returnAll` | (values[]) =><br/> (insert return)[] | (values) =><br/> (update return)[] | () => (<br/>selected object)[] | N/A |
@@ -624,7 +624,7 @@ The resulting table mapper has these properties:
 <!-- prettier-ignore -->
 | Method of Query | Compiling Insert Query | Compiling Update Query | Compiling Select Query | Compiling Delete Query |
 |  --- |  --- |  --- |  --- |  --- |
-| `run` | (values) =><br/> true (always) | (params, values) =><br/> boolean  (whether any updated) | N/A | (params) =><br/> boolean (whether any deleted) |
+| `run` | (values) =><br/> true (always) | (params, values) =><br/> boolean  (any updated?) | N/A | (params) =><br/> boolean (any deleted?) |
 | `returnCount` | N/A | (params, values) =><br/> return count | N/A | (params) =><br/> return count |
 | `returnOne` | (values) =><br/> insert return | (params, values) =><br/> update return | (params) =><br/> selected object | N/A |
 | `returnAll` | (values[]) =><br/> (insert return)[] | (params, values) =><br/> (update return)[] | (params) =><br/> (selected object)[] | N/A |
