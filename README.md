@@ -28,7 +28,7 @@ pnpm add kysely kysely-mapper
 
 This package provides three classes for mapping tables: `AbstractTableMapper`, `TableMapper` and `EntireRowTransforms`. `AbstractTableMapper` is a base class for constructing your own kinds of table mappers. `TableMapper` is a generic mapping utility that implements `AbstractTableMapper` and should suffice for most of your needs. `EntireRowTransforms` provides default mappings for a table mapper whose queries input and output entire rows of the underlying table.
 
-Most of the examples in this document assume the following '**users**' table:
+Most of the examples in this document assume the following 'users' table:
 
 | **Users Table Column** | **Column Type**                        |
 | ---------------------- | -------------------------------------- |
@@ -606,7 +606,15 @@ The resulting table mapper has these properties:
 
 ## Quick Reference
 
-TBD
+| **Method of Query** | **insert()**                 | **update(filter)**       | **select(filter)**     | **delete(filter)**     |
+| ------------------- | ---------------------------- | ------------------------ | ---------------------- | ---------------------- |
+| run                 | (values) => boolean          | (values) => boolean      | N/A                    | () => boolean          |
+| returnCount         | N/A                          | (values) => ReturnCount  | N/A                    | () => ReturnCount      |
+| returnOne           | (values) => InsertReturn     | (values) => UpdateReturn | () => SelectedObject   | N/A                    |
+| returnAll           | (values[]) => InsertReturn[] | (values) => UpdateReturn | () => SelectedObject[] | N/A                    |
+| modify              | (kyselyQB) => kyselyQB       | (kyselyQB) => kyselyQB   | (kyselyQB) => kyselyQB | (kyselyQB) => kyselyQB |
+
+compile - after calling `columns()`:
 
 ## API Reference
 
