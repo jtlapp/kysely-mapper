@@ -512,7 +512,6 @@ export class UserRepo {
       insertReturnTransform: (source: User, returns) =>
         new User({ ...source, id: returns.id }),
       selectTransform: (row) => new User(row),
-      countTransform: (count) => Number(count),
     });
   }
 }
@@ -556,7 +555,6 @@ export class UserRepo {
       insertReturnTransform: (user: User, returns) =>
         new User({ ...user, id: returns.id }),
       selectTransform: (row) => new User(row),
-      countTransform: (count) => Number(count),
     });
 
     return {
