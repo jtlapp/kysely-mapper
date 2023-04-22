@@ -611,9 +611,21 @@ The resulting table mapper has these properties:
 ## Quick Reference
 
 <!-- prettier-ignore -->
+| Method of TableMapper | Description |
+| --- | --- |
+| `constructor(settings)` | Constructs a `TableMapper` from the provided settings, which characterize columns. |
+| `withTransforms(transforms)` | Returns a new `TableMapper` that combines the settings of the current table mapper with the provided transforms. |
+| `insert()` | Returns an insert query.  |
+| `update(filter?)` | Returns an update query that updates rows matching the optionally provided filter. |
+| `select(filter?)` | Returns a select query that selects rows matching the optionally provided filter. |
+| `delete(filter?)` | Returns a delete query that deletes rows matching the optionally provided filter. |
+| `ref(column)` | Returns a reference to a column with a dynamically-generated name. (Shorthand for `db.dynamic.ref(column)`.) |
+| `parameterize<Params>(({ mapper, param }) => new query)` | Returns a compiling query with a parameterized filter. Its argument is a factory method that returns a parameterized, compilable query. |
+
+<!-- prettier-ignore -->
 | Method of Query | insert() | update(filter?) | select(filter?) | delete(filter?) |
 |  --- |  --- |  --- |  --- |  --- |
-| `modify` | ((kysely-QB) =><br/> new kysely QB) => insert query | ((kysely-QB) =><br/> new kysely QB) => update query | ((kysely-QB) =><br/> new kysely QB) =>select query | ((kysely-QB) =><br/> new kysely QB) => delete query |
+| `modify` | ((kysely-QB) =><br/> new kysely QB) => insert query | ((kysely-QB) =><br/> new kysely QB) => update query | ((kysely-QB) =><br/> new kysely QB) => select query | ((kysely-QB) =><br/> new kysely QB) => delete query |
 | `columns` | (columns-to-insert array) =><br/> compilable insert query | (columns-to-update array) =><br/> compilable update query | N/A | N/A |
 | `run` | (values) =><br/> true (always) | (values) =><br/> boolean (whether any updated) | N/A | () =><br/> boolean (whether any deleted) |
 | `returnCount` | N/A | (values) =><br/> return count | N/A | () =><br/> return count |
@@ -622,7 +634,7 @@ The resulting table mapper has these properties:
 | `compile` | after calling `columns`: () =><br/> compiling insert query | after calling `columns`: () =><br/> compiling update query | () =><br/> compiling select query | () =><br/> compiling delete query |
 
 <!-- prettier-ignore -->
-| Method of Query | Compiling Insert Query | Compiling Update Query | Compiling Select Query | Compiling Delete Query |
+| Method of Compiling Query | Compiling Insert Query | Compiling Update Query | Compiling Select Query | Compiling Delete Query |
 |  --- |  --- |  --- |  --- |  --- |
 | `run` | (values) =><br/> true (always) | (params, values) =><br/> boolean  (whether any updated) | N/A | (params) =><br/> boolean (whether any deleted) |
 | `returnCount` | N/A | (params, values) =><br/> return count | N/A | (params) =><br/> return count |
