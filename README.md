@@ -611,18 +611,18 @@ The resulting table mapper has these properties:
 |  --- |  --- |  --- |  --- |  --- |
 | modify | (kyselyQB) => kysely query builder | (kyselyQB) => kysely query builder | (kyselyQB) => kysely query builder | (kyselyQB) => kysely query builder |
 | run | (values) => boolean | (values) => boolean | N/A | () => boolean |
-| returnCount | N/A | (values) => ReturnCount | N/A | () => ReturnCount |
-| returnOne | (values) => InsertReturn | (values) => UpdateReturn | () => SelectedObject | N/A |
-| returnAll | (values[]) => InsertReturn[] | (values) => UpdateReturn | () => SelectedObject[] | N/A |
+| returnCount | N/A | (values) => return count | N/A | () => return count |
+| returnOne | (values) => insert return | (values) => update return | () => selected object | N/A |
+| returnAll | (values[]) => (insert return)[] | (values) => (update return)[] | () => (selected object)[] | N/A |
 | compile | after calling `columns()`: () => compiling insert query | after calling `columns()`: () => compiling update query | () => compiling select query | () => compiling delete query |
 
 <!-- prettier-ignore -->
 | Method of Query | Compiling Insert Query | Compiling Update Query | Compiling Select Query | Compiling Delete Query |
 |  --- |  --- |  --- |  --- |  --- |
 | run | (values) => boolean | (params, values) => boolean | N/A | (params) => boolean |
-| returnCount | N/A | (params, values) => ReturnCount | N/A | (params) => ReturnCount |
-| returnOne | (values) => InsertReturn | (params, values) => UpdateReturn | (params) => SelectedObject | N/A |
-| returnAll | (values[]) => InsertReturn[] | (params, values) => UpdateReturn | (params) => SelectedObject[] | N/A |
+| returnCount | N/A | (params, values) => return count | N/A | (params) => return count |
+| returnOne | (values) => insert return | (params, values) => update return | (params) => selected object | N/A |
+| returnAll | (values[]) => (insert return)[] | (params, values) => (update return)[] | (params) => (selected object)[] | N/A |
 
 ## API Reference
 
