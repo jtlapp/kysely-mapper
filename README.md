@@ -659,7 +659,7 @@ The argument to `update()`, `select()`, and `delete()` is an optional query filt
 | `object` | Object of fields, matching rows whose columns match the values of the object's properties. Non-array property values are compared by equality, while array properties match via `where ... in ...` expressions. `{}` matches all rows.
 | left-hand-side, operation, right-hand-side | Providing three arguments matches via a Kysely binary operation (e.g. `'total', '>', '100'`). |
 | kysely where expression factory | Function that builds a Kysely where expression. (e.g. `({ any, cmpr j}) => any(cmpr('status', '!=', 'down'), cmpr('service', '=', 'messaging')`). |
-| kysely `sql` expression | A Kysely `sql` expression (e.g. `sql\`status = ${targetStatus}\``).
+| kysely `sql` expression | A Kysely `sql` expression (e.g. `` `sql`status = ${targetStatus}` ``).
 
 The queries that `TableFilter` methods return all have similar methods, as this chart summarizes:
 
