@@ -609,12 +609,12 @@ The resulting table mapper has these properties:
 <!-- prettier-ignore -->
 | Method of Query | insert() | update(filter) | select(filter) | delete(filter) |
 |  --- |  --- |  --- |  --- |  --- |
+| modify | (kyselyQB) => kysely query builder | (kyselyQB) => kysely query builder | (kyselyQB) => kysely query builder | (kyselyQB) => kysely query builder |
 | run | (values) => boolean | (values) => boolean | N/A | () => boolean |
 | returnCount | N/A | (values) => ReturnCount | N/A | () => ReturnCount |
 | returnOne | (values) => InsertReturn | (values) => UpdateReturn | () => SelectedObject | N/A |
 | returnAll | (values[]) => InsertReturn[] | (values) => UpdateReturn | () => SelectedObject[] | N/A |
-| modify | (kyselyQB) => kyselyQB | (kyselyQB) => kyselyQB | (kyselyQB) => kyselyQB | (kyselyQB) => kyselyQB |
-| compile | after calling `columns()`: () => Compiling Insert Query | after calling `columns()`: () => Compiling Update Query | () => Compiling Select Query | () => Compiling Delete Query |
+| compile | after calling `columns()`: () => compiling insert query | after calling `columns()`: () => compiling update query | () => compiling select query | () => compiling delete query |
 
 <!-- prettier-ignore -->
 | Method of Query | Compiling Insert Query | Compiling Update Query | Compiling Select Query | Compiling Delete Query |
