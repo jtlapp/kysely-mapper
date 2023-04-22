@@ -610,11 +610,12 @@ The resulting table mapper has these properties:
 | Method of Query | insert() | update(filter) | select(filter) | delete(filter) |
 |  --- |  --- |  --- |  --- |  --- |
 | modify | (kyselyQB) => kysely query builder | (kyselyQB) => kysely query builder | (kyselyQB) => kysely query builder | (kyselyQB) => kysely query builder |
+| columns | (columns-to-insert array) => insert query | (columns-to-update array) => update query | N/A | N/A |
 | run | (values) => boolean | (values) => boolean | N/A | () => boolean |
 | returnCount | N/A | (values) => return count | N/A | () => return count |
 | returnOne | (values) => insert return | (values) => update return | () => selected object | N/A |
 | returnAll | (values[]) => (insert return)[] | (values) => (update return)[] | () => (selected object)[] | N/A |
-| compile | after calling `columns()`: () => compiling insert query | after calling `columns()`: () => compiling update query | () => compiling select query | () => compiling delete query |
+| compile | after calling `columns`: () => compiling insert query | after calling `columns`: () => compiling update query | () => compiling select query | () => compiling delete query |
 
 <!-- prettier-ignore -->
 | Method of Query | Compiling Insert Query | Compiling Update Query | Compiling Select Query | Compiling Delete Query |
