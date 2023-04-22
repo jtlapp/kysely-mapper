@@ -400,33 +400,6 @@ user = await table.update(user.id).returnOne({ name: 'Janice Smith' });
 await table.update({ name: 'Joe Mac' }).run({ name: 'Joseph Mack' });
 ```
 
-## EntireRowTransforms
-
-`EntireRowTransforms` is a class that provides transforms for defining a table mapper whose queries all receive and return entire rows of the table. Use it when you want to read and write entire rows but also respect the expected insert and update return columns. The class exists merely for your convenience.
-
-Here is how you create a table mapper that uses these transforms:
-
-```ts
-const KEY_COLUMNS = ['id'];
-
-const table = new TableMapper(db, 'users', {
-  keyColumns: KEY_COLUMNS,
-  insertReturnColumns: ['id', 'modified'],
-  updateReturnColumns: ['modified'],
-}).withTransforms(new EntireRowTransforms(KEY_COLUMNS));
-```
-
-The transforms are only compatible with with table mappers that select all columns, as the above does because `selectedColumns` defaults to `['*']`.
-
-The resulting table mapper has these properties:
-
-- Upon insertion, key columns with falsy values are removed from the query; when you want the table to generate a key, set the key value to `null`, 0, or an empty string `""`. You can further restrict inserted columns by calling `columns`()` on the query.
-- The row returned from an insertion is the row provided for insertion merged with the columns returned from the insertion.
-- Select queries return entire rows.
-- The caller provides an entire row when updating, setting all columns, unless you restrict columns by calling `columns()` on the query.
-- The row returned from an update is the row provided with the update merged with the columns returned from the update.
-- Counts of the number of affected rows have type `number`.
-
 ## Compiling Queries
 
 Table mappers are also able to produce parameterized, compiling queries that compile the underlying Kysely query builder on the first execution and use this compilation for subsequent executions. You can provide parameters for values that can vary from execution to execution, particularly in query filters that define "where" clauses. Inserted and updating objects are always fully parameterized, so these too can vary from execution to execution.
@@ -498,6 +471,33 @@ Compilation adds a bit of complication to your queries. It's best to implement t
 ## Usage in Repository Classes
 
 TBD
+
+## EntireRowTransforms
+
+`EntireRowTransforms` is a class that provides transforms for defining a table mapper whose queries all receive and return entire rows of the table. Use it when you want to read and write entire rows but also respect the expected insert and update return columns. The class exists merely for your convenience.
+
+Here is how you create a table mapper that uses these transforms:
+
+```ts
+const KEY_COLUMNS = ['id'];
+
+const table = new TableMapper(db, 'users', {
+  keyColumns: KEY_COLUMNS,
+  insertReturnColumns: ['id', 'modified'],
+  updateReturnColumns: ['modified'],
+}).withTransforms(new EntireRowTransforms(KEY_COLUMNS));
+```
+
+The transforms are only compatible with with table mappers that select all columns, as the above does because `selectedColumns` defaults to `['*']`.
+
+The resulting table mapper has these properties:
+
+- Upon insertion, key columns with falsy values are removed from the query; when you want the table to generate a key, set the key value to `null`, 0, or an empty string `""`. You can further restrict inserted columns by calling `columns`()` on the query.
+- The row returned from an insertion is the row provided for insertion merged with the columns returned from the insertion.
+- Select queries return entire rows.
+- The caller provides an entire row when updating, setting all columns, unless you restrict columns by calling `columns()` on the query.
+- The row returned from an update is the row provided with the update merged with the columns returned from the update.
+- Counts of the number of affected rows have type `number`.
 
 ## Quick Reference
 
