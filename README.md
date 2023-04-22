@@ -614,10 +614,10 @@ The resulting table mapper has these properties:
 | returnOne | (values) => InsertReturn | (values) => UpdateReturn | () => SelectedObject | N/A |
 | returnAll | (values[]) => InsertReturn[] | (values) => UpdateReturn | () => SelectedObject[] | N/A |
 | modify | (kyselyQB) => kyselyQB | (kyselyQB) => kyselyQB | (kyselyQB) => kyselyQB | (kyselyQB) => kyselyQB |
-| compile | after calling `columns()`: () => CompilingInsertQuery | after calling `columns()`: () => CompilingUpdateQuery | () => CompilingSelectQuery | () => CompilingDeleteQuery |
+| compile | after calling `columns()`: () => CompilingInsert<wbr/>Query | after calling `columns()`: () => CompilingUpdate<wbr/>Query | () => CompilingSelect<wbr/>Query | () => CompilingDelete<wbr/>Query |
 
 <!-- prettier-ignore -->
-| Method of Query | CompilingInsertQuery | CompilingUpdateQuery | CompilingSelectQuery | CompilingDeleteQuery |
+| Method of Query | CompilingInsert<wbr/>Query | CompilingUpdate<wbr/>Query | CompilingSelect<wbr/>Query | CompilingDelete<wbr/>Query |
 |  --- |  --- |  --- |  --- |  --- |
 | run | (values) => boolean | (params, values) => boolean | N/A | (params) => boolean |
 | returnCount | N/A | (params, values) => ReturnCount | N/A | (params) => ReturnCount |
