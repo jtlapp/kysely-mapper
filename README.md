@@ -66,7 +66,7 @@ const table = new TableMapper(db, 'users', {
 
 We then call methods on the table mapper for creating queries. Table mappers support insert, update, select, and delete queries. Except for insert, the queries take filters that generate 'where' clauses for constraining the query.
 
-Once we've creating a query, we can call methods on the query to execute it. The names of these methods are consistent across queries: `run`, `returnCount`, `returnOne`, and `returnAll`. The particular methods available and the parameters they take vary by kindof query.
+Once we've creating a query, we can call methods on the query to execute it. The names of these methods are consistent across queries: `run`, `returnCount`, `returnOne`, and `returnAll`. The particular methods available and the parameters they take vary by kind of query.
 
 Here are some examples of creating and executing queries:
 
