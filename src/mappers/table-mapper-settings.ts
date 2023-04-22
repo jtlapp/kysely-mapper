@@ -27,27 +27,29 @@ export interface TableMapperSettings<
     | ['*'] = Readonly<KeyColumns>,
   UpdateReturnColumns extends Readonly<SelectionColumn<DB, TB>[]> | ['*'] = []
 > {
-  /** Tuple of the columns that make up the table's key. May be `[]`. */
+  /**
+   * Tuple of the columns that make up the table's key. Defaults to `[]`,
+   * indicating that no columns are keys.
+   */
   keyColumns?: KeyColumns;
 
   /**
-   * Columns to return from selection queries. `[*]` selects all columns.
-   * May contain aliases.
+   * Columns to return from selection queries. Defaults to `[*]`, selecting
+   * all columns. May contain aliases.
    */
   selectedColumns?: SelectedColumns;
 
   /**
-   * Columns to return from the table on insert queries that return columns.
-   * `['*']` returns all columns; `[]` returns none. May specify aliases.
-   * Defaults to `KeyColumns`.
+   * Columns to return from insert queries that return columns. `['*']`
+   * returns all columns; `[]` returns none. May specify aliases. Defaults
+   * to `KeyColumns`.
    */
 
   insertReturnColumns?: InsertReturnColumns;
 
   /**
-   * Columns to return from the table on update queries that return columns.
-   * `['*']` returns all columns; `[]` returns none and is the default. May
-   * specify aliases.
+   * Columns to return from update queries that return columns. `['*']` returns
+   * all columns; `[]` returns none and is the default. May specify aliases.
    */
   updateReturnColumns?: UpdateReturnColumns;
 }

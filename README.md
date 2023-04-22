@@ -611,6 +611,24 @@ The resulting table mapper has these properties:
 ## Quick Reference
 
 <!-- prettier-ignore -->
+| TableMapper Setting | Description |
+| --- | --- |
+| `keyColumns` | Tuple of the columns that make up the table's key. Defaults to `[]`, indicating that no columns are keys. |
+| `selectedColumns` | Array of columns to return from selection queries. Defaults to `[*]`, selecting all columns. May contain aliases. |
+| `insertReturnColumns` | Array of columns to return from insert queries that return columns. `['*']` returns all columns; `[]` returns none. May specify aliases. Defaults to `keyColumns`. |
+| `updateReturnColumns` | Array of columns to return from update queries that return columns. `['*']` returns all columns; `[]` returns none and is the default. May specify aliases. |
+
+<!-- prettier-ignore -->
+| TableMapper Setting | Description |
+| --- | --- |
+| `insertTransform` | TBD |
+| `insertReturnTransform` | TBD |
+| `updateTransform` | TBD |
+| `updateReturnTransform` | TBD |
+| `selectTransform` | TBD |
+| `countTransform` | TBD |
+
+<!-- prettier-ignore -->
 | Method of TableMapper | Description |
 | --- | --- |
 | `constructor(settings)` | Constructs a `TableMapper` from the provided settings, which characterize columns. |
