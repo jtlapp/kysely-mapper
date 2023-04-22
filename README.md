@@ -71,7 +71,7 @@ After creating a query, we can call methods on the query to execute it. The name
 Here are some examples of creating and executing queries:
 
 ```ts
-await table.insert().returnOne(userToInsert1);
+await table.insert().run(userToInsert1);
 user = await table.insert().returnOne(userToInsert2);
 
 user = await table.select(userID).returnOne();
