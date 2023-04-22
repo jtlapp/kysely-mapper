@@ -618,7 +618,7 @@ The resulting table mapper has these properties:
 | `run` | (values) =><br/> boolean success | (values) =><br/> boolean success | N/A | () =><br/> boolean success |
 | `returnCount` | N/A | (values) =><br/> return count | N/A | () =><br/> return count |
 | `returnOne` | (values) =><br/> insert return | (values) =><br/> update return | () =><br/> selected object | N/A |
-| `returnAll` | (values[]) =><br/> (insert return)[] | (values) =><br/> (update return)[] | () =><br/> (selected object)[] | N/A |
+| `returnAll` | (values[]) =><br/> (insert return)[] | (values) =><br/> (update return)[] | () => (<br/>selected object<br/>)[] | N/A |
 | `compile` | after calling `columns`: () =><br/> compiling insert query | after calling `columns`: () =><br/> compiling update query | () =><br/> compiling select query | () =><br/> compiling delete query |
 
 <!-- prettier-ignore -->
