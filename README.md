@@ -2,8 +2,6 @@
 
 Flexible Kysely-based utility for mapping between tables and objects
 
-**CURRENTY UNDER DEVELOPMENT. NOT READY FOR USE.**
-
 ## Overview
 
 This utility helps eliminate the boilerplate associated with mapping between database tables and objects.
