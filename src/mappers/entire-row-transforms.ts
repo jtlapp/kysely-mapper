@@ -62,7 +62,7 @@ export class EntireRowTransforms<
    */
   insertTransform(
     obj: Selectable<DB[TB]>,
-    _columns: Readonly<(keyof Insertable<DB[TB]> & string)[]> | ['*']
+    _columns: Readonly<(keyof Insertable<DB[TB]>)[]> | ['*']
   ) {
     const insertedValues = { ...obj };
     this.keyColumns.forEach((column) => {
@@ -106,7 +106,7 @@ export class EntireRowTransforms<
    */
   updateTransform(
     source: Selectable<DB[TB]>,
-    _columns: Readonly<(keyof Updateable<DB[TB]> & string)[]> | ['*']
+    _columns: Readonly<(keyof Updateable<DB[TB]>)[]> | ['*']
   ) {
     return source as Updateable<DB[TB]>;
   }

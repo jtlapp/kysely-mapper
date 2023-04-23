@@ -90,7 +90,7 @@ export interface InsertTransforms<
    */
   insertTransform?: (
     source: InsertedObject,
-    columns: Readonly<(keyof Insertable<DB[TB]> & string)[]> | ['*']
+    columns: Readonly<(keyof Insertable<DB[TB]>)[]> | ['*']
   ) => Insertable<DB[TB]>;
 
   /**
@@ -150,7 +150,7 @@ export interface UpdateTransforms<
    */
   updateTransform?: (
     source: UpdatingObject,
-    columns: Readonly<(keyof Updateable<DB[TB]> & string)[]> | ['*']
+    columns: Readonly<(keyof Updateable<DB[TB]>)[]> | ['*']
   ) => Updateable<DB[TB]>;
 
   /**
