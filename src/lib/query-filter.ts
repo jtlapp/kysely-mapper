@@ -46,18 +46,9 @@ export type QueryFilter<
   | Expression<any>;
 
 /**
- * A filter that matches one or more key columns.
- */
-type KeyColumnFilter<
-  DB,
-  TB extends keyof DB,
-  K extends keyof Selectable<DB[TB]> & string
-> = NonNullable<Selectable<DB[TB]>[K]>;
-
-/**
  * A filter that matches columns against the fields of an object.
  */
-type FieldMatchingFilter<
+export type FieldMatchingFilter<
   DB,
   TB extends keyof DB & string,
   RE extends ReferenceExpression<DB, TB>
@@ -66,3 +57,12 @@ type FieldMatchingFilter<
     | SelectType<ExtractTypeFromStringReference<DB, TB, K>>
     | Readonly<SelectType<ExtractTypeFromStringReference<DB, TB, K>>[]>;
 };
+
+/**
+ * A filter that matches a single key column.
+ */
+type KeyColumnFilter<
+  DB,
+  TB extends keyof DB,
+  K extends keyof Selectable<DB[TB]> & string
+> = NonNullable<Selectable<DB[TB]>[K]>;
