@@ -127,6 +127,17 @@ export class MappingInsertQuery<
   }
 
   /**
+   * Returns an array of the columns to be inserted, with
+   * `['*']` indicating that all columns will be inserted.
+   * @returns An array of the columns to be inserted.
+   */
+  protected getInsertColumns():
+    | Readonly<(keyof Insertable<DB[TB]> & string)[]>
+    | ['*'] {
+    return ['*'];
+  }
+
+  /**
    * Returns a query builder for inserting rows into the table and
    * returning values, caching the query builder for future use.
    * @returns A query builder for inserting rows into the table and
@@ -156,18 +167,21 @@ export class MappingInsertQuery<
     qb: InsertQueryBuilder<DB, TB, InsertResult>,
     objOrObjs: InsertedObject | InsertedObject[]
   ): InsertQueryBuilder<DB, TB, InsertResult> {
+    const insertColumns = this.getInsertColumns();
     if (Array.isArray(objOrObjs)) {
       const transformedObjs =
         this.transforms.insertTransform === undefined
           ? (objOrObjs as Insertable<DB[TB]>[])
-          : objOrObjs.map(this.transforms.insertTransform);
+          : objOrObjs.map((obj) =>
+              this.transforms.insertTransform!(obj, insertColumns)
+            );
       // TS requires separate calls to values() for different arg types.
       return this.setColumnValues(qb, transformedObjs);
     }
     const transformedObj =
       this.transforms.insertTransform === undefined
         ? (objOrObjs as Insertable<DB[TB]>)
-        : this.transforms.insertTransform(objOrObjs);
+        : this.transforms.insertTransform(objOrObjs, insertColumns);
     // TS requires separate calls to values() for different arg types.
     return this.setColumnValues(qb, transformedObj);
   }

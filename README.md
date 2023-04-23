@@ -386,7 +386,18 @@ user.firstName = 'Janice';
 user = await table.update(user.id).columns(['name']).returnOne(user);
 ```
 
-Mind you, `updateTransform` will still run in its entirety, but only the specified subset of its return values will be used in the update. The `columns()` method is also available on insertion for fine control over when to use database defaults, with the same caveat applying to `insertTransform`.
+Whatever `updateTransform` does, only the specified subset of its return values will be used in the update. The `columns()` method is also available on insertion for fine control over when to use database defaults, with the same caveat applying to `insertTransform`.
+
+You might want to decline to return values that are unneeded and expensive to compute. Both `updateTransform` and `insertTransform` receive a second parameter indicating the columns that will be updated or inserted, with `[*]` indicating all columns. Here's an example:
+
+```ts
+updateTransform: (source: User, columns) => ({
+  name: columns.includes('name')
+    ? `${source.firstName} ${source.lastName}`
+    : undefined,
+  birth_year: source.birthYear,
+});
+```
 
 For greater flexibility, we could have had the update source be a union of types:
 
@@ -651,9 +662,9 @@ The `tableMapper.withTransforms` method takes a transforms object, all of whose 
 <!-- prettier-ignore -->
 | TableMapper Transform | Description |
 | --- | --- |
-| `insertTransform` | (source-object) => table columns object<br/> Transforms the source object into the table column-values to insert. The default assumes the source object contains only table columns. |
+| `insertTransform` | (source-object, columns) => table columns object<br/> Transforms the source object into the table column-values to insert. Only the columns in `columns` will actually be inserted, with `[*]` indicating all columns. The default assumes the source object contains only table columns. |
 | `insertReturnTransform` | (source-object, returns) => insert return<br/> Transforms the source object and the returned column-values into the value to return from the insert query. The default returns an object containing the returned columns, unless there are no `insertReturnColumns`, in which case the return type is `void`. |
-| `updateTransform` | (source-object) => table columns object<br/> Transforms the source object into the table column-values to update. The default assumes the source object contains only table columns. |
+| `updateTransform` | (source-object, columns) => table columns object<br/> Transforms the source object into the table column-values to update. Only the columns in `columns` will actually be updated, with `[*]` indicating all columns. The default assumes the source object contains only table columns. |
 | `updateReturnTransform` | (source-object, returns) => update return<br/> Transforms the source object and the returned column-values into the value to return from the udpate query. The default returns an object containing the returned columns, unless there are no `updateReturnColumns`, in which case the return type is `void`. |
 | `selectTransform` | (selected-row) => selected object<br/> Transforms a selected row of column-values into the object to return from the select query. The default returns the selected row. |
 | `countTransform` | (count: bigint) => return count<br/> Transforms the number of affected rows into the value to return from `returnCount` methods. Returns a `bigint` by default. |

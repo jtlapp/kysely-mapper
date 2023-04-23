@@ -161,6 +161,17 @@ export class MappingUpdateQuery<
   }
 
   /**
+   * Returns an array of the columns to be updated, with
+   * `['*']` indicating that all columns will be updated.
+   * @returns An array of the columns to be updated.
+   */
+  protected getUpdateColumns():
+    | Readonly<(keyof Updateable<DB[TB]> & string)[]>
+    | ['*'] {
+    return ['*'];
+  }
+
+  /**
    * Returns a query builder for updating rows in the table and
    * returning values, caching the query builder for future use.
    * @returns A query builder for updating rows in the table and
@@ -190,10 +201,11 @@ export class MappingUpdateQuery<
     qb: UpdateQueryBuilder<DB, TB, TB, UpdateResult>,
     obj: UpdatingObject
   ): UpdateQueryBuilder<DB, TB, TB, UpdateResult> {
+    const updateColumns = this.getUpdateColumns();
     const transformedObj =
       this.transforms.updateTransform === undefined
         ? (obj as Updateable<DB[TB]>)
-        : this.transforms.updateTransform(obj);
+        : this.transforms.updateTransform(obj, updateColumns);
     return this.setColumnValues(qb, transformedObj);
   }
 

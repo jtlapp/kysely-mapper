@@ -116,15 +116,19 @@ describe('inserting with transformation', () => {
     ((_: number) => {})(insertReturns[0]);
   });
 
-  it('transforms insertion and insertion return', async () => {
+  it("transforms insertion and insertion return, columns is ['*']", async () => {
+    expect.assertions(5);
     const insertAndReturnTransformMapper = new TableMapper(db, 'users', {
       insertReturnColumns: ['id'],
     }).withTransforms({
-      insertTransform: (source: InsertedUser) => ({
-        name: `${source.firstName} ${source.lastName}`,
-        handle: source.handle,
-        email: source.email,
-      }),
+      insertTransform: (source: InsertedUser, columns) => {
+        expect(columns).toEqual(['*']);
+        return {
+          name: `${source.firstName} ${source.lastName}`,
+          handle: source.handle,
+          email: source.email,
+        };
+      },
       insertReturnTransform: (source: InsertedUser, returns) =>
         new ReturnedUser(
           returns.id,

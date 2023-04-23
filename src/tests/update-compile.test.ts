@@ -1,8 +1,8 @@
-import { Kysely } from 'kysely';
+import { Kysely, Updateable } from 'kysely';
 
 import { TableMapper } from '../mappers/table-mapper';
 import { createDB, resetDB, destroyDB } from './utils/test-setup';
-import { Database } from './utils/test-tables';
+import { Database, Users } from './utils/test-tables';
 import {
   createUserMapperReturningID,
   createUserMapperReturningIDAndHandleAsH,
@@ -266,6 +266,9 @@ describe('compiled updates', () => {
   });
 
   it('compiles an update query with transformation', async () => {
+    expect.assertions(12);
+
+    const columnSubset: (keyof Updateable<Users>)[] = ['name'];
     const transformMapper = new TableMapper(db, 'users', {
       insertReturnColumns: ['*'],
       updateReturnColumns: ['*'],
@@ -289,11 +292,14 @@ describe('compiled updates', () => {
           returns.email
         );
       },
-      updateTransform: (source: User) => ({
-        name: `${source.firstName} ${source.lastName}`,
-        handle: source.handle,
-        email: source.email,
-      }),
+      updateTransform: (source: User, columns) => {
+        expect(columns).toEqual(columnSubset);
+        return {
+          name: `${source.firstName} ${source.lastName}`,
+          handle: source.handle,
+          email: source.email,
+        };
+      },
       updateReturnTransform: (_source, returns) => {
         const names = returns.name.split(' ');
         return new User(
@@ -316,7 +322,7 @@ describe('compiled updates', () => {
 
     const compilation = transformMapper
       .update({ id: insertReturns[2].id })
-      .columns(['name'])
+      .columns(columnSubset)
       .compile();
 
     // test returnOne()

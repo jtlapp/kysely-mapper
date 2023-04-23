@@ -60,7 +60,10 @@ export class EntireRowTransforms<
    * Transforms inserted objects into inserted rows, removing the columns
    * that are keys having falsy values.
    */
-  insertTransform(obj: Selectable<DB[TB]>) {
+  insertTransform(
+    obj: Selectable<DB[TB]>,
+    _columns: Readonly<(keyof Insertable<DB[TB]> & string)[]> | ['*']
+  ) {
     const insertedValues = { ...obj };
     this.keyColumns.forEach((column) => {
       if (!obj[column as unknown as keyof Selectable<DB[TB]>]) {
@@ -101,7 +104,10 @@ export class EntireRowTransforms<
   /**
    * Provides updating objects as the update values for an update query.
    */
-  updateTransform(source: Selectable<DB[TB]>) {
+  updateTransform(
+    source: Selectable<DB[TB]>,
+    _columns: Readonly<(keyof Updateable<DB[TB]> & string)[]> | ['*']
+  ) {
     return source as Updateable<DB[TB]>;
   }
 

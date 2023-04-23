@@ -25,7 +25,9 @@ export class CompilingMappingInsertQuery<
   constructor(
     db: Kysely<DB>,
     qb: QB,
-    columnsToInsert: Readonly<(keyof Insertable<DB[TB]> & string)[]>,
+    protected readonly columnsToInsert: Readonly<
+      (keyof Insertable<DB[TB]> & string)[]
+    >,
     protected readonly transforms: Readonly<
       InsertTransforms<
         DB,
@@ -95,6 +97,6 @@ export class CompilingMappingInsertQuery<
   protected applyInsertTransform(obj: InsertedObject): Insertable<DB[TB]> {
     return this.transforms.insertTransform === undefined
       ? (obj as Insertable<DB[TB]>)
-      : this.transforms.insertTransform(obj);
+      : this.transforms.insertTransform(obj, this.columnsToInsert);
   }
 }

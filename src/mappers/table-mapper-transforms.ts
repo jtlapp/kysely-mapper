@@ -84,10 +84,14 @@ export interface InsertTransforms<
   InsertReturn
 > {
   /**
-   * Transformation to apply to inserted objects before insertion.
-   * `source` is the object provided for insertion.
+   * Transformation to apply to inserted objects before insertion. `source`
+   * is the object provided for insertion. Only the columns in `columns` will
+   * actually be inserted, with `[*]` indicating all columns.
    */
-  insertTransform?: (source: InsertedObject) => Insertable<DB[TB]>;
+  insertTransform?: (
+    source: InsertedObject,
+    columns: Readonly<(keyof Insertable<DB[TB]> & string)[]> | ['*']
+  ) => Insertable<DB[TB]>;
 
   /**
    * Transformation to apply to column values returned from inserts before
@@ -141,8 +145,13 @@ export interface UpdateTransforms<
   /**
    * Transformation to apply to objects provided for updating rows. `source`
    * is the object containing the values which which to update the table row.
+   * Only the columns in `columns` will actually be updated, with `[*]`
+   * indicating all columns.
    */
-  updateTransform?: (source: UpdatingObject) => Updateable<DB[TB]>;
+  updateTransform?: (
+    source: UpdatingObject,
+    columns: Readonly<(keyof Updateable<DB[TB]> & string)[]> | ['*']
+  ) => Updateable<DB[TB]>;
 
   /**
    * Transformation to apply to column values returned from updates before

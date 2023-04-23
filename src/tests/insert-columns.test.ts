@@ -66,4 +66,19 @@ describe('inserting specific columns', () => {
       subsetQuery.returnOne({ name: 'John Doe', handle: 'johndoe' })
     ).rejects.toThrow(`column 'email' missing`);
   });
+
+  it('provides insertTransform with column subset', async () => {
+    expect.assertions(1);
+    const mapper = userMapperReturningID.withTransforms({
+      insertTransform: (source, columns) => {
+        expect(columns).toEqual(['name', 'handle']);
+        return source;
+      },
+    });
+    await mapper.insert().columns(['name', 'handle']).run({
+      name: 'John Doe',
+      handle: 'johndoe',
+      email: 'jdoe@abc.def',
+    });
+  });
 });

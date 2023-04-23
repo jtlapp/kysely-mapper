@@ -152,7 +152,7 @@ export abstract class AbstractTableMapper<
     this.selectedColumns =
       settings.selectedColumns === undefined
         ? ([] as any)
-        : settings.selectedColumns.includes('*' as any)
+        : settings.selectedColumns[0] === '*'
         ? ([] as any)
         : settings.selectedColumns;
 

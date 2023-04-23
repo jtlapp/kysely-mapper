@@ -84,6 +84,12 @@ export class SubsettingMappingUpdateQuery<
     );
   }
 
+  protected override getUpdateColumns():
+    | Readonly<(keyof Updateable<DB[TB]> & string)[]>
+    | ['*'] {
+    return this.columnsToUpdate;
+  }
+
   protected override setColumnValues(
     qb: UpdateQueryBuilder<DB, TB, TB, UpdateResult>,
     obj: Updateable<DB[TB]>

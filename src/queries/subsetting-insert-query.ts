@@ -70,6 +70,12 @@ export class SubsettingMappingInsertQuery<
     );
   }
 
+  protected override getInsertColumns():
+    | Readonly<(keyof Insertable<DB[TB]> & string)[]>
+    | ['*'] {
+    return this.columnsToInsert;
+  }
+
   protected override setColumnValues(
     qb: InsertQueryBuilder<DB, TB, InsertResult>,
     objOrObjs: Insertable<DB[TB]> | Insertable<DB[TB]>[]

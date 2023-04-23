@@ -4,6 +4,7 @@ import { createDB, resetDB, destroyDB } from './utils/test-setup';
 import { Database } from './utils/test-tables';
 import { createUserMapperReturningID } from './utils/test-mappers';
 import { USERS } from './utils/test-objects';
+import { TableMapper } from '../mappers/table-mapper';
 
 let db: Kysely<Database>;
 let userMapperReturningID: ReturnType<typeof createUserMapperReturningID>;
@@ -69,5 +70,20 @@ describe('updating specific columns', () => {
     expect(() => subsetQuery.returnAll(updateValues)).rejects.toThrow(
       `column 'email' missing`
     );
+  });
+
+  it('provides updateTransform with column subset', async () => {
+    expect.assertions(1);
+    const mapper = new TableMapper(db, 'users').withTransforms({
+      updateTransform: (source, columns) => {
+        expect(columns).toEqual(['name', 'handle']);
+        return source;
+      },
+    });
+    await mapper.update().columns(['name', 'handle']).run({
+      name: 'John Doe',
+      handle: 'johndoe',
+      email: 'jdoe@abc.def',
+    });
   });
 });

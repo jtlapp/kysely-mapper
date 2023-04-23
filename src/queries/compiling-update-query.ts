@@ -31,7 +31,9 @@ export class CompilingMappingUpdateQuery<
   constructor(
     db: Kysely<DB>,
     qb: QB,
-    columnsToUpdate: Readonly<(keyof Updateable<DB[TB]> & string)[]>,
+    protected readonly columnsToUpdate: Readonly<
+      (keyof Updateable<DB[TB]> & string)[]
+    >,
     protected readonly transforms: Readonly<
       CountTransform<ReturnCount> &
         UpdateTransforms<
@@ -162,7 +164,7 @@ export class CompilingMappingUpdateQuery<
   protected applyUpdateTransform(obj: UpdatingObject): Updateable<DB[TB]> {
     return this.transforms.updateTransform === undefined
       ? (obj as Updateable<DB[TB]>)
-      : this.transforms.updateTransform(obj);
+      : this.transforms.updateTransform(obj, this.columnsToUpdate);
   }
 
   protected applyUpdateReturnTransform(source: UpdatingObject, returns: any) {

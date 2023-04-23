@@ -1,8 +1,8 @@
-import { Kysely } from 'kysely';
+import { Insertable, Kysely } from 'kysely';
 
 import { TableMapper } from '../mappers/table-mapper';
 import { createDB, resetDB, destroyDB } from './utils/test-setup';
-import { Database } from './utils/test-tables';
+import { Database, Users } from './utils/test-tables';
 import { USERS } from './utils/test-objects';
 import { ignore } from './utils/test-utils';
 import { User } from './utils/test-types';
@@ -90,6 +90,13 @@ describe('compiled insertions', () => {
   });
 
   it('compiles an insert query with transformation', async () => {
+    expect.assertions(7);
+
+    const columnSubset: (keyof Insertable<Users>)[] = [
+      'name',
+      'handle',
+      'email',
+    ];
     const transformMapper = new TableMapper(db, 'users', {
       insertReturnColumns: ['id'],
     }).withTransforms({
@@ -97,11 +104,14 @@ describe('compiled insertions', () => {
         const names = row.name.split(' ');
         return new User(row.id, names[0], names[1], row.handle, row.email);
       },
-      insertTransform: (source: User) => ({
-        name: `${source.firstName} ${source.lastName}`,
-        handle: source.handle,
-        email: source.email,
-      }),
+      insertTransform: (source: User, columns) => {
+        expect(columns).toEqual(columnSubset);
+        return {
+          name: `${source.firstName} ${source.lastName}`,
+          handle: source.handle,
+          email: source.email,
+        };
+      },
       insertReturnTransform: (source: User, returns) =>
         new User(
           returns.id,
@@ -130,7 +140,7 @@ describe('compiled insertions', () => {
 
     const compilation = transformMapper
       .insert()
-      .columns(['name', 'handle', 'email'])
+      .columns(columnSubset)
       .compile();
 
     // test returnOne()

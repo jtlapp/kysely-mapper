@@ -148,16 +148,20 @@ describe('updating with transformation', () => {
     ((_: number) => {})(updateReturn2!);
   });
 
-  it('transforms update and update return', async () => {
+  it("transforms update and update return, columns is ['*']", async () => {
+    expect.assertions(2);
     const updateAndReturnTransformMapper = new TableMapper(db, 'users', {
       insertReturnColumns: ['id'],
       updateReturnColumns: ['id'],
     }).withTransforms({
-      updateTransform: (source: UpdatingUser) => ({
-        name: `${source.firstName} ${source.lastName}`,
-        handle: source.handle,
-        email: source.email,
-      }),
+      updateTransform: (source: UpdatingUser, columns) => {
+        expect(columns).toEqual(['*']);
+        return {
+          name: `${source.firstName} ${source.lastName}`,
+          handle: source.handle,
+          email: source.email,
+        };
+      },
       updateReturnTransform: (source: UpdatingUser, returns) =>
         new ReturnedUser(
           returns.id,
