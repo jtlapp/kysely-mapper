@@ -64,12 +64,16 @@ describe('updating specific columns', () => {
     const insertReturns = await userMapperReturningID.insert().returnAll(USERS);
 
     const updateValues = { name: 'Sue Rex' };
+
     const subsetQuery = userMapperReturningID
       .update('id', '=', insertReturns[0].id)
       .columns(['name', 'email']);
     expect(() => subsetQuery.returnAll(updateValues)).rejects.toThrow(
       `column 'email' missing`
     );
+
+    const success = await subsetQuery.run({ ...updateValues, email: null });
+    expect(success).toBe(true);
   });
 
   it('provides updateTransform with column subset', async () => {

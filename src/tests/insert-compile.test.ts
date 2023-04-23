@@ -177,8 +177,14 @@ describe('compiled insertions', () => {
       .insert()
       .columns(['name', 'handle', 'email'])
       .compile();
-    expect(() =>
-      compilation.returnOne({ name: 'John Doe', handle: 'johndoe' })
-    ).rejects.toThrow(`column 'email' missing`);
+
+    const insertValues = { name: 'John Doe', handle: 'johndoe' };
+
+    expect(() => compilation.returnOne(insertValues)).rejects.toThrow(
+      `column 'email' missing`
+    );
+
+    const success = await compilation.run({ ...insertValues, email: null });
+    expect(success).toBe(true);
   });
 });

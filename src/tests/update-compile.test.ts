@@ -542,12 +542,20 @@ describe('compiled updates', () => {
   });
 
   it('requires all indicated columns to be updated', async () => {
+    await userMapperReturningID.insert().run(USERS);
+
     const compilation = userMapperReturningID
       .update()
       .columns(['name', 'handle', 'email'])
       .compile();
-    expect(() =>
-      compilation.returnOne({}, { name: 'John Doe', handle: 'johndoe' })
-    ).rejects.toThrow(`column 'email' missing`);
+
+    const updateValues = { name: 'John Doe', handle: 'johndoe' };
+
+    expect(() => compilation.returnOne({}, updateValues)).rejects.toThrow(
+      `column 'email' missing`
+    );
+
+    const success = await compilation.run({}, { ...updateValues, email: null });
+    expect(success).toBe(true);
   });
 });
