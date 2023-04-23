@@ -392,9 +392,10 @@ You might want to decline to return values that are unneeded and expensive to co
 
 ```ts
 updateTransform: (source: User, columns) => ({
-  name: columns.includes('name')
-    ? `${source.firstName} ${source.lastName}`
-    : undefined,
+  name:
+    columns[0] == '*' || columns.includes('name')
+      ? `${source.firstName} ${source.lastName}`
+      : undefined,
   birth_year: source.birthYear,
 });
 ```
