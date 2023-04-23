@@ -10,7 +10,9 @@ Unconfigured, the utility does no mapping and only serves as a shorthand for acc
 
 All queries are based on [Kysely](https://github.com/kysely-org/kysely) and give you access to the underlying query builders for further modification. The utility also supports compiling its object-mapping queries, parameterized for variation from run to run.
 
-[Jump to the Quick Reference](https://github.com/jtlapp/kysely-mapper#quick-reference) (or specifically to the [Query Methods Quick Reference](https://github.com/jtlapp/kysely-mapper#query-methods))
+[Jump to the Quick Reference](https://github.com/jtlapp/kysely-mapper#quick-reference)
+
+[Jump to the Query Methods Quick Reference](https://github.com/jtlapp/kysely-mapper#query-methods)
 
 [Open the API Reference](https://jtlapp.github.io/kysely-mapper/)
 
