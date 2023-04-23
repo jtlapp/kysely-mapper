@@ -614,6 +614,8 @@ The resulting table mapper has these properties:
 
 Here are some quick-reference charts that should help make this utility easy to learn. Hopefully, the charts also reveal both the simplicity and the flexibility of the solution. Also see the [API Reference](https://jtlapp.github.io/kysely-mapper/).
 
+### TableMapper Methods
+
 `TableMapper` has the following constructor and methods:
 
 <!-- prettier-ignore -->
@@ -628,6 +630,8 @@ Here are some quick-reference charts that should help make this utility easy to 
 | `ref(column)` | Returns a reference to a column with a dynamically-generated name. (Shorthand for `db.dynamic.ref(column)`.) |
 | `parameterize<Params>(`<br/>`({ mapper, param }) =>`<br/>`new query)` | Returns a compiling query with a parameterized filter. Its argument is a factory method that returns a parameterized, compilable query. |
 
+### TableMapper Settings
+
 The `TableMapper` constructor takes a settings object, all of whose properties are optional:
 
 <!-- prettier-ignore -->
@@ -637,6 +641,8 @@ The `TableMapper` constructor takes a settings object, all of whose properties a
 | `selectedColumns` | Array of columns to return from selection queries. Defaults to `[*]`, selecting all columns. May contain aliases. |
 | `insertReturnColumns` | Array of columns to return from insert queries that return columns. `['*']` returns all columns; `[]` returns none. May specify aliases. Defaults to `keyColumns`. |
 | `updateReturnColumns` | Array of columns to return from update queries that return columns. `['*']` returns all columns; `[]` returns none and is the default. May specify aliases. |
+
+### TableMapper Transforms
 
 The `tableMapper.withTransforms` method takes a transforms object, all of whose properties are optional:
 
@@ -650,6 +656,8 @@ The `tableMapper.withTransforms` method takes a transforms object, all of whose 
 | `selectTransform` | (selected-row) => selected object<br/> Transforms a selected row of column-values into the object to return from the select query. The default returns the selected row. |
 | `countTransform` | (count: bigint) => return count<br/> Transforms the number of affected rows into the value to return from `returnCount` methods. Returns a `bigint` by default. |
 
+### Query Filters
+
 The argument to `update()`, `select()`, and `delete()` is an optional query filter. The following query filters are available:
 
 <!-- prettier-ignore -->
@@ -662,6 +670,8 @@ The argument to `update()`, `select()`, and `delete()` is an optional query filt
 | left-hand-side, operation, right-hand-side | Providing three arguments matches via a Kysely binary operation (e.g. `'total', '>', '100'`). |
 | kysely where expression factory | Function that builds a Kysely where expression. (e.g. `({ any, cmpr }) => any(cmpr('status', '!=', 'down'), cmpr('service', '=', 'messaging')`). |
 | kysely `sql` expression | A Kysely `sql` expression (e.g. `` sql`status = ${targetStatus}` ``).
+
+### Query Methods
 
 The queries that `TableFilter` methods return all have similar methods, as this chart summarizes:
 
@@ -677,6 +687,8 @@ The queries that `TableFilter` methods return all have similar methods, as this 
 | `compile` | after calling `columns`: () =><br/> compiling insert query | after calling `columns`: () =><br/> compiling update query | () =><br/> compiling select query | () =><br/> compiling delete query |
 
 `modify` returns an instance of the kind of query on which it was called. All select and delete queries are compilable, but you must call `columns` to get a compilable version of an insert or update query.
+
+### Compiling Query Methods
 
 `tableMapper.parameterize()` and `query.compile()` both return compiling queries, which compile on their first execution. These queries have similar methods, as shown in this chart:
 
