@@ -162,9 +162,19 @@ export class CompilingMappingUpdateQuery<
   }
 
   protected applyUpdateTransform(obj: UpdatingObject): Updateable<DB[TB]> {
-    return this.transforms.updateTransform === undefined
-      ? (obj as Updateable<DB[TB]>)
-      : this.transforms.updateTransform(obj, this.columnsToUpdate);
+    const values =
+      this.transforms.updateTransform === undefined
+        ? (obj as Updateable<DB[TB]>)
+        : this.transforms.updateTransform(obj, this.columnsToUpdate);
+    // ensure the output of updateTransform works for the present query
+    this.columnsToUpdate.forEach((column) => {
+      if (values[column] === undefined) {
+        throw Error(
+          `Specified column '${column}' missing from updating object (compiled)`
+        );
+      }
+    });
+    return values;
   }
 
   protected applyUpdateReturnTransform(source: UpdatingObject, returns: any) {

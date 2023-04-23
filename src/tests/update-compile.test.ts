@@ -37,7 +37,7 @@ describe('compiled updates', () => {
 
     const compilation = userMapperReturningID
       .update({ id: 1 })
-      .columns(['handle', 'name', 'email'])
+      .columns(['email'])
       .compile();
 
     const success2 = await compilation.run({}, updateValues);
@@ -539,5 +539,15 @@ describe('compiled updates', () => {
         }
       );
     });
+  });
+
+  it('requires all indicated columns to be updated', async () => {
+    const compilation = userMapperReturningID
+      .update()
+      .columns(['name', 'handle', 'email'])
+      .compile();
+    expect(() =>
+      compilation.returnOne({}, { name: 'John Doe', handle: 'johndoe' })
+    ).rejects.toThrow(`column 'email' missing`);
   });
 });

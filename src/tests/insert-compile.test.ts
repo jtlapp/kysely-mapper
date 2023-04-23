@@ -171,4 +171,14 @@ describe('compiled insertions', () => {
       compilation.run(USERS[0]);
     });
   });
+
+  it('requires all indicated columns to be inserted', async () => {
+    const compilation = userMapperReturningAll
+      .insert()
+      .columns(['name', 'handle', 'email'])
+      .compile();
+    expect(() =>
+      compilation.returnOne({ name: 'John Doe', handle: 'johndoe' })
+    ).rejects.toThrow(`column 'email' missing`);
+  });
 });

@@ -87,8 +87,9 @@ export class SubsettingMappingInsertQuery<
   }
 
   protected toInsertableObject(obj: Insertable<DB[TB]>): Insertable<DB[TB]> {
+    // ensure the output of insertTransform works for the present query
     this.columnsToInsert.forEach((column) => {
-      if (!(column in obj)) {
+      if (obj[column] === undefined) {
         throw Error(
           `Specified column '${column}' missing from inserted object`
         );

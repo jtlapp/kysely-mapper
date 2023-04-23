@@ -98,8 +98,9 @@ export class SubsettingMappingUpdateQuery<
   }
 
   protected toUpdateableObject(obj: Updateable<DB[TB]>): Updateable<DB[TB]> {
+    // ensure the output of updateTransform works for the present query
     this.columnsToUpdate.forEach((column) => {
-      if (!(column in obj)) {
+      if (obj[column] === undefined) {
         throw Error(
           `Specified column '${column}' missing from updating object`
         );

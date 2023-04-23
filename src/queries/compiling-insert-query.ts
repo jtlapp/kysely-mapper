@@ -95,8 +95,18 @@ export class CompilingMappingInsertQuery<
   }
 
   protected applyInsertTransform(obj: InsertedObject): Insertable<DB[TB]> {
-    return this.transforms.insertTransform === undefined
-      ? (obj as Insertable<DB[TB]>)
-      : this.transforms.insertTransform(obj, this.columnsToInsert);
+    const values =
+      this.transforms.insertTransform === undefined
+        ? (obj as Insertable<DB[TB]>)
+        : this.transforms.insertTransform(obj, this.columnsToInsert);
+    // ensure the output of insertTransform works for the present query
+    this.columnsToInsert.forEach((column) => {
+      if (values[column] === undefined) {
+        throw Error(
+          `Specified column '${column}' missing from inserting object (compiled)`
+        );
+      }
+    });
+    return values;
   }
 }
