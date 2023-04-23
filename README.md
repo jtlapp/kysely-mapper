@@ -391,25 +391,25 @@ Whatever `updateTransform` does, only the specified subset of its return values 
 You might want to decline to return values that are unneeded and expensive to compute. Both `updateTransform` and `insertTransform` receive a second parameter indicating the columns that will be updated or inserted, with `[*]` indicating all columns. Here's an example:
 
 ```ts
-updateTransform: (source: User, columns) => ({
-  name:
-    columns[0] == '*' || columns.includes('name')
-      ? `${source.firstName} ${source.lastName}`
-      : undefined,
-  birth_year: source.birthYear,
-});
+  updateTransform: (source: User, columns) => ({
+    name:
+      columns[0] == '*' || columns.includes('name')
+        ? `${source.firstName} ${source.lastName}`
+        : undefined,
+    birth_year: source.birthYear,
+  }),
 ```
 
 For greater flexibility, we could have had the update source be a union of types:
 
 ```ts
-updateTransform: (source: User | Updateable<Database['users']>) =>
-  source instanceof User
-    ? {
-        name: `${source.firstName} ${source.lastName}`,
-        birth_year: source.birthYear,
-      }
-    : source;
+  updateTransform: (source: User | Updateable<Database['users']>) =>
+    source instanceof User
+      ? {
+          name: `${source.firstName} ${source.lastName}`,
+          birth_year: source.birthYear,
+        }
+      : source,
 ```
 
 Now we can also update as follows:
