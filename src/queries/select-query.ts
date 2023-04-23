@@ -29,7 +29,7 @@ export class MappingSelectQuery<
    * different parameters (if any parameters were provided), but which only
    * compiles the underlying Kysely query builder on the first execution.
    * Frees the query builder on the first execution to reduce memory usage.
-   * @typeparam Parameters Record characterizing the parameter names and
+   * @typeParam Parameters Record characterizing the parameter names and
    *  types that were previously embedded in the query, if any.
    * @returns A compiling select query.
    */

@@ -17,46 +17,46 @@
 <h1>Interface TableMapperSettings&lt;DB, TB, KeyColumns, SelectedColumns, InsertReturnColumns, UpdateReturnColumns&gt;</h1></div>
 <section class="tsd-panel tsd-comment">
 <div class="tsd-comment tsd-typography"><p>Settings governing table mapper behavior, excluding transformations.</p>
-
-<h3>Typeparam</h3><p>DB Interface whose fields are table names defining tables.</p>
-
-<h3>Typeparam</h3><p>TB Name of the table.</p>
-
-<h3>Typeparam</h3><p>KeyColumns Tuple of the names of the table&#39;s key columns.
- Defaults to <code>[]</code>, indicating no key columns. Supports up to 4 columns.</p>
-
-<h3>Typeparam</h3><p>SelectedColumns Columns to return from selection queries.
- Defaults to <code>[&#39;*&#39;]</code>, returning all columns. May specify aliases.</p>
-
-<h3>Typeparam</h3><p>InsertReturnColumns Columns to return from the table on insert
- queries that return columns. <code>[&#39;*&#39;]</code> returns all columns; <code>[]</code> returns
- none. May specify aliases. Defaults to <code>KeyColumns</code>.</p>
-
-<h3>Typeparam</h3><p>UpdateReturnColumns Columns to return from the table on update
- queries that return columns. <code>[&#39;*&#39;]</code> returns all columns; <code>[]</code> returns
- none and is the default. May specify aliases.</p>
 </div></section> 
 <section class="tsd-panel">
 <h4>Type Parameters</h4>
 <ul class="tsd-type-parameter-list">
 <li>
-<h4><span class="tsd-kind-type-parameter">DB</span></h4></li>
+<h4><span class="tsd-kind-type-parameter">DB</span></h4>
+<div class="tsd-comment tsd-typography"><p>Interface whose fields are table names defining tables.</p>
+</div></li>
 <li>
-<h4><span class="tsd-kind-type-parameter">TB</span><span class="tsd-signature-symbol"> extends </span><span class="tsd-signature-symbol">keyof </span><span class="tsd-signature-type tsd-kind-type-parameter">DB</span><span class="tsd-signature-symbol"> &amp; </span><span class="tsd-signature-type">string</span></h4></li>
+<h4><span class="tsd-kind-type-parameter">TB</span><span class="tsd-signature-symbol"> extends </span><span class="tsd-signature-symbol">keyof </span><span class="tsd-signature-type tsd-kind-type-parameter">DB</span><span class="tsd-signature-symbol"> &amp; </span><span class="tsd-signature-type">string</span></h4>
+<div class="tsd-comment tsd-typography"><p>Name of the table.</p>
+</div></li>
 <li>
-<h4><span class="tsd-kind-type-parameter">KeyColumns</span><span class="tsd-signature-symbol"> extends </span><span class="tsd-signature-type ">Readonly</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type ">SelectableColumnTuple</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type tsd-kind-type-parameter">DB</span><span class="tsd-signature-symbol">[</span><span class="tsd-signature-type tsd-kind-type-parameter">TB</span><span class="tsd-signature-symbol">]</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type ">Readonly</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-symbol">[</span><span class="tsd-signature-symbol">]</span><span class="tsd-signature-symbol">&gt;</span> = <span class="tsd-signature-symbol">[</span><span class="tsd-signature-symbol">]</span></h4></li>
+<h4><span class="tsd-kind-type-parameter">KeyColumns</span><span class="tsd-signature-symbol"> extends </span><span class="tsd-signature-type ">Readonly</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type ">SelectableColumnTuple</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type tsd-kind-type-parameter">DB</span><span class="tsd-signature-symbol">[</span><span class="tsd-signature-type tsd-kind-type-parameter">TB</span><span class="tsd-signature-symbol">]</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type ">Readonly</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-symbol">[</span><span class="tsd-signature-symbol">]</span><span class="tsd-signature-symbol">&gt;</span> = <span class="tsd-signature-symbol">[</span><span class="tsd-signature-symbol">]</span></h4>
+<div class="tsd-comment tsd-typography"><p>Tuple of the names of the table&#39;s key columns.
+ Defaults to <code>[]</code>, indicating no key columns. Supports up to 4 columns.</p>
+</div></li>
 <li>
-<h4><span class="tsd-kind-type-parameter">SelectedColumns</span><span class="tsd-signature-symbol"> extends </span><span class="tsd-signature-type ">Readonly</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type ">SelectionColumn</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type tsd-kind-type-parameter">DB</span><span class="tsd-signature-symbol">, </span><span class="tsd-signature-type tsd-kind-type-parameter">TB</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-symbol">[</span><span class="tsd-signature-type">&quot;*&quot;</span><span class="tsd-signature-symbol">]</span> = <span class="tsd-signature-symbol">[</span><span class="tsd-signature-type">&quot;*&quot;</span><span class="tsd-signature-symbol">]</span></h4></li>
+<h4><span class="tsd-kind-type-parameter">SelectedColumns</span><span class="tsd-signature-symbol"> extends </span><span class="tsd-signature-type ">Readonly</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type ">SelectionColumn</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type tsd-kind-type-parameter">DB</span><span class="tsd-signature-symbol">, </span><span class="tsd-signature-type tsd-kind-type-parameter">TB</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-symbol">[</span><span class="tsd-signature-type">&quot;*&quot;</span><span class="tsd-signature-symbol">]</span> = <span class="tsd-signature-symbol">[</span><span class="tsd-signature-type">&quot;*&quot;</span><span class="tsd-signature-symbol">]</span></h4>
+<div class="tsd-comment tsd-typography"><p>Columns to return from selection queries.
+ Defaults to <code>[&#39;*&#39;]</code>, returning all columns. May specify aliases.</p>
+</div></li>
 <li>
-<h4><span class="tsd-kind-type-parameter">InsertReturnColumns</span><span class="tsd-signature-symbol"> extends </span><span class="tsd-signature-type ">Readonly</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type ">SelectionColumn</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type tsd-kind-type-parameter">DB</span><span class="tsd-signature-symbol">, </span><span class="tsd-signature-type tsd-kind-type-parameter">TB</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-symbol">[</span><span class="tsd-signature-type">&quot;*&quot;</span><span class="tsd-signature-symbol">]</span> = <span class="tsd-signature-type ">Readonly</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type tsd-kind-type-parameter">KeyColumns</span><span class="tsd-signature-symbol">&gt;</span></h4></li>
+<h4><span class="tsd-kind-type-parameter">InsertReturnColumns</span><span class="tsd-signature-symbol"> extends </span><span class="tsd-signature-type ">Readonly</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type ">SelectionColumn</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type tsd-kind-type-parameter">DB</span><span class="tsd-signature-symbol">, </span><span class="tsd-signature-type tsd-kind-type-parameter">TB</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-symbol">[</span><span class="tsd-signature-type">&quot;*&quot;</span><span class="tsd-signature-symbol">]</span> = <span class="tsd-signature-type ">Readonly</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type tsd-kind-type-parameter">KeyColumns</span><span class="tsd-signature-symbol">&gt;</span></h4>
+<div class="tsd-comment tsd-typography"><p>Columns to return from the table on insert
+ queries that return columns. <code>[&#39;*&#39;]</code> returns all columns; <code>[]</code> returns
+ none. May specify aliases. Defaults to <code>KeyColumns</code>.</p>
+</div></li>
 <li>
-<h4><span class="tsd-kind-type-parameter">UpdateReturnColumns</span><span class="tsd-signature-symbol"> extends </span><span class="tsd-signature-type ">Readonly</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type ">SelectionColumn</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type tsd-kind-type-parameter">DB</span><span class="tsd-signature-symbol">, </span><span class="tsd-signature-type tsd-kind-type-parameter">TB</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-symbol">[</span><span class="tsd-signature-type">&quot;*&quot;</span><span class="tsd-signature-symbol">]</span> = <span class="tsd-signature-symbol">[</span><span class="tsd-signature-symbol">]</span></h4></li></ul></section> 
+<h4><span class="tsd-kind-type-parameter">UpdateReturnColumns</span><span class="tsd-signature-symbol"> extends </span><span class="tsd-signature-type ">Readonly</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type ">SelectionColumn</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type tsd-kind-type-parameter">DB</span><span class="tsd-signature-symbol">, </span><span class="tsd-signature-type tsd-kind-type-parameter">TB</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-symbol">[</span><span class="tsd-signature-type">&quot;*&quot;</span><span class="tsd-signature-symbol">]</span> = <span class="tsd-signature-symbol">[</span><span class="tsd-signature-symbol">]</span></h4>
+<div class="tsd-comment tsd-typography"><p>Columns to return from the table on update
+ queries that return columns. <code>[&#39;*&#39;]</code> returns all columns; <code>[]</code> returns
+ none and is the default. May specify aliases.</p>
+</div></li></ul></section> 
 <section class="tsd-panel tsd-hierarchy">
 <h4>Hierarchy</h4>
 <ul class="tsd-hierarchy">
 <li><span class="target">TableMapperSettings</span></li></ul></section><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/jtlapp/kysely-mapper/blob/ae0b836/src/mappers/table-mapper-settings.ts#L18">mappers/table-mapper-settings.ts:18</a></li></ul></aside>
+<li>Defined in <a href="https://github.com/jtlapp/kysely-mapper/blob/b5c32ce/src/mappers/table-mapper-settings.ts#L18">mappers/table-mapper-settings.ts:18</a></li></ul></aside>
 <section class="tsd-panel-group tsd-index-group">
 <section class="tsd-panel tsd-index-panel">
 <details class="tsd-index-content tsd-index-accordion" open><summary class="tsd-accordion-summary tsd-index-summary">
@@ -79,7 +79,7 @@ returns all columns; <code>[]</code> returns none. May specify aliases. Defaults
 to <code>KeyColumns</code>.</p>
 </div><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/jtlapp/kysely-mapper/blob/ae0b836/src/mappers/table-mapper-settings.ts#L48">mappers/table-mapper-settings.ts:48</a></li></ul></aside></section>
+<li>Defined in <a href="https://github.com/jtlapp/kysely-mapper/blob/b5c32ce/src/mappers/table-mapper-settings.ts#L48">mappers/table-mapper-settings.ts:48</a></li></ul></aside></section>
 <section class="tsd-panel tsd-member"><a id="keyColumns" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagOptional">Optional</code> <span>key<wbr/>Columns</span><a href="#keyColumns" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <div class="tsd-signature"><span class="tsd-kind-property">key<wbr/>Columns</span><span class="tsd-signature-symbol">?:</span> <span class="tsd-signature-type tsd-kind-type-parameter">KeyColumns</span></div>
@@ -87,7 +87,7 @@ to <code>KeyColumns</code>.</p>
 indicating that no columns are keys.</p>
 </div><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/jtlapp/kysely-mapper/blob/ae0b836/src/mappers/table-mapper-settings.ts#L34">mappers/table-mapper-settings.ts:34</a></li></ul></aside></section>
+<li>Defined in <a href="https://github.com/jtlapp/kysely-mapper/blob/b5c32ce/src/mappers/table-mapper-settings.ts#L34">mappers/table-mapper-settings.ts:34</a></li></ul></aside></section>
 <section class="tsd-panel tsd-member"><a id="selectedColumns" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagOptional">Optional</code> <span>selected<wbr/>Columns</span><a href="#selectedColumns" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <div class="tsd-signature"><span class="tsd-kind-property">selected<wbr/>Columns</span><span class="tsd-signature-symbol">?:</span> <span class="tsd-signature-type tsd-kind-type-parameter">SelectedColumns</span></div>
@@ -95,7 +95,7 @@ indicating that no columns are keys.</p>
 all columns. May contain aliases.</p>
 </div><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/jtlapp/kysely-mapper/blob/ae0b836/src/mappers/table-mapper-settings.ts#L40">mappers/table-mapper-settings.ts:40</a></li></ul></aside></section>
+<li>Defined in <a href="https://github.com/jtlapp/kysely-mapper/blob/b5c32ce/src/mappers/table-mapper-settings.ts#L40">mappers/table-mapper-settings.ts:40</a></li></ul></aside></section>
 <section class="tsd-panel tsd-member"><a id="updateReturnColumns" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagOptional">Optional</code> <span>update<wbr/>Return<wbr/>Columns</span><a href="#updateReturnColumns" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <div class="tsd-signature"><span class="tsd-kind-property">update<wbr/>Return<wbr/>Columns</span><span class="tsd-signature-symbol">?:</span> <span class="tsd-signature-type tsd-kind-type-parameter">UpdateReturnColumns</span></div>
@@ -103,7 +103,7 @@ all columns. May contain aliases.</p>
 all columns; <code>[]</code> returns none and is the default. May specify aliases.</p>
 </div><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/jtlapp/kysely-mapper/blob/ae0b836/src/mappers/table-mapper-settings.ts#L54">mappers/table-mapper-settings.ts:54</a></li></ul></aside></section></section></div>
+<li>Defined in <a href="https://github.com/jtlapp/kysely-mapper/blob/b5c32ce/src/mappers/table-mapper-settings.ts#L54">mappers/table-mapper-settings.ts:54</a></li></ul></aside></section></section></div>
 <div class="col-sidebar">
 <div class="page-menu">
 <div class="tsd-navigation settings">

@@ -9,6 +9,16 @@ import { TableMapperTransforms } from './table-mapper-transforms';
 /**
  * Transforms for a table mapper that only receives and returns
  * entire table rows, given by type `Selectable<DB[TB]>`.
+ * @typeParam DB Interface whose fields are table names defining tables.
+ * @typeParam TB Name of the table.
+ * @typeParam KeyColumns Tuple of the names of the table's key columns.
+ *  Defaults to `[]`, indicating no key columns. Supports up to 4 columns.
+ * @typeParam InsertReturnColumns Columns to return from the table on insert
+ *  queries that return columns. `['*']` returns all columns; `[]` returns
+ *  none. May specify aliases. Defaults to `KeyColumns`.
+ * @typeParam UpdateReturnColumns Columns to return from the table on update
+ *  queries that return columns. `['*']` returns all columns; `[]` returns
+ *  none and is the default. May specify aliases.
  */
 export class EntireRowTransforms<
   DB,

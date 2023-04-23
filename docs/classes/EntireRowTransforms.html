@@ -23,15 +23,30 @@ entire table rows, given by type <code>Selectable&lt;DB[TB]&gt;</code>.</p>
 <h4>Type Parameters</h4>
 <ul class="tsd-type-parameter-list">
 <li>
-<h4><span class="tsd-kind-type-parameter">DB</span></h4></li>
+<h4><span class="tsd-kind-type-parameter">DB</span></h4>
+<div class="tsd-comment tsd-typography"><p>Interface whose fields are table names defining tables.</p>
+</div></li>
 <li>
-<h4><span class="tsd-kind-type-parameter">TB</span><span class="tsd-signature-symbol"> extends </span><span class="tsd-signature-symbol">keyof </span><span class="tsd-signature-type tsd-kind-type-parameter">DB</span><span class="tsd-signature-symbol"> &amp; </span><span class="tsd-signature-type">string</span></h4></li>
+<h4><span class="tsd-kind-type-parameter">TB</span><span class="tsd-signature-symbol"> extends </span><span class="tsd-signature-symbol">keyof </span><span class="tsd-signature-type tsd-kind-type-parameter">DB</span><span class="tsd-signature-symbol"> &amp; </span><span class="tsd-signature-type">string</span></h4>
+<div class="tsd-comment tsd-typography"><p>Name of the table.</p>
+</div></li>
 <li>
-<h4><span class="tsd-kind-type-parameter">KeyColumns</span><span class="tsd-signature-symbol"> extends </span><span class="tsd-signature-type ">Readonly</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type ">SelectableColumnTuple</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type tsd-kind-type-parameter">DB</span><span class="tsd-signature-symbol">[</span><span class="tsd-signature-type tsd-kind-type-parameter">TB</span><span class="tsd-signature-symbol">]</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type ">Readonly</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-symbol">[</span><span class="tsd-signature-symbol">]</span><span class="tsd-signature-symbol">&gt;</span></h4></li>
+<h4><span class="tsd-kind-type-parameter">KeyColumns</span><span class="tsd-signature-symbol"> extends </span><span class="tsd-signature-type ">Readonly</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type ">SelectableColumnTuple</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type tsd-kind-type-parameter">DB</span><span class="tsd-signature-symbol">[</span><span class="tsd-signature-type tsd-kind-type-parameter">TB</span><span class="tsd-signature-symbol">]</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type ">Readonly</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-symbol">[</span><span class="tsd-signature-symbol">]</span><span class="tsd-signature-symbol">&gt;</span></h4>
+<div class="tsd-comment tsd-typography"><p>Tuple of the names of the table&#39;s key columns.
+ Defaults to <code>[]</code>, indicating no key columns. Supports up to 4 columns.</p>
+</div></li>
 <li>
-<h4><span class="tsd-kind-type-parameter">InsertReturnColumns</span><span class="tsd-signature-symbol"> extends </span><span class="tsd-signature-type ">Readonly</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type ">SelectionColumn</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type tsd-kind-type-parameter">DB</span><span class="tsd-signature-symbol">, </span><span class="tsd-signature-type tsd-kind-type-parameter">TB</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-symbol">[</span><span class="tsd-signature-type">&quot;*&quot;</span><span class="tsd-signature-symbol">]</span></h4></li>
+<h4><span class="tsd-kind-type-parameter">InsertReturnColumns</span><span class="tsd-signature-symbol"> extends </span><span class="tsd-signature-type ">Readonly</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type ">SelectionColumn</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type tsd-kind-type-parameter">DB</span><span class="tsd-signature-symbol">, </span><span class="tsd-signature-type tsd-kind-type-parameter">TB</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-symbol">[</span><span class="tsd-signature-type">&quot;*&quot;</span><span class="tsd-signature-symbol">]</span></h4>
+<div class="tsd-comment tsd-typography"><p>Columns to return from the table on insert
+ queries that return columns. <code>[&#39;*&#39;]</code> returns all columns; <code>[]</code> returns
+ none. May specify aliases. Defaults to <code>KeyColumns</code>.</p>
+</div></li>
 <li>
-<h4><span class="tsd-kind-type-parameter">UpdateReturnColumns</span><span class="tsd-signature-symbol"> extends </span><span class="tsd-signature-type ">Readonly</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type ">SelectionColumn</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type tsd-kind-type-parameter">DB</span><span class="tsd-signature-symbol">, </span><span class="tsd-signature-type tsd-kind-type-parameter">TB</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-symbol">[</span><span class="tsd-signature-type">&quot;*&quot;</span><span class="tsd-signature-symbol">]</span></h4></li></ul></section> 
+<h4><span class="tsd-kind-type-parameter">UpdateReturnColumns</span><span class="tsd-signature-symbol"> extends </span><span class="tsd-signature-type ">Readonly</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type ">SelectionColumn</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type tsd-kind-type-parameter">DB</span><span class="tsd-signature-symbol">, </span><span class="tsd-signature-type tsd-kind-type-parameter">TB</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-symbol">[</span><span class="tsd-signature-type">&quot;*&quot;</span><span class="tsd-signature-symbol">]</span></h4>
+<div class="tsd-comment tsd-typography"><p>Columns to return from the table on update
+ queries that return columns. <code>[&#39;*&#39;]</code> returns all columns; <code>[]</code> returns
+ none and is the default. May specify aliases.</p>
+</div></li></ul></section> 
 <section class="tsd-panel tsd-hierarchy">
 <h4>Hierarchy</h4>
 <ul class="tsd-hierarchy">
@@ -41,7 +56,7 @@ entire table rows, given by type <code>Selectable&lt;DB[TB]&gt;</code>.</p>
 <ul class="tsd-hierarchy">
 <li><span class="tsd-signature-type ">Required</span><span class="tsd-signature-symbol">&lt;</span><a href="../interfaces/TableMapperTransforms.html" class="tsd-signature-type tsd-kind-interface">TableMapperTransforms</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type tsd-kind-type-parameter">DB</span><span class="tsd-signature-symbol">, </span><span class="tsd-signature-type tsd-kind-type-parameter">TB</span><span class="tsd-signature-symbol">, </span><span class="tsd-signature-type tsd-kind-type-parameter">KeyColumns</span><span class="tsd-signature-symbol">, </span><span class="tsd-signature-symbol">[</span><span class="tsd-signature-type">&quot;*&quot;</span><span class="tsd-signature-symbol">]</span><span class="tsd-signature-symbol">, </span><span class="tsd-signature-type ">Selectable</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type tsd-kind-type-parameter">DB</span><span class="tsd-signature-symbol">[</span><span class="tsd-signature-type tsd-kind-type-parameter">TB</span><span class="tsd-signature-symbol">]</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">, </span><span class="tsd-signature-type ">Selectable</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type tsd-kind-type-parameter">DB</span><span class="tsd-signature-symbol">[</span><span class="tsd-signature-type tsd-kind-type-parameter">TB</span><span class="tsd-signature-symbol">]</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">, </span><span class="tsd-signature-type ">Selectable</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type tsd-kind-type-parameter">DB</span><span class="tsd-signature-symbol">[</span><span class="tsd-signature-type tsd-kind-type-parameter">TB</span><span class="tsd-signature-symbol">]</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">, </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">, </span><span class="tsd-signature-type tsd-kind-type-parameter">InsertReturnColumns</span><span class="tsd-signature-symbol">, </span><span class="tsd-signature-type tsd-kind-type-parameter">UpdateReturnColumns</span><span class="tsd-signature-symbol">, </span><span class="tsd-signature-type ">Selectable</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type tsd-kind-type-parameter">DB</span><span class="tsd-signature-symbol">[</span><span class="tsd-signature-type tsd-kind-type-parameter">TB</span><span class="tsd-signature-symbol">]</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">, </span><span class="tsd-signature-type ">Selectable</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type tsd-kind-type-parameter">DB</span><span class="tsd-signature-symbol">[</span><span class="tsd-signature-type tsd-kind-type-parameter">TB</span><span class="tsd-signature-symbol">]</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">&gt;</span></li></ul></section><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/jtlapp/kysely-mapper/blob/ae0b836/src/mappers/entire-row-transforms.ts#L13">mappers/entire-row-transforms.ts:13</a></li></ul></aside>
+<li>Defined in <a href="https://github.com/jtlapp/kysely-mapper/blob/b5c32ce/src/mappers/entire-row-transforms.ts#L23">mappers/entire-row-transforms.ts:23</a></li></ul></aside>
 <section class="tsd-panel-group tsd-index-group">
 <section class="tsd-panel tsd-index-panel">
 <details class="tsd-index-content tsd-index-accordion" open><summary class="tsd-accordion-summary tsd-index-summary">
@@ -93,14 +108,14 @@ entire table rows, given by type <code>Selectable&lt;DB[TB]&gt;</code>.</p>
 <h5><span class="tsd-kind-parameter">keyColumns</span>: <span class="tsd-signature-type tsd-kind-type-parameter">KeyColumns</span></h5></li></ul></div>
 <h4 class="tsd-returns-title">Returns <a href="EntireRowTransforms.html" class="tsd-signature-type tsd-kind-class">EntireRowTransforms</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type tsd-kind-type-parameter">DB</span><span class="tsd-signature-symbol">, </span><span class="tsd-signature-type tsd-kind-type-parameter">TB</span><span class="tsd-signature-symbol">, </span><span class="tsd-signature-type tsd-kind-type-parameter">KeyColumns</span><span class="tsd-signature-symbol">, </span><span class="tsd-signature-type tsd-kind-type-parameter">InsertReturnColumns</span><span class="tsd-signature-symbol">, </span><span class="tsd-signature-type tsd-kind-type-parameter">UpdateReturnColumns</span><span class="tsd-signature-symbol">&gt;</span></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/jtlapp/kysely-mapper/blob/ae0b836/src/mappers/entire-row-transforms.ts#L40">mappers/entire-row-transforms.ts:40</a></li></ul></aside></li></ul></section></section>
+<li>Defined in <a href="https://github.com/jtlapp/kysely-mapper/blob/b5c32ce/src/mappers/entire-row-transforms.ts#L50">mappers/entire-row-transforms.ts:50</a></li></ul></aside></li></ul></section></section>
 <section class="tsd-panel-group tsd-member-group">
 <h2>Properties</h2>
 <section class="tsd-panel tsd-member"><a id="keyColumns" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagReadonly">Readonly</code> <span>key<wbr/>Columns</span><a href="#keyColumns" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <div class="tsd-signature"><span class="tsd-kind-property">key<wbr/>Columns</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type tsd-kind-type-parameter">KeyColumns</span></div><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/jtlapp/kysely-mapper/blob/ae0b836/src/mappers/entire-row-transforms.ts#L40">mappers/entire-row-transforms.ts:40</a></li></ul></aside></section></section>
+<li>Defined in <a href="https://github.com/jtlapp/kysely-mapper/blob/b5c32ce/src/mappers/entire-row-transforms.ts#L50">mappers/entire-row-transforms.ts:50</a></li></ul></aside></section></section>
 <section class="tsd-panel-group tsd-member-group">
 <h2>Methods</h2>
 <section class="tsd-panel tsd-member"><a id="countTransform" class="tsd-anchor"></a>
@@ -118,7 +133,7 @@ entire table rows, given by type <code>Selectable&lt;DB[TB]&gt;</code>.</p>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">number</span></h4><aside class="tsd-sources">
 <p>Implementation of Required.countTransform</p>
 <ul>
-<li>Defined in <a href="https://github.com/jtlapp/kysely-mapper/blob/ae0b836/src/mappers/entire-row-transforms.ts#L45">mappers/entire-row-transforms.ts:45</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/jtlapp/kysely-mapper/blob/b5c32ce/src/mappers/entire-row-transforms.ts#L55">mappers/entire-row-transforms.ts:55</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member"><a id="insertReturnTransform" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>insert<wbr/>Return<wbr/>Transform</span><a href="#insertReturnTransform" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures">
@@ -137,7 +152,7 @@ to the caller, merging the returned values into the inserted object.</p>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type ">Selectable</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type tsd-kind-type-parameter">DB</span><span class="tsd-signature-symbol">[</span><span class="tsd-signature-type tsd-kind-type-parameter">TB</span><span class="tsd-signature-symbol">]</span><span class="tsd-signature-symbol">&gt;</span></h4><aside class="tsd-sources">
 <p>Implementation of Required.insertReturnTransform</p>
 <ul>
-<li>Defined in <a href="https://github.com/jtlapp/kysely-mapper/blob/ae0b836/src/mappers/entire-row-transforms.ts#L67">mappers/entire-row-transforms.ts:67</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/jtlapp/kysely-mapper/blob/b5c32ce/src/mappers/entire-row-transforms.ts#L77">mappers/entire-row-transforms.ts:77</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member"><a id="insertTransform" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>insert<wbr/>Transform</span><a href="#insertTransform" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures">
@@ -154,7 +169,7 @@ that are keys having falsy values.</p>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type ">Insertable</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type tsd-kind-type-parameter">DB</span><span class="tsd-signature-symbol">[</span><span class="tsd-signature-type tsd-kind-type-parameter">TB</span><span class="tsd-signature-symbol">]</span><span class="tsd-signature-symbol">&gt;</span></h4><aside class="tsd-sources">
 <p>Implementation of Required.insertTransform</p>
 <ul>
-<li>Defined in <a href="https://github.com/jtlapp/kysely-mapper/blob/ae0b836/src/mappers/entire-row-transforms.ts#L53">mappers/entire-row-transforms.ts:53</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/jtlapp/kysely-mapper/blob/b5c32ce/src/mappers/entire-row-transforms.ts#L63">mappers/entire-row-transforms.ts:63</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member"><a id="selectTransform" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>select<wbr/>Transform</span><a href="#selectTransform" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures">
@@ -170,7 +185,7 @@ that are keys having falsy values.</p>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type ">Selectable</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type tsd-kind-type-parameter">DB</span><span class="tsd-signature-symbol">[</span><span class="tsd-signature-type tsd-kind-type-parameter">TB</span><span class="tsd-signature-symbol">]</span><span class="tsd-signature-symbol">&gt;</span></h4><aside class="tsd-sources">
 <p>Implementation of Required.selectTransform</p>
 <ul>
-<li>Defined in <a href="https://github.com/jtlapp/kysely-mapper/blob/ae0b836/src/mappers/entire-row-transforms.ts#L87">mappers/entire-row-transforms.ts:87</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/jtlapp/kysely-mapper/blob/b5c32ce/src/mappers/entire-row-transforms.ts#L97">mappers/entire-row-transforms.ts:97</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member"><a id="updateReturnTransform" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>update<wbr/>Return<wbr/>Transform</span><a href="#updateReturnTransform" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures">
@@ -189,7 +204,7 @@ to the caller, merging the returned values into the updating object.</p>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type ">Selectable</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type tsd-kind-type-parameter">DB</span><span class="tsd-signature-symbol">[</span><span class="tsd-signature-type tsd-kind-type-parameter">TB</span><span class="tsd-signature-symbol">]</span><span class="tsd-signature-symbol">&gt;</span></h4><aside class="tsd-sources">
 <p>Implementation of Required.updateReturnTransform</p>
 <ul>
-<li>Defined in <a href="https://github.com/jtlapp/kysely-mapper/blob/ae0b836/src/mappers/entire-row-transforms.ts#L102">mappers/entire-row-transforms.ts:102</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/jtlapp/kysely-mapper/blob/b5c32ce/src/mappers/entire-row-transforms.ts#L112">mappers/entire-row-transforms.ts:112</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member"><a id="updateTransform" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>update<wbr/>Transform</span><a href="#updateTransform" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures">
@@ -205,7 +220,7 @@ to the caller, merging the returned values into the updating object.</p>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type ">Updateable</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type tsd-kind-type-parameter">DB</span><span class="tsd-signature-symbol">[</span><span class="tsd-signature-type tsd-kind-type-parameter">TB</span><span class="tsd-signature-symbol">]</span><span class="tsd-signature-symbol">&gt;</span></h4><aside class="tsd-sources">
 <p>Implementation of Required.updateTransform</p>
 <ul>
-<li>Defined in <a href="https://github.com/jtlapp/kysely-mapper/blob/ae0b836/src/mappers/entire-row-transforms.ts#L94">mappers/entire-row-transforms.ts:94</a></li></ul></aside></li></ul></section></section></div>
+<li>Defined in <a href="https://github.com/jtlapp/kysely-mapper/blob/b5c32ce/src/mappers/entire-row-transforms.ts#L104">mappers/entire-row-transforms.ts:104</a></li></ul></aside></li></ul></section></section></div>
 <div class="col-sidebar">
 <div class="page-menu">
 <div class="tsd-navigation settings">

@@ -7,8 +7,8 @@ import { Selectable, SelectArg, SelectExpression, Selection } from 'kysely';
 /**
  * Type of the key tuple whose column names are given by `KA` and are
  * found in the table interface `T`. Supports up to 4 columns.
- * @typeparam T Table interface.
- * @typeparam KA Array of the key column names.
+ * @typeParam T Table interface.
+ * @typeParam KA Array of the key column names.
  */
 export type KeyTuple<
   T,
@@ -30,8 +30,8 @@ export type KeyTuple<
 
 /**
  * Require specified properties of a type, leaving the rest optional.
- * @typeparam T Type to require properties from.
- * @typeparam K Keys of the properties to require.
+ * @typeParam T Type to require properties from.
+ * @typeParam K Keys of the properties to require.
  */
 export type RequireSome<T, K extends keyof T> = Omit<T, K> &
   Required<Pick<T, K>>;
