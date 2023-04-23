@@ -525,7 +525,7 @@ export class UserRepo {
 }
 ```
 
-We can do something similar when using compiling queries. There's no need to keep the table mapper around if all queries are compiling, as we only need the compiled queries:
+We can do something similar when using compiling queries. There's no need to keep the table mapper around if all queries are compiling:
 
 ```ts
 export class UserRepo {
