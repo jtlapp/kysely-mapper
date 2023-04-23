@@ -73,8 +73,8 @@ export class TableMapper<
   UpdateReturn
 > {
   /**
-   * Constructs a new table mapper.
-   * Returns a new table mapper that uses the provided transformations.
+   * Returns a new table mapper that uses the provided transformations, along
+   * with the settings of the current table mapper.
    * @param transforms The transforms to use.
    * @returns A new table mapper that uses the provided transforms.
    */
