@@ -30,7 +30,8 @@
   "scripts": {
     "clean": "rm -rf node_modules && rm -rf dist",
     "build": "rm -rdf dist && tsc && tsc -p tsconfig.cjs.json",
-    "docs:build": "typedoc --options ./typedoc.js ./src/index.ts",
+    "build-docs": "typedoc --options ./typedoc.js ./src/index.ts",
+    "build-all": "pnpm build && pnpm build-docs",
     "test": "jest"
   },
   "dependencies": {
