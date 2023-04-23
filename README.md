@@ -12,7 +12,9 @@ Unconfigured, the utility does no mapping and only serves as a shorthand for acc
 
 All queries are based on [Kysely](https://github.com/kysely-org/kysely) and give you access to the underlying query builders for further modification. The utility also supports compiling its object-mapping queries, parameterized for variation from run to run.
 
-[Link to the Quick Reference](https://github.com/jtlapp/kysely-mapper#quick-reference)
+[Jump to the Quick Reference](https://github.com/jtlapp/kysely-mapper#quick-reference)
+
+[Open the API Reference](https://jtlapp.github.io/kysely-mapper/)
 
 ## Installation
 
@@ -612,7 +614,7 @@ The resulting table mapper has these properties:
 
 ## Quick Reference
 
-Here are some quick-reference charts that should help make this utility easy to learn. Hopefully, the charts also reveal both the simplicity and the flexibility of the solution.
+Here are some quick-reference charts that should help make this utility easy to learn. Hopefully, the charts also reveal both the simplicity and the flexibility of the solution. Also see the [API Reference](https://jtlapp.github.io/kysely-mapper/).
 
 `TableMapper` has the following constructor and methods:
 
@@ -687,10 +689,6 @@ The queries that `TableFilter` methods return all have similar methods, as this 
 | `returnCount` | N/A | (params, values) =><br/> return count | N/A | (params) =><br/> return count |
 | `returnOne` | (values) =><br/> insert return | (params, values) =><br/> update return | (params) =><br/> selected object | N/A |
 | `returnAll` | (values[]) =><br/> (insert return)[] | (params, values) =><br/> (update return)[] | (params) =><br/> (selected object)[] | N/A |
-
-## API Reference
-
-TBD
 
 ## License
 
