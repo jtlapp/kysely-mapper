@@ -4,7 +4,7 @@ Flexible Kysely-based utility for mapping between tables and objects
 
 ## Overview
 
-This utility eliminates the boilerplate associated with mapping between database tables and objects across multiple queries.
+This utility reduces the code required for mapping between database tables and objects, particularly when mapping across multiple queries.
 
 Unconfigured, the utility does no mapping and only serves as a shorthand for accessing tables using column names as fields. When configured, it provides nearly complete control over how objects map to and from individual tables. Mappings can be tailored per table and can vary in degree of ORM functionality.
 
@@ -225,13 +225,13 @@ user = await table.select(123).returnOne();
 // user is { id: 123, name: 'Jane Doe', birthYear: 1970 }
 ```
 
-`selectedColumns` defaults to `['*']`, which selects all columns. The utility does not provide a way to specify the selected columns on a per-query basis, but if you're using the utlity, it's likely because you want all selections returning the same kind of object.
+`selectedColumns` defaults to `['*']`, which selects all columns. The utility does not provide a way to specify the selected columns on a per-query basis, but if you're using the utility, it's likely because you want all selections returning the same kind of object.
 
 Unlike traditional ORMs, you can create multiple table mappers for any given database table, each configured differently as best suits the usage. For example, you could have different table mappers selecting different columns, returning different objects.
 
 ## Mapping Queries
 
-The query methods don't provide much (if any) value over writing pure Kysely. The real value of this utility is it's ability to centrally define how objects are mapped to and from database tables. The query methods then perform these mappings automatically.
+The query methods don't provide much (if any) value over writing pure Kysely. The real value of this utility is its ability to centrally define how objects are mapped to and from database tables. The query methods then perform these mappings automatically.
 
 Each mapping is implemented by a custom 'transform' function. The following transform functions are available for customization:
 
@@ -388,7 +388,7 @@ user = await table.update(user.id).columns(['name']).returnOne(user);
 
 Whatever `updateTransform` does, only the specified subset of its return values will be used in the update. The `columns()` method is also available on insertion for fine control over when to use database defaults, with the same caveat applying to `insertTransform`.
 
-You might want to decline to return values that are unneeded and expensive to compute. Both `updateTransform` and `insertTransform` receive a second parameter indicating the columns that will be updated or inserted, with `[*]` indicating all columns. Here's an example:
+You might want to decline to return values that are unneeded and expensive to compute. Both `updateTransform` and `insertTransform` receive a second parameter indicating the columns that will be updated or inserted, with `[*]` indicating all columns. Here's a contrived example of its use:
 
 ```ts
   updateTransform: (source: User, columns) => ({
@@ -424,7 +424,7 @@ await table.update({ name: 'Joe Mac' }).run({ name: 'Joseph Mack' });
 
 Table mappers are also able to produce parameterized, compiling queries that compile the underlying Kysely query builder on the first execution and use this compilation for subsequent executions. You can provide parameters for values that can vary from execution to execution, particularly in query filters that define "where" clauses. Inserted and updating objects are always fully parameterized, so these too can vary from execution to execution.
 
-Any mapped query can be compiled by calling its `compile()` method, and the resulting compilation can be called via the methods available to the uncompiled query. However, you must call `columns()` on insert and update queries prior to compilation:
+Any mapped query can be compiled by calling its `compile()` method, and the resulting compilation can be called via most of the methods available to the uncompiled query. However, you must call `columns()` on insert and update queries prior to compilation:
 
 ```ts
 const compilingInsert = table
@@ -446,7 +446,7 @@ const compilingDelete = table.delete({ name: 'Joseph Mack' }).compile();
 count = await compilingDelete.returnCount({});
 ```
 
-We have to call `columns()` on insertions and updates to tell the utility what columns to set, because Kysely normally gets this information from the values object itself. The utility compiles the query prior to receiving the values object, so that the values object can vary by execution within the same compiled query. This requires the columns to be known in advance of executing the query.
+We have to call `columns()` on insertions and updates to tell the utility what columns to set, because Kysely normally gets this information from the values object itself. The utility compiles the query prior to receiving the values object, requiring the columns to be known in advance of compilation. With its columns parameterized, the values object can vary from execution to execution of the same compiled query.
 
 Except for insertions, the methods of compiling queries all take an additional argument, which is `{}` in each case above. This is an object that provides parameter values. When we create a compiling query by calling `compile()`, we are not parameterizing anything but the values for inserting or updating. The second argument of these methods provides these values. Given that there are no additional parameters to provide, the parameters object will be empty.
 
@@ -476,25 +476,25 @@ const compilingDelete = table.parameterize<Params>(({ mapper, param }) =>
 count = await compilingDelete.returnCount({ findName: 'Joe Mac' });
 ```
 
-No example is shown for insertion, because not having query filters, there is nothing further to parameterize.
+No example is shown for insertion, because not having query filters, there is nothing further to parameterize. Always call `compile()` on insert queries.
 
-In these examples, the parameter is called `findName` to make it clear that parameters are names you make up, rather than having to be column names. However, we can use column names as parameter names if we want, because the parameters used to insert values are in their own namespace.
+The parameter is called `findName` in these examples to make it clear that parameter names can be anything, rather than having to be column names. However, we can use column names as parameter names if we want, because the parameters used for inserting values are in a distinct namespace.
 
-We hand `parameterize()` a factory function that returns a compilable query. To make this query, the function receives a reference to the table mapper (`mapper`) and a `param()` function. Construct the query from `mapper`, replacing the filter right-hand-values you wish to parameterize with calls to `param()`. Provide `param()` with the parameter name, which must be a property of the parameters type (here, `Params`). The parameter must have a type in the type parameter that is permitted for the right-hand-value it provides. The factory function must must call `columns()` on update queries before returning the query.
+As the examples illustrate, we hand `parameterize()` a factory function that returns a compilable query. The function receives both a reference to the table mapper (`mapper`) and a `param` function. The function creates the compilable query from `mapper`, replacing the filter right-hand-values as desired with parameterize via calls to `param`. `param`'s argument is the parameter name, which must be a property of the type parameter (here, `Params`). The parameter must have a type in the type parameter that is permitted for the right-hand-value it supplants. For update queries, the factory function must call `columns` before returning the query, in order to return a compilable query.
 
-`parameterize()` returns a compiling query that can be repeatedly called with different parameters (unless it's an insertion) and different values (for insertions and updates). The compiling query compiles on its first execution, caches the compilation, discards the underlying Kysely query builder to free memory, and uses the cached compilation on subsequent executions. (Insertions and updates may actually cache two compilations on the first execution &mdash; one for queries that return values and one for queries that don't).
+`parameterize()` returns a compiling query that can be repeatedly called with different parameters, and in the case of updates, also with different updating values. The compiling query compiles on its first execution, caches the compilation, discards the underlying Kysely query builder to free memory, and uses the cached compilation on subsequent executions. (Insertions and updates may actually cache two compilations on the first execution &mdash; one for queries that return values and one for queries that don't).
 
-Kysely queries are fast, and the present utility doesn't do much additional work on top of Kysely, so you are not likely to need compiling queries to improve query speed. However, query builders do use memory, increase garbage collection, and consume clock cycles that could be used elsewhere. Compiling queries allow you to minimize resource usage for the kinds of applications that can benefit. (Note that the [kysely-params](https://github.com/jtlapp/kysely-params) utility that the present utility relies on lets you compile and parameterize arbitrary Kysely queries.)
+Kysely queries are fast, and the present utility doesn't do much additional work on top of Kysely, so you are not likely to need compiling queries to improve query speed. However, query builders do use memory, increase garbage collection, and consume clock cycles that could be used elsewhere. Compiling queries allow you to minimize resource usage for the kinds of applications that can benefit. (Note that the [kysely-params](https://github.com/jtlapp/kysely-params) utility lets you compile and parameterize arbitrary Kysely queries.)
 
 Compilation adds a bit of complication to your queries. It's best to implement the application without compilation until you find that you need it: you may discover that you never needed the additional complication. The compilation facility exists to help you feel comfortable using the tool for any kind of application.
 
 ## Usage in Repository Classes
 
-We typically want to use table mappers in repository classes that represent database tables with application-specific interfaces. We also typically want to create instances of these classes with dependency injection, passing in dependencies rather than hard-coding them. Table mappers depend on instances of the `Kysely` class and present a complication for dependency injection. This section documents a simple solution to this complication.
+We typically want to use table mappers in repository classes, which represent database tables with application-specific interfaces. We also typically want to create instances of these classes with dependency injection, passing in dependencies rather than hard-coding them. Table mappers depend on instances of the `Kysely` class while also relying on type inferencing, thereby presenting a complication for dependency injection. This section documents a simple solution to this complication.
 
-The `TableMapper` class has many type parameters, and we would rather not have to specify them. When we create a table mapper, passing in its various column settings and transforms, TypeScript can infer all of the type parameters from these settings and transforms. However, we require an instance of `Kysely` to create the table mapper. If we want to define the table mapper prior to creating it, such as to make it a property of a repository class, and if we only receive the `Kysely` instance at repository construction, we may be inclined to specify all of the type parameters in our definition.
+The `TableMapper` class has many type parameters, and we would rather not have to specify them. When we create a table mapper, passing in its various column settings and transforms, TypeScript can infer all of the type parameters from these settings and transforms. However, we require an instance of `Kysely` to create the table mapper. If we want to define the table mapper prior to creating it, such as to make it a property of a repository class, and if we only receive the `Kysely` instance at repository construction, we may be inclined to specify all of the type parameters in our definition. This complicates the code.
 
-A better solution is to provide a method on the repository class that returns a table mapper and then define the table mapper property as the return type of this method. This provides the best of both worlds: we infer all of the type parameters and have a property based on the inferred types. Here is an example:
+A better solution is to provide a method on the repository class that returns a table mapper and then define the table mapper property as the return type of this method. This provides the best of both worlds: we infer all of the type parameters and have an injection-derived property based on the inferred types. Here is an example:
 
 ```ts
 export class UserRepo {
@@ -599,9 +599,9 @@ export class UserRepo {
 
 ## EntireRowTransforms
 
-`EntireRowTransforms` is a class that provides transforms for defining a table mapper whose queries all receive and return entire rows of the table. Use it when you want to read and write entire rows but also respect the expected insert and update return columns. The class exists merely for your convenience.
+`EntireRowTransforms` is a class that provides transforms for defining a table mapper whose queries all receive and return entire rows of the table. You can use it when you want to read and write entire rows but also respect the expected insert and update return columns. The class exists merely for your convenience.
 
-Here is how you create a table mapper that uses these transforms:
+Here is how to create a table mapper that uses these transforms:
 
 ```ts
 const KEY_COLUMNS = ['id'];
@@ -613,16 +613,16 @@ const table = new TableMapper(db, 'users', {
 }).withTransforms(new EntireRowTransforms(KEY_COLUMNS));
 ```
 
-The transforms are only compatible with with table mappers that select all columns, as the above does because `selectedColumns` defaults to `['*']`.
+The transforms are only compatible with table mappers that select all columns, which the above table mapper does because `selectedColumns` defaults to `['*']`.
 
 The resulting table mapper has these properties:
 
-- Upon insertion, key columns with falsy values are removed from the query; when you want the table to generate a key, set the key value to `null`, 0, or an empty string `""`. You can further restrict inserted columns by calling `columns`()` on the query.
-- The row returned from an insertion is the row provided for insertion merged with the columns returned from the insertion.
+- Upon insertion, key columns with falsy values are removed from the query; when you want the table to generate a key, set the key value to `null`, 0, or an empty string `""`. You can further restrict inserted columns by calling `columns()` on the query.
+- The row returned from an insertion is the originally provided insert values merged with the columns returned from the insertion.
 - Select queries return entire rows.
-- The caller provides an entire row when updating, setting all columns, unless you restrict columns by calling `columns()` on the query.
-- The row returned from an update is the row provided with the update merged with the columns returned from the update.
-- Counts of the number of affected rows have type `number`.
+- The caller provides an entire row when updating, setting all columns (possibly excluding generated columns), unless you restrict columns by calling `columns()` on the query.
+- The row returned from an update is the originally provided update values merged with the columns returned from the update.
+- Counts of the number of affected rows return with type `number`.
 
 ## Quick Reference
 
@@ -666,7 +666,7 @@ The `tableMapper.withTransforms` method takes a transforms object, all of whose 
 | `insertTransform` | (source-object, columns) => table columns object<br/> Transforms the source object into the table column-values to insert. Only the columns in `columns` will actually be inserted, with `[*]` indicating all columns. The default assumes the source object contains only table columns. |
 | `insertReturnTransform` | (source-object, returns) => insert return<br/> Transforms the source object and the returned column-values into the value to return from the insert query. The default returns an object containing the returned columns, unless there are no `insertReturnColumns`, in which case the return type is `void`. |
 | `updateTransform` | (source-object, columns) => table columns object<br/> Transforms the source object into the table column-values to update. Only the columns in `columns` will actually be updated, with `[*]` indicating all columns. The default assumes the source object contains only table columns. |
-| `updateReturnTransform` | (source-object, returns) => update return<br/> Transforms the source object and the returned column-values into the value to return from the udpate query. The default returns an object containing the returned columns, unless there are no `updateReturnColumns`, in which case the return type is `void`. |
+| `updateReturnTransform` | (source-object, returns) => update return<br/> Transforms the source object and the returned column-values into the value to return from the update query. The default returns an object containing the returned columns, unless there are no `updateReturnColumns`, in which case the return type is `void`. |
 | `selectTransform` | (selected-row) => selected object<br/> Transforms a selected row of column-values into the object to return from the select query. The default returns the selected row. |
 | `countTransform` | (count: bigint) => return count<br/> Transforms the number of affected rows into the value to return from `returnCount` methods. Returns a `bigint` by default. |
 
