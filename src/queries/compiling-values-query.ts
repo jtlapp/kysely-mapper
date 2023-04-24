@@ -86,11 +86,22 @@ export class CompilingValuesQuery<
       sql: compiledQuery.sql,
       parameters: compiledQuery.parameters.map((value) =>
         value instanceof ColumnParameter
-          ? obj[value.columnName]
+          ? this.verifiedValue(obj, value.columnName)
           : value instanceof ParameterizedValue
           ? params[value.parameterName as keyof Parameters]
           : value
       ),
     };
+  }
+
+  private verifiedValue(obj: any, column: string): any {
+    const value = obj[column];
+    // ensure the output of the applied transform works for the present query
+    if (value === undefined) {
+      throw new Error(
+        `Specified column '${column}' missing from values object (compiled)`
+      );
+    }
+    return value;
   }
 }

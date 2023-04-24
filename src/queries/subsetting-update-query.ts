@@ -8,6 +8,7 @@ import {
   CountTransform,
   UpdateTransforms,
 } from '../mappers/table-mapper-transforms';
+import { restrictValues } from '../lib/restrict-values';
 
 /**
  * Mapping query for updating rows into a database table,
@@ -94,22 +95,6 @@ export class SubsettingMappingUpdateQuery<
     qb: UpdateQueryBuilder<DB, TB, TB, UpdateResult>,
     obj: Updateable<DB[TB]>
   ): UpdateQueryBuilder<DB, TB, TB, UpdateResult> {
-    return qb.set(this.toUpdateableObject(obj));
-  }
-
-  protected toUpdateableObject(obj: Updateable<DB[TB]>): Updateable<DB[TB]> {
-    // ensure the output of updateTransform works for the present query
-    this.columnsToUpdate.forEach((column) => {
-      if (obj[column] === undefined) {
-        throw Error(
-          `Specified column '${column}' missing from updating object`
-        );
-      }
-    });
-    return Object.fromEntries(
-      Object.entries(obj).filter(([column]) =>
-        this.columnsToUpdate.includes(column as any)
-      )
-    ) as Updateable<DB[TB]>;
+    return qb.set(restrictValues(obj, this.columnsToUpdate));
   }
 }

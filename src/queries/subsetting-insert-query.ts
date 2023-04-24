@@ -4,6 +4,7 @@ import { SelectionColumn } from '../lib/type-utils';
 import { MappingInsertQuery } from './insert-query';
 import { CompilingMappingInsertQuery } from './compiling-insert-query';
 import { InsertTransforms } from '../mappers/table-mapper-transforms';
+import { restrictValues } from '../lib/restrict-values';
 
 /**
  * Mapping query for inserting rows into a database table,
@@ -81,24 +82,10 @@ export class SubsettingMappingInsertQuery<
     objOrObjs: Insertable<DB[TB]> | Insertable<DB[TB]>[]
   ): InsertQueryBuilder<DB, TB, InsertResult> {
     if (Array.isArray(objOrObjs)) {
-      return qb.values(objOrObjs.map((obj) => this.toInsertableObject(obj)));
+      return qb.values(
+        objOrObjs.map((obj) => restrictValues(obj, this.columnsToInsert))
+      );
     }
-    return qb.values(this.toInsertableObject(objOrObjs));
-  }
-
-  protected toInsertableObject(obj: Insertable<DB[TB]>): Insertable<DB[TB]> {
-    // ensure the output of insertTransform works for the present query
-    this.columnsToInsert.forEach((column) => {
-      if (obj[column] === undefined) {
-        throw Error(
-          `Specified column '${column}' missing from inserted object`
-        );
-      }
-    });
-    return Object.fromEntries(
-      Object.entries(obj).filter(([column]) =>
-        this.columnsToInsert.includes(column as any)
-      )
-    ) as Insertable<DB[TB]>;
+    return qb.values(restrictValues(objOrObjs, this.columnsToInsert));
   }
 }
