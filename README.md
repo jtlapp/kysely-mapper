@@ -4,7 +4,7 @@ Flexible Kysely-based utility for mapping between tables and objects
 
 ## Overview
 
-This utility reduces the code required for mapping between database tables and objects, particularly when mapping across multiple queries. It uses [Kysely](https://github.com/kysely-org/kysely) and works alongside Kysely.
+This utility reduces the code required for mapping between database tables and objects, particularly when mapping across multiple queries. It uses [Kysely](https://github.com/kysely-org/kysely) for building queries and works alongside Kysely.
 
 Unconfigured, the utility does no mapping and only serves as a shorthand for accessing tables using column names as fields. When configured, it provides nearly complete control over how objects map to and from individual tables. Mappings can be tailored per table and can vary in degree of ORM functionality.
 
