@@ -65,6 +65,7 @@ const table = new TableMapper(db, 'users', {
     const names = row.name.split(' ');
     return new User(row.id, names[0], names[1], row.birth_year, row.modified);
   },
+  countTransform: (count) => Number(count),
 });
 ```
 
