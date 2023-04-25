@@ -693,7 +693,7 @@ The queries that `TableFilter` methods return all have similar methods, as this 
 <!-- prettier-ignore -->
 | Method of Query | insert() | update(filter?) | select(filter?) | delete(filter?) |
 |  --- |  --- |  --- |  --- |  --- |
-| `modify` | ((kysely-QB) =><br/> new kysely QB) => new insert query | ((kysely-QB) =><br/> new kysely QB) => new update query | ((kysely-QB) =><br/> new kysely QB) => select query | ((kysely-QB) =><br/> new kysely QB) => delete query |
+| `modify` | ((kysely-QB) =><br/> new kysely QB) => new insert query | ((kysely-QB) =><br/> new kysely QB) => new update query | ((kysely-QB) =><br/> new kysely QB) => new select query | ((kysely-QB) =><br/> new kysely QB) => new delete query |
 | `columns` | (columns-to-insert array) =><br/> column-restricted insert query | (columns-to-update array) =><br/> column-restricted update query | N/A | N/A |
 | `run` | (values) =><br/> true (always) | (values) =><br/> boolean (whether any updated) | N/A | () =><br/> boolean (whether any deleted) |
 | `returnCount` | N/A | (values) =><br/> return count | N/A | () =><br/> return count |
