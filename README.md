@@ -435,8 +435,8 @@ const compilingInsert = table
 await compilingInsert.run(userToInsert);
 
 const compilingUpdate = table
-  .update({ name: 'Joe Mac' }) // columns to update
-  .columns(['name'])
+  .update({ name: 'Joe Mac' })
+  .columns(['name']) // columns to update
   .compile();
 user = await compilingUpdate.returnOne({}, { name: 'Joseph Mack' });
 
