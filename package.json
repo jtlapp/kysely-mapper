@@ -1,6 +1,6 @@
 {
   "name": "kysely-mapper",
-  "version": "0.4.11",
+  "version": "0.4.12",
   "author": "Joseph T. Lapp <arachnojoe@gmail.com>",
   "license": "MIT",
   "description": "Flexible Kysely-based utility for mapping between tables and objects",

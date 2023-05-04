@@ -97,6 +97,12 @@ deleteCount = await table.delete({ name: 'John Doe' }).returnCount();
 
 Additional methods are available for directly modifying the underlying query builder (`modify`), for creating compiling queries (`compile`), and for parameterizing compiling queries (`parameterize`), the latter of which is a method on table mappers.
 
+To help you understand how this utility can simplify object mapping with Kysely, I've written three equivalent files implementing a user repository. I tested them in another application of mine before copying them here. You'll want to right-click (or control-click) these links to open them in separate tabs or windows for comparison (GitHub links can't do this automatically):
+
+- [UserRepo written in pure Kysely](https://github.com/jtlapp/kysely-mapper/tree/main/comparison/mapperless-UserRepo-embedded-transforms.ts)
+- [UserRepo written in pure Kysely, delegating mapping to shareable functions](https://github.com/jtlapp/kysely-mapper/tree/main/comparison/mapperless-UserRepo-calling-transforms.ts)
+- [UserRepo written using the present utility](https://github.com/jtlapp/kysely-mapper/tree/main/comparison/UserRepo-using-mapper.ts)
+
 The following sections explain everything in detail.
 
 ## Issuing Queries
@@ -232,7 +238,7 @@ Unlike traditional ORMs, you can create multiple table mappers for any given dat
 
 ## Mapping Queries
 
-The query methods don't provide much (if any) value over writing pure Kysely. The real value of this utility is its ability to centrally define how objects are mapped to and from database tables. The query methods then perform these mappings automatically.
+The query methods provide little value over writing pure Kysely, as they only improve readability for a few common queries. The main value of this utility is its ability to centrally define how objects are mapped to and from database tables. The query methods then perform these mappings automatically.
 
 Each mapping is implemented by a custom 'transform' function. The following transform functions are available for customization:
 
