@@ -47,7 +47,6 @@ export class UserRepo {
       updateReturnTransform: (user: User, returns) =>
         Object.assign(user, returns) as User,
       selectTransform: (row) => User.castFrom(row),
-      countTransform: (count) => Number(count),
     });
   }
 }
