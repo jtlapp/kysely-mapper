@@ -1,12 +1,10 @@
-import { Kysely } from "kysely";
-import { TableMapper } from "kysely-mapper";
-
-import { User, UserID } from "@fieldzoo/model";
-
-import { Database } from "../tables/table-interfaces";
+import { Kysely } from 'kysely';
+import { TableMapper } from 'kysely-mapper';
+import { User, UserID } from '@fieldzoo/model';
+import { Database } from '../tables/table-interfaces';
 
 export class UserRepo {
-  readonly #table: ReturnType<UserRepo["getMapper"]>;
+  readonly #table: ReturnType<UserRepo['getMapper']>;
 
   constructor(readonly db: Kysely<Database>) {
     this.#table = this.getMapper(db);
@@ -31,16 +29,16 @@ export class UserRepo {
   private getMapper(db: Kysely<Database>) {
     const upsertTransform = (user: User) => {
       const values = { ...user } as any;
-      delete values["id"];
-      delete values["createdAt"];
-      delete values["modifiedAt"];
+      delete values['id'];
+      delete values['createdAt'];
+      delete values['modifiedAt'];
       return values;
     };
 
-    return new TableMapper(db, "users", {
-      keyColumns: ["id"],
-      insertReturnColumns: ["id", "createdAt", "modifiedAt"],
-      updateReturnColumns: ["modifiedAt"],
+    return new TableMapper(db, 'users', {
+      keyColumns: ['id'],
+      insertReturnColumns: ['id', 'createdAt', 'modifiedAt'],
+      updateReturnColumns: ['modifiedAt'],
     }).withTransforms({
       insertTransform: upsertTransform,
       insertReturnTransform: (user: User, returns) =>
