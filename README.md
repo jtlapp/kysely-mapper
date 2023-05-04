@@ -97,7 +97,7 @@ deleteCount = await table.delete({ name: 'John Doe' }).returnCount();
 
 Additional methods are available for directly modifying the underlying query builder (`modify`), for creating compiling queries (`compile`), and for parameterizing compiling queries (`parameterize`), the latter of which is a method on table mappers.
 
-To help you understand how this utility can simplify object mapping with Kysely, I wrote three equivalent implementations a user repository for an application of mine and copied them here. You'll want to right-click (or control-click) these links to open them in separate tabs or windows for comparison (GitHub links can't do this automatically):
+To help you understand how this utility can simplify object mapping with Kysely, I wrote three equivalent implementations of a user repository for an application of mine and copied them here. Right-click (or control-click) these links to open them in separate tabs or windows for comparison (GitHub links can't do this automatically):
 
 - [UserRepo written in pure Kysely](https://github.com/jtlapp/kysely-mapper/tree/main/comparison/mapperless-UserRepo-embedded-transforms.ts)
 - [UserRepo written in pure Kysely, delegating mapping to shareable functions](https://github.com/jtlapp/kysely-mapper/tree/main/comparison/mapperless-UserRepo-calling-transforms.ts)
