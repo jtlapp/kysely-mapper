@@ -1,10 +1,10 @@
 import { Kysely, InsertQueryBuilder, InsertResult, Insertable } from 'kysely';
 
-import { SelectionColumn } from '../lib/type-utils';
-import { MappingInsertQuery } from './insert-query';
-import { CompilingMappingInsertQuery } from './compiling-insert-query';
-import { InsertTransforms } from '../mappers/table-mapper-transforms';
-import { restrictValues } from '../lib/restrict-values';
+import { SelectionColumn } from '../lib/type-utils.js';
+import { MappingInsertQuery } from './insert-query.js';
+import { CompilingMappingInsertQuery } from './compiling-insert-query.js';
+import { InsertTransforms } from '../mappers/table-mapper-transforms.js';
+import { restrictValues } from '../lib/restrict-values.js';
 
 /**
  * Mapping query for inserting rows into a database table,

@@ -5,11 +5,12 @@ import {
   UpdateResult,
   Updateable,
 } from 'kysely';
-import { SelectionColumn } from '../lib/type-utils';
+
+import { SelectionColumn } from '../lib/type-utils.js';
 import {
   CountTransform,
   UpdateTransforms,
-} from '../mappers/table-mapper-transforms';
+} from '../mappers/table-mapper-transforms.js';
 
 /**
  * Mapping query for updating rows from a database table.

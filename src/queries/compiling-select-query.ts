@@ -1,8 +1,9 @@
 import { Kysely, SelectQueryBuilder } from 'kysely';
-import { SelectionColumn } from '../lib/type-utils';
-import { ParameterizableMappingQuery } from './parameterizable-query';
 import { ParameterizedQuery, ParametersObject } from 'kysely-params';
-import { SelectTransform } from '../mappers/table-mapper-transforms';
+
+import { SelectionColumn } from '../lib/type-utils.js';
+import { ParameterizableMappingQuery } from './parameterizable-query.js';
+import { SelectTransform } from '../mappers/table-mapper-transforms.js';
 
 /**
  * Compiling mapping query for selecting rows from a database table.

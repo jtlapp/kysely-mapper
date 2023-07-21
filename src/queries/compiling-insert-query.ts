@@ -1,8 +1,8 @@
 import { Kysely, InsertQueryBuilder, Insertable } from 'kysely';
 
-import { SelectionColumn } from '../lib/type-utils';
-import { CompilingValuesQuery } from './compiling-values-query';
-import { InsertTransforms } from '../mappers/table-mapper-transforms';
+import { SelectionColumn } from '../lib/type-utils.js';
+import { CompilingValuesQuery } from './compiling-values-query.js';
+import { InsertTransforms } from '../mappers/table-mapper-transforms.js';
 
 /**
  * Compiling mapping query for inserting rows into a database table.

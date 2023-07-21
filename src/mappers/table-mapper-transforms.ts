@@ -1,9 +1,10 @@
 import { Insertable, Selectable, Selection, Updateable } from 'kysely';
+
 import {
   SelectableColumnTuple,
   SelectedRow,
   SelectionColumn,
-} from '../lib/type-utils';
+} from '../lib/type-utils.js';
 
 /**
  * Transformations to apply to values provided to and received from queries.

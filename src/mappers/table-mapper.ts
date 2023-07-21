@@ -4,9 +4,9 @@ import {
   SelectableColumnTuple,
   SelectedRow,
   SelectionColumn,
-} from '../lib/type-utils';
-import { TableMapperTransforms } from './table-mapper-transforms';
-import { AbstractTableMapper } from './abstract-table-mapper';
+} from '../lib/type-utils.js';
+import { TableMapperTransforms } from './table-mapper-transforms.js';
+import { AbstractTableMapper } from './abstract-table-mapper.js';
 
 /**
  * Table mapper that defaults to passing through all query inputs and output

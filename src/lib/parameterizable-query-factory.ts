@@ -1,7 +1,8 @@
 import { ParametersObject, QueryParameterMaker } from 'kysely-params';
-import { AbstractTableMapper } from '../mappers/abstract-table-mapper';
-import { SelectableColumnTuple, SelectionColumn } from './type-utils';
-import { ParameterizableMappingQuery } from '../queries/parameterizable-query';
+
+import { AbstractTableMapper } from '../mappers/abstract-table-mapper.js';
+import { SelectableColumnTuple, SelectionColumn } from './type-utils.js';
+import { ParameterizableMappingQuery } from '../queries/parameterizable-query.js';
 
 /**
  * Definition of the function that a caller provides to parameterize a

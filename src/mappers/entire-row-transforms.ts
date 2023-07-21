@@ -1,10 +1,11 @@
 import { Insertable, Selectable, Updateable } from 'kysely';
+
 import {
   SelectableColumnTuple,
   SelectedRow,
   SelectionColumn,
-} from '../lib/type-utils';
-import { TableMapperTransforms } from './table-mapper-transforms';
+} from '../lib/type-utils.js';
+import { TableMapperTransforms } from './table-mapper-transforms.js';
 
 /**
  * Transforms for a table mapper that only receives and returns

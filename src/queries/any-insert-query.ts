@@ -1,9 +1,9 @@
 import { Kysely, InsertQueryBuilder, InsertResult, Insertable } from 'kysely';
 
-import { SelectionColumn } from '../lib/type-utils';
-import { SubsettingMappingInsertQuery } from './subsetting-insert-query';
-import { MappingInsertQuery } from './insert-query';
-import { InsertTransforms } from '../mappers/table-mapper-transforms';
+import { SelectionColumn } from '../lib/type-utils.js';
+import { SubsettingMappingInsertQuery } from './subsetting-insert-query.js';
+import { MappingInsertQuery } from './insert-query.js';
+import { InsertTransforms } from '../mappers/table-mapper-transforms.js';
 
 /**
  * Mapping query for inserting rows into a database table, where the

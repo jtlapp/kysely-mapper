@@ -15,27 +15,27 @@ import {
   OperandValueExpressionOrList,
   Updateable,
 } from 'kysely';
+import { ParametersObject, QueryParameterMaker } from 'kysely-params';
 
-import { QueryFilter } from '../lib/query-filter';
-import { applyQueryFilter } from '../lib/apply-query-filter';
+import { QueryFilter } from '../lib/query-filter.js';
+import { applyQueryFilter } from '../lib/apply-query-filter.js';
 import {
   SelectableColumnTuple,
   SelectedRow,
   SelectionColumn,
-} from '../lib/type-utils';
-import { MappingDeleteQuery } from '../queries/delete-query';
-import { MappingSelectQuery } from '../queries/select-query';
-import { MappingUpdateQuery } from '../queries/update-query';
-import { AnyColumnsMappingInsertQuery } from '../queries/any-insert-query';
-import { AnyColumnsMappingUpdateQuery } from '../queries/any-update-query';
-import { ParametersObject, QueryParameterMaker } from 'kysely-params';
-import { ParameterizableMappingQueryFactory } from '../lib/parameterizable-query-factory';
-import { CompilingMappingSelectQuery } from '../queries/compiling-select-query';
-import { CompilingMappingDeleteQuery } from '../queries/compiling-delete-query';
-import { SubsettingMappingUpdateQuery } from '../queries/subsetting-update-query';
-import { CompilingMappingUpdateQuery } from '../queries/compiling-update-query';
-import { TableMapperSettings } from './table-mapper-settings';
-import { TableMapperTransforms } from './table-mapper-transforms';
+} from '../lib/type-utils.js';
+import { MappingDeleteQuery } from '../queries/delete-query.js';
+import { MappingSelectQuery } from '../queries/select-query.js';
+import { MappingUpdateQuery } from '../queries/update-query.js';
+import { AnyColumnsMappingInsertQuery } from '../queries/any-insert-query.js';
+import { AnyColumnsMappingUpdateQuery } from '../queries/any-update-query.js';
+import { ParameterizableMappingQueryFactory } from '../lib/parameterizable-query-factory.js';
+import { CompilingMappingSelectQuery } from '../queries/compiling-select-query.js';
+import { CompilingMappingDeleteQuery } from '../queries/compiling-delete-query.js';
+import { SubsettingMappingUpdateQuery } from '../queries/subsetting-update-query.js';
+import { CompilingMappingUpdateQuery } from '../queries/compiling-update-query.js';
+import { TableMapperSettings } from './table-mapper-settings.js';
+import { TableMapperTransforms } from './table-mapper-transforms.js';
 
 /**
  * Abstract base class for table mappers. It is abstract because it does not

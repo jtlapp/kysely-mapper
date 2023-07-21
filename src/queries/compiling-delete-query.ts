@@ -1,8 +1,8 @@
 import { DeleteQueryBuilder, Kysely, QueryResult } from 'kysely';
-import { ParameterizedQuery, ParametersObject } from 'kysely-params';
+import { ParameterizedQuery, type ParametersObject } from 'kysely-params';
 
-import { CountTransform } from '../mappers/table-mapper-transforms';
-import { ParameterizableMappingQuery } from './parameterizable-query';
+import { CountTransform } from '../mappers/table-mapper-transforms.js';
+import { ParameterizableMappingQuery } from './parameterizable-query.js';
 
 /**
  * Compiling mapping query for deleting rows from a database table.

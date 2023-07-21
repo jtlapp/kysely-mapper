@@ -1,12 +1,12 @@
 import { Kysely, UpdateQueryBuilder, UpdateResult, Updateable } from 'kysely';
-
-import { SelectionColumn } from '../lib/type-utils';
-import { CompilingValuesQuery } from './compiling-values-query';
 import { ParametersObject } from 'kysely-params';
+
+import { SelectionColumn } from '../lib/type-utils.js';
+import { CompilingValuesQuery } from './compiling-values-query.js';
 import {
   CountTransform,
   UpdateTransforms,
-} from '../mappers/table-mapper-transforms';
+} from '../mappers/table-mapper-transforms.js';
 
 /**
  * Compiling mapping query for updating rows in a database table.

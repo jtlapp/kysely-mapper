@@ -1,4 +1,4 @@
-import { SelectableColumnTuple, SelectionColumn } from '../lib/type-utils';
+import { SelectableColumnTuple, SelectionColumn } from '../lib/type-utils.js';
 
 /**
  * Settings governing table mapper behavior, excluding transformations.

@@ -6,8 +6,8 @@ import {
   Insertable,
 } from 'kysely';
 
-import { SelectionColumn } from '../lib/type-utils';
-import { InsertTransforms } from '../mappers/table-mapper-transforms';
+import { SelectionColumn } from '../lib/type-utils.js';
+import { InsertTransforms } from '../mappers/table-mapper-transforms.js';
 
 /**
  * Mapping query for inserting rows into a database table.

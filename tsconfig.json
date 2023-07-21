@@ -2,6 +2,8 @@
   "$schema": "https://json.schemastore.org/tsconfig",
   "compilerOptions": {
     "target": "ES6",
+    "module": "ESNext",
+    "types": ["vitest/globals"],
     "sourceMap": true,
     "composite": false,
     "declaration": true,
@@ -19,7 +21,7 @@
     "noImplicitReturns": true,
     "noFallthroughCasesInSwitch": true,
     "noImplicitOverride": true,
-    "outDir": "./dist",
+    "outDir": "./dist/esm",
     "rootDir": "./src"
   },
   "include": ["*.d.ts", "**/*.ts", "**/*.tsx"],

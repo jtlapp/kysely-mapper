@@ -5,8 +5,8 @@ import {
   ReferenceExpression,
   WhereInterface,
 } from 'kysely';
-import { SelectableColumnTuple } from './type-utils';
-import { QueryFilter } from './query-filter';
+import { SelectableColumnTuple } from './type-utils.js';
+import { QueryFilter } from './query-filter.js';
 
 type AnyWhereInterface = WhereInterface<any, any>;
 

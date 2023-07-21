@@ -11,7 +11,8 @@ import {
   Selectable,
   WhereExpressionFactory,
 } from 'kysely';
-import { KeyTuple, SelectableColumnTuple } from './type-utils';
+
+import { KeyTuple, SelectableColumnTuple } from './type-utils.js';
 
 /**
  * Type of the query filter object, which can be passed as an argument

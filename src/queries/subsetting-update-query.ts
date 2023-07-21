@@ -1,14 +1,15 @@
 import { Kysely, UpdateQueryBuilder, UpdateResult, Updateable } from 'kysely';
-import { SelectionColumn } from '../lib/type-utils';
-import { MappingUpdateQuery } from './update-query';
-import { ParameterizableMappingQuery } from './parameterizable-query';
 import { ParametersObject } from 'kysely-params';
-import { CompilingMappingUpdateQuery } from './compiling-update-query';
+
+import { SelectionColumn } from '../lib/type-utils.js';
+import { MappingUpdateQuery } from './update-query.js';
+import { ParameterizableMappingQuery } from './parameterizable-query.js';
+import { CompilingMappingUpdateQuery } from './compiling-update-query.js';
 import {
   CountTransform,
   UpdateTransforms,
-} from '../mappers/table-mapper-transforms';
-import { restrictValues } from '../lib/restrict-values';
+} from '../mappers/table-mapper-transforms.js';
+import { restrictValues } from '../lib/restrict-values.js';
 
 /**
  * Mapping query for updating rows into a database table,

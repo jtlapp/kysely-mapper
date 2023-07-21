@@ -5,9 +5,9 @@ import {
   Compilable,
   ReturningInterface,
 } from 'kysely';
-
-import { SelectionColumn } from '../lib/type-utils';
 import { ParametersObject, ParameterizedValue } from 'kysely-params';
+
+import { SelectionColumn } from '../lib/type-utils.js';
 
 /**
  * Parameterized value placeholder for inserted or added column values.

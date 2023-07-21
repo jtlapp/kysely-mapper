@@ -1,11 +1,12 @@
 import { Kysely, UpdateQueryBuilder, UpdateResult, Updateable } from 'kysely';
-import { SelectionColumn } from '../lib/type-utils';
-import { MappingUpdateQuery } from './update-query';
-import { SubsettingMappingUpdateQuery } from './subsetting-update-query';
+
+import { SelectionColumn } from '../lib/type-utils.js';
+import { MappingUpdateQuery } from './update-query.js';
+import { SubsettingMappingUpdateQuery } from './subsetting-update-query.js';
 import {
   CountTransform,
   UpdateTransforms,
-} from '../mappers/table-mapper-transforms';
+} from '../mappers/table-mapper-transforms.js';
 
 /**
  * Mapping query for updating rows from a database table, where the
