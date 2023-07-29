@@ -1,4 +1,10 @@
-import { Insertable, Selectable, Selection, Updateable } from 'kysely';
+import {
+  Insertable,
+  Selectable,
+  Selection,
+  Transaction,
+  Updateable,
+} from 'kysely';
 
 import {
   SelectableColumnTuple,
@@ -128,5 +134,29 @@ export class TableMapper<
     >(this.db, this.tableName, this.settings);
     transformingTableMapper.transforms = transforms;
     return transformingTableMapper;
+  }
+
+  /**
+   * Returns a new table mapper that issues queries in the provided
+   * transaction, using the present table mapper's configuration.
+   * @param transaction The transaction to use.
+   * @returns A new table mapper that issues queries in the provided
+   * transaction.
+   */
+  forTransaction(trx: Transaction<DB>) {
+    return new TableMapper<
+      DB,
+      TB,
+      KeyColumns,
+      SelectedColumns,
+      SelectedObject,
+      InsertedObject,
+      UpdatingObject,
+      ReturnCount,
+      InsertReturnColumns,
+      UpdateReturnColumns,
+      InsertReturn,
+      UpdateReturn
+    >(trx, this);
   }
 }

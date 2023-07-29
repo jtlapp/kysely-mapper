@@ -94,24 +94,42 @@ export abstract class AbstractTableMapper<
   #baseSelectQB: SelectQueryBuilder<DB, TB, object> | null = null;
   #baseUpdateQB: UpdateQueryBuilder<DB, TB, TB, UpdateResult> | null = null;
 
+  /** The Kysely instance, either a database or a transaction. */
+  readonly db: Kysely<DB>;
+
+  /** The name of the table. */
+  readonly tableName!: TB;
+
+  /** Settings governing mapper behavior. */
+  readonly settings!: Readonly<
+    TableMapperSettings<
+      DB,
+      TB,
+      KeyColumns,
+      SelectedColumns,
+      InsertReturnColumns,
+      UpdateReturnColumns
+    >
+  >;
+
   /** Columns that compose the table's primary key. */
-  protected readonly keyColumns: KeyColumns;
+  protected readonly keyColumns!: KeyColumns;
 
   /** Columns to return from selection queries. `[]` => all columns. */
-  protected readonly selectedColumns: SelectionColumn<DB, TB>[];
+  protected readonly selectedColumns!: SelectionColumn<DB, TB>[];
 
   /** Columns to return from the table on insert. */
-  protected readonly insertReturnColumns:
+  protected readonly insertReturnColumns!:
     | Readonly<SelectionColumn<DB, TB>[]>
     | ['*'];
 
   /** Columns to return from the table on update. */
-  protected readonly updateReturnColumns:
+  protected readonly updateReturnColumns!:
     | Readonly<SelectionColumn<DB, TB>[]>
     | ['*'];
 
   /** Query input and output value transforms. */
-  protected transforms: TableMapperTransforms<
+  protected transforms!: TableMapperTransforms<
     DB,
     TB,
     KeyColumns,
@@ -124,19 +142,52 @@ export abstract class AbstractTableMapper<
     UpdateReturnColumns,
     InsertReturn,
     UpdateReturn
-  > = {};
+  >;
 
   /**
    * Constructs a new abstract table mapper.
-   * @param db The Kysely database.
+   * @param db The Kysely instance, either a database or a transaction.
    * @param tableName The name of the table.
-   * @param options Options governing mapper behavior. Default to selecting
+   * @param settings Settings governing mapper behavior. Default to selecting
    *  all columns and to returning no columns on insert or update.
    */
   constructor(
-    readonly db: Kysely<DB>,
-    readonly tableName: TB,
-    readonly settings: Readonly<
+    db: Kysely<DB>,
+    tableName: TB,
+    settings: Readonly<
+      TableMapperSettings<
+        DB,
+        TB,
+        KeyColumns,
+        SelectedColumns,
+        InsertReturnColumns,
+        UpdateReturnColumns
+      >
+    >
+  );
+
+  constructor(
+    db: Kysely<DB>,
+    mapper: AbstractTableMapper<
+      DB,
+      TB,
+      KeyColumns,
+      SelectedColumns,
+      SelectedObject,
+      InsertedObject,
+      UpdatingObject,
+      ReturnCount,
+      InsertReturnColumns,
+      UpdateReturnColumns,
+      InsertReturn,
+      UpdateReturn
+    >
+  );
+
+  constructor(
+    db: Kysely<DB>,
+    tableNameOrMapper: TB | AbstractTableMapper<DB, TB, any, any, any, any>,
+    settings: Readonly<
       TableMapperSettings<
         DB,
         TB,
@@ -147,19 +198,24 @@ export abstract class AbstractTableMapper<
       >
     > = {}
   ) {
-    this.keyColumns = settings.keyColumns ?? ([] as any);
-
-    this.selectedColumns =
-      settings.selectedColumns === undefined
-        ? ([] as any)
-        : settings.selectedColumns[0] === '*'
-        ? ([] as any)
-        : settings.selectedColumns;
-
-    this.insertReturnColumns =
-      settings.insertReturnColumns ?? this.keyColumns ?? ([] as any);
-
-    this.updateReturnColumns = settings.updateReturnColumns ?? ([] as any);
+    if (tableNameOrMapper instanceof AbstractTableMapper) {
+      Object.assign(this, tableNameOrMapper);
+    } else {
+      this.tableName = tableNameOrMapper;
+      this.settings = settings;
+      this.keyColumns = settings.keyColumns ?? ([] as any);
+      this.selectedColumns =
+        settings.selectedColumns === undefined
+          ? ([] as any)
+          : settings.selectedColumns[0] === '*'
+          ? ([] as any)
+          : settings.selectedColumns;
+      this.insertReturnColumns =
+        settings.insertReturnColumns ?? this.keyColumns ?? ([] as any);
+      this.updateReturnColumns = settings.updateReturnColumns ?? ([] as any);
+      this.transforms = {};
+    }
+    this.db = db;
   }
 
   /**

@@ -16,6 +16,10 @@ All queries are based on Kysely and give you access to the underlying query buil
 
 [Open the API Reference](https://jtlapp.github.io/kysely-mapper/)
 
+## Updates
+
+- v**0.4.15** - Now supporting [transactions](https://github.com/jtlapp/kysely-mapper#transactions).
+
 ## Installation
 
 Install both Kysely and this package with your preferred dependency manager:
@@ -425,6 +429,42 @@ Now we can also update as follows:
 user = await table.insert().returnOne(new User(0, 'Jane', 'Smith', 1970));
 user = await table.update(user.id).returnOne({ name: 'Janice Smith' });
 await table.update({ name: 'Joe Mac' }).run({ name: 'Joseph Mack' });
+```
+
+## Transactions
+
+Because they Kysely [Transaction](https://kysely-org.github.io/kysely/classes/Transaction.html) class is an instance of the [Kysely](https://kysely-org.github.io/kysely/classes/Kysely.html) class, you can create a table mapper directly from a transaction. For example:
+
+```ts
+await db.transaction().execute(async (trx) => {
+  const trxMapper = new TableMapper(trx, 'users', {
+    keyColumns: ['id'],
+    insertReturnColumns: ['id', 'modified'],
+    updateReturnColumns: ['modified'],
+  });
+  await trxMapper.insert().returnOne(user1);
+  await trxMapper.insert().returnOne(user2);
+});
+```
+
+However, if you want to be able to use a single table mapper both outside transactions and within one or more transactions, you can create the table mapper as you normally would and call `forTransaction` on the table mapper. This provides an identically-configured mapper that operates only within the provided transaction. For example:
+
+```ts
+const table = new TableMapper(trx, 'users', {
+  keyColumns: ['id'],
+  insertReturnColumns: ['id', 'modified'],
+  updateReturnColumns: ['modified'],
+});
+await db.transaction().execute(async (trx) => {
+  const trxMapper = table.forTransaction(trx);
+  await trxMapper.insert().returnOne(user1);
+  await trxMapper.insert().returnOne(user2);
+});
+await db.transaction().execute(async (trx) => {
+  const trxMapper = table.forTransaction(trx);
+  await trxMapper.insert().returnOne(user3);
+  await trxMapper.insert().returnOne(user4);
+});
 ```
 
 ## Compiling Queries
