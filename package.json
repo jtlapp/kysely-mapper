@@ -1,6 +1,6 @@
 {
   "name": "kysely-mapper",
-  "version": "0.4.15",
+  "version": "0.4.16",
   "author": "Joseph T. Lapp <arachnojoe@gmail.com>",
   "license": "MIT",
   "description": "Flexible Kysely-based utility for mapping between tables and objects",
@@ -35,7 +35,7 @@
     "clean": "rm -rf node_modules && rm -rf dist",
     "build": "rm -rdf dist && tsc && tsc -p tsconfig.cjs.json && pnpm write-packages",
     "write-packages": "echo '{\"type\":\"module\"}' > dist/esm/package.json && echo '{\"type\":\"commonjs\"}' > dist/cjs/package.json",
-    "build-docs": "typedoc --options ./typedoc.js ./src/index.ts",
+    "build-docs": "typedoc --options ./typedoc.cjs ./src/index.ts",
     "build-all": "pnpm build && pnpm build-docs",
     "test": "vitest --run"
   },

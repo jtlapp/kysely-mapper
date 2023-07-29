@@ -154,7 +154,7 @@ export abstract class AbstractTableMapper<
   constructor(
     db: Kysely<DB>,
     tableName: TB,
-    settings: Readonly<
+    settings?: Readonly<
       TableMapperSettings<
         DB,
         TB,
